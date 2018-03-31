@@ -4,6 +4,7 @@
 #include <tuple>
 #include <string>
 #include "lua.hpp"
+#define LUAPP_DO(exp) { if(!(exp)) return false; }
 
 template <typename T> 
 inline T luaL_getvalue(lua_State* L, int i) { return lua_touserdata(L, i); }
@@ -50,11 +51,13 @@ struct make_luapp_sequence : make_luapp_sequence<size - 1, size - 1, ints...> { 
 template <size_t... ints>
 struct make_luapp_sequence<0, ints...> : luapp_sequence<ints...> { };
 
-bool luaL_pushfunc(lua_State* L, std::string* err, const char* name);
+const char* luaL_lasterr(lua_State* L);
 
-bool luaL_pushfunc(lua_State* L, std::string* err, const char* module, const char* name);
+bool luaL_pushfunc(lua_State* L, const char* name);
 
-bool luaL_safecall(lua_State* L, std::string* err, int nargs, int nrets);
+bool luaL_pushfunc(lua_State* L, const char* module, const char* name);
+
+bool luaL_safecall(lua_State* L, int nargs, int nrets);
 
 template<typename ...types>
 inline bool luaL_pushargs(lua_State* L, types ...args)
@@ -71,31 +74,31 @@ inline bool luaL_getrets(lua_State* L, std::tuple<types&...>& rets, luapp_sequen
 }
 
 template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, std::string* err, std::tuple<tt&...>&& rets, types ...args)
+inline bool luaL_callfunc(lua_State* L, std::tuple<tt&...>&& rets, types ...args)
 {
-	luaL_pushargs(L, args...);
-	luaL_safecall(L, err, sizeof...(types), sizeof...(tt));
-	luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>());
+	LUAPP_DO(luaL_pushargs(L, args...));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
+	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>()));
 	return true;
 }
 
 template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, std::string* err, const char* func, std::tuple<tt&...>&& rets, types ...args)
+inline bool luaL_callfunc(lua_State* L, const char* func, std::tuple<tt&...>&& rets, types ...args)
 {
-	luaL_pushfunc(L, err, func);
-	luaL_pushargs(L, args...);
-	luaL_safecall(L, err, sizeof...(types), sizeof...(tt));
-	luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>());
+	LUAPP_DO(luaL_pushfunc(L, func));
+	LUAPP_DO(luaL_pushargs(L, args...));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
+	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>()));
 	return true;
 }
 
 template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, std::string* err, const char* module, const char* func, std::tuple<tt&...>&& rets, types ...args)
+inline bool luaL_callfunc(lua_State* L, const char* module, const char* func, std::tuple<tt&...>&& rets, types ...args)
 {
-	luaL_pushfunc(L, err, module, func);
-	luaL_pushargs(L, args...);
-	luaL_safecall(L, err, sizeof...(types), sizeof...(tt));
-	luaL_getrets(L, rets, std::make_luapp_sequence<sizeof...(tt)>());
+	LUAPP_DO(luaL_pushfunc(L, module, func));
+	LUAPP_DO(luaL_pushargs(L, args...));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
+	LUAPP_DO(luaL_getrets(L, rets, std::make_luapp_sequence<sizeof...(tt)>()));
 	return true;
 }
 
