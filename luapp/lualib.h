@@ -73,33 +73,41 @@ inline bool luaL_getrets(lua_State* L, std::tuple<types&...>& rets, luapp_sequen
 	return true;
 }
 
-template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, std::tuple<tt&...>&& rets, types ...args)
+template<typename ...TTT, typename ...types>
+inline bool luaL_callfunc(lua_State* L, std::tuple<TTT&...>&& rets, types ...args)
 {
 	LUAPP_DO(luaL_pushargs(L, args...));
-	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
-	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>()));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(TTT)));
+	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(TTT)>()));
 	return true;
 }
 
-template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, const char* func, std::tuple<tt&...>&& rets, types ...args)
+template<typename ...TTT, typename ...types>
+inline bool luaL_callfunc(lua_State* L, const char* func, std::tuple<TTT&...>&& rets, types ...args)
 {
 	LUAPP_DO(luaL_pushfunc(L, func));
 	LUAPP_DO(luaL_pushargs(L, args...));
-	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
-	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(tt)>()));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(TTT)));
+	LUAPP_DO(luaL_getrets(L, rets, make_luapp_sequence<sizeof...(TTT)>()));
 	return true;
 }
 
-template<typename ...tt, typename ...types>
-inline bool luaL_callfunc(lua_State* L, const char* module, const char* func, std::tuple<tt&...>&& rets, types ...args)
+template<typename ...TTT, typename ...types>
+inline bool luaL_callfunc(lua_State* L, const char* module, const char* func, std::tuple<TTT&...>&& rets, types ...args)
 {
 	LUAPP_DO(luaL_pushfunc(L, module, func));
 	LUAPP_DO(luaL_pushargs(L, args...));
-	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(tt)));
-	LUAPP_DO(luaL_getrets(L, rets, std::make_luapp_sequence<sizeof...(tt)>()));
+	LUAPP_DO(luaL_safecall(L, sizeof...(types), sizeof...(TTT)));
+	LUAPP_DO(luaL_getrets(L, rets, std::make_luapp_sequence<sizeof...(TTT)>()));
 	return true;
 }
 
+template<typename ...types>
+inline bool luaL_callfunc(lua_State* L, types ...args) { return luaL_callfunc(L, std::tie(), args...); }
+
+template<typename ...types>
+inline bool luaL_callfunc(lua_State* L, const char* func, types ...args) { return luaL_callfunc(L, func, std::tie(), args...);  }
+
+template<typename ...types>
+inline bool luaL_callfunc(lua_State* L, const char* module, const char* func, types ...args) { return luaL_callfunc(L, module, func, std::tie(), args...); }
 #endif
