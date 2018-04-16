@@ -7,7 +7,7 @@
 #define LUAPP_DO(exp) { if(!(exp)) return false; }
 
 template <typename T> 
-inline T luaL_getvalue(lua_State* L, int i) { return lua_touserdata(L, i); }
+inline T luaL_getvalue(lua_State* L, int i) { return (T)lua_touserdata(L, i); }
 template <> inline bool luaL_getvalue<bool>(lua_State* L, int i) { return lua_toboolean(L, i) != 0; }
 template <> inline char luaL_getvalue<char>(lua_State* L, int i) { return (char)lua_tointeger(L, i); }
 template <> inline unsigned char luaL_getvalue<unsigned char>(lua_State* L, int i) { return (unsigned char)lua_tointeger(L, i); }
