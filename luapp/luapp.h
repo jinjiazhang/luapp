@@ -1,7 +1,7 @@
 #ifndef _JINJIAZHANG_LUAPP_H_
 #define _JINJIAZHANG_LUAPP_H_
 
-#include "lualib.h"
+#include "lobject.h"
 
 struct luctx
 {
@@ -9,15 +9,15 @@ struct luctx
     bool daemon;
 };
 
-class luapp
+class luapp : public lobject
 {
 public:
     luapp();
     ~luapp();
 
     void run(luctx* ctx);
-
-private:
+	virtual const luaL_Reg* get_libs();
+public:
     int init();
     int proc();
     int tick();
@@ -28,7 +28,6 @@ private:
 	std::string entry_;
     bool daemon_;
     bool quit_;
-    lua_State* L;
 };
 
 #endif

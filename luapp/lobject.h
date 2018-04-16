@@ -1,13 +1,23 @@
 #ifndef _JINJIAZHANG_LOBJECT_H_
 #define _JINJIAZHANG_LOBJECT_H_
 
+#include "lualib.h"
+
 class lobject
 {
 public:
-    lobject();
+    lobject(lua_State* L);
     ~lobject();
     
-    static void register_class(); 
+	virtual const char* meta_name();
+	virtual const luaL_Reg* get_libs();
+    
+private:
+	void link_object();
+	void unlink_object();
+
+protected:
+	lua_State* L;
 };
 
 #endif

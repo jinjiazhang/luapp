@@ -6,8 +6,11 @@
 #include "lua.hpp"
 #define LUAPP_DO(exp) { if(!(exp)) return false; }
 
+void* lua_tolobject(lua_State* L, int idx);
+void lua_pushlobject(lua_State* L, void* obj);
+
 template <typename T> 
-inline T luaL_getvalue(lua_State* L, int i) { return (T)lua_touserdata(L, i); }
+inline T luaL_getvalue(lua_State* L, int i) { return (T)lua_tolobject(L, i); }
 template <> inline bool luaL_getvalue<bool>(lua_State* L, int i) { return lua_toboolean(L, i) != 0; }
 template <> inline char luaL_getvalue<char>(lua_State* L, int i) { return (char)lua_tointeger(L, i); }
 template <> inline unsigned char luaL_getvalue<unsigned char>(lua_State* L, int i) { return (unsigned char)lua_tointeger(L, i); }
@@ -25,7 +28,7 @@ template <> inline const char* luaL_getvalue<const char*>(lua_State* L, int i) {
 template <> inline std::string luaL_getvalue<std::string>(lua_State* L, int i) { const char* str = lua_tostring(L, i); return str ? str : ""; }
 
 template <typename T> 
-inline void luaL_pushvalue(lua_State* L, T* v) { lua_pushlightuserdata(L, v); }
+inline void luaL_pushvalue(lua_State* L, T* v) { lua_pushlobject(L, v); }
 inline void luaL_pushvalue(lua_State* L, bool v) { lua_pushboolean(L, v); }
 inline void luaL_pushvalue(lua_State* L, char v) { lua_pushinteger(L, v); }
 inline void luaL_pushvalue(lua_State* L, unsigned char v) { lua_pushinteger(L, v); }

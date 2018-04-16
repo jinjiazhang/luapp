@@ -1,12 +1,12 @@
 #include "plat.h"
 #include "luapp.h"
 #include <stdio.h>
+#include "ladapter.h"
 
-luapp::luapp()
+luapp::luapp() : lobject(luaL_newstate())
 {
     daemon_ = false;
     quit_ = false;
-    L = NULL;
 }
 
 luapp::~luapp()
@@ -52,7 +52,6 @@ void luapp::run(luctx* ctx)
 
 int luapp::init()
 {
-    L = luaL_newstate();
     luaL_openlibs(L);
     return 0;
 }
@@ -76,4 +75,12 @@ int luapp::idle()
 int luapp::quit()
 {
     return 0;
+}
+
+const luaL_Reg* luapp::get_libs()
+{
+	static const luaL_Reg libs[] = {
+		{ NULL, NULL }
+	};
+	return libs;
 }

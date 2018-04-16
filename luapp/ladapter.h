@@ -12,7 +12,7 @@ int lua_##func(lua_State* L) \
 }
 
 #define EXPORT_OFUNC(class, func) \
-int lua_##class_##func(lua_State* L) \
+int lua_##class##_##func(lua_State* L) \
 { \
 	static ofunc f = make_luafunc(&class::func); \
 	class* obj = luaL_getvalue<class*>(L, 1); \
