@@ -32,7 +32,7 @@ T call_cppfunc(lua_State* L, T(*func)(types...), luapp_sequence<ints...>&&)
 template<size_t ...ints, typename T, class C, typename ...types>
 T call_cppfunc(lua_State* L, C* obj, T(C::*func)(types...), luapp_sequence<ints...>&&)
 {
-	return (obj->*func)(luaL_getvalue<types>(L, ints + 1)...);
+	return (obj->*func)(luaL_getvalue<types>(L, ints + 2)...);
 }
 
 template<typename ...types>

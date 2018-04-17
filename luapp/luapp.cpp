@@ -1,12 +1,14 @@
+#include <stdio.h>
 #include "plat.h"
 #include "luapp.h"
-#include <stdio.h>
 #include "ladapter.h"
 
 luapp::luapp() : lobject(luaL_newstate())
 {
     daemon_ = false;
     quit_ = false;
+	app_time_ = 0;
+	time_offset_ = 0;
 }
 
 luapp::~luapp()
@@ -16,6 +18,16 @@ luapp::~luapp()
         lua_close(L);
         L = NULL;
     }
+}
+
+int64_t luapp::get_time()
+{
+	return app_time_ + time_offset_;
+}
+
+void luapp::mov_time(int64_t offset)
+{
+	time_offset_ += offset;
 }
 
 void luapp::run(luctx* ctx)
@@ -52,34 +64,51 @@ void luapp::run(luctx* ctx)
 
 int luapp::init()
 {
+	app_time_ = app_time();
     luaL_openlibs(L);
+	lua_pushlobject(L, this);
+	lua_setglobal(L, "app");
+	if (luaL_dofile(L, entry_.c_str()))
+	{
+		printf("%s\n", lua_tostring(L, -1));
+		return -1;
+	}
     return 0;
 }
 
 int luapp::proc()
 {
+	app_time_ = app_time();
     return 0;
 }
 
 int luapp::tick()
 {
+	app_time_ = app_time();
+	luaL_callfunc(L, this, "on_tick");
     return 0;
 }
 
 int luapp::idle()
 {
+	app_time_ = app_time();
 	app_sleep(1000);
     return 0;
 }
 
 int luapp::quit()
 {
+	app_time_ = app_time();
     return 0;
 }
 
+EXPORT_OFUNC(luapp, get_time)
+EXPORT_OFUNC(luapp, mov_time)
 const luaL_Reg* luapp::get_libs()
 {
 	static const luaL_Reg libs[] = {
+		{ "get_time", lua_luapp_get_time },
+		{ "mov_time", lua_luapp_mov_time },
 		{ NULL, NULL }
 	};
 	return libs;

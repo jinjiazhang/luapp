@@ -20,7 +20,7 @@ const char* lobject::meta_name()
 const luaL_Reg* lobject::get_libs()
 {
 	static const luaL_Reg libs[] = {
-		{ NULL, NULL }
+		{ NULL, NULL },
 	};
 	return libs;
 }
@@ -33,20 +33,6 @@ void lobject::link_object()
 	lua_pushlightuserdata(L, this);
 	lua_setfield(L, -2, "__this");
 	lua_settable(L, LUA_REGISTRYINDEX);
-
-	// setmetatable(_R[this], metatable)
-	lua_pushlightuserdata(L, this);
-	lua_gettable(L, LUA_REGISTRYINDEX);
-	luaL_getmetatable(L, meta_name());
-	if (lua_isnil(L, -1))
-	{
-		lua_remove(L, -1);
-		luaL_newmetatable(L, meta_name());
-		lua_newtable(L);
-		luaL_setfuncs(L, get_libs(), 0);
-		lua_setfield(L, -2, "__index");
-	}
-	lua_setmetatable(L, -2);
 }
 
 void lobject::unlink_object()
@@ -81,8 +67,22 @@ void* lua_tolobject(lua_State* L, int idx)
 	return obj;
 }
 
-void lua_pushlobject(lua_State* L, void* obj)
+void lua_pushlobject(lua_State* L, void* p)
 {
-	lua_pushlightuserdata(L, obj);
+	lua_pushlightuserdata(L, p);
 	lua_gettable(L, LUA_REGISTRYINDEX);
+	if (lua_istable(L, -1)) // setmetatable
+	{
+		lobject* obj = static_cast<lobject*>(p);
+		luaL_getmetatable(L, obj->meta_name());
+		if (lua_isnil(L, -1))
+		{
+			lua_remove(L, -1);
+			luaL_newmetatable(L, obj->meta_name());
+			lua_newtable(L);
+			luaL_setfuncs(L, obj->get_libs(), 0);
+			lua_setfield(L, -2, "__index");
+		}
+		lua_setmetatable(L, -2);
+	}
 }

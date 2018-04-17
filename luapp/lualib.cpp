@@ -19,6 +19,8 @@ void luaL_seterr(lua_State* L, const char* format, ...)
 
 	vsprintf((char *)_last_err.c_str(), format, args);
 	va_end(args);
+
+	printf("%s\n", luaL_lasterr(L));
 }
 
 bool luaL_pushfunc(lua_State* L, const char* name)
@@ -29,6 +31,26 @@ bool luaL_pushfunc(lua_State* L, const char* name)
 		lua_pop(L, 1);
 		return false;
 	}
+	return true;
+}
+
+bool luaL_pushfunc(lua_State* L, void* obj, const char* name)
+{
+	lua_pushlightuserdata(L, obj);
+	lua_gettable(L, LUA_REGISTRYINDEX);
+	if (!lua_istable(L, -1)) {
+		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, object=%p", lua_typename(L, -1), obj);
+		lua_pop(L, 1);
+		return false;
+	}
+
+	lua_getfield(L, -1, name);
+	if (!lua_isfunction(L, -1)) {
+		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, object=%p, name=%s", lua_typename(L, -1), obj, name);
+		lua_pop(L, 2);
+		return false;
+	}
+	lua_remove(L, -2);
 	return true;
 }
 
