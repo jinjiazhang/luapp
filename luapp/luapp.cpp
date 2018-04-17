@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "plat.h"
 #include "luapp.h"
-#include "ladapter.h"
 
 luapp::luapp() : lobject(luaL_newstate())
 {
@@ -73,6 +72,9 @@ int luapp::init()
 		printf("%s\n", lua_tostring(L, -1));
 		return -1;
 	}
+
+	app_time_ = app_time();
+	luaL_callfunc(L, this, "on_init");
     return 0;
 }
 

@@ -82,7 +82,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ladapter.cpp" />
     <ClCompile Include="lobject.cpp" />
     <ClCompile Include="lualib.cpp" />
     <ClCompile Include="luapp.cpp" />
@@ -91,7 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h" />
-    <ClInclude Include="ladapter.h" />
     <ClInclude Include="lobject.h" />
     <ClInclude Include="lualib.h" />
     <ClInclude Include="luapp.h" />

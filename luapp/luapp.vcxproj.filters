@@ -26,9 +26,6 @@
     <ClCompile Include="plat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ladapter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h">
@@ -44,9 +41,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ladapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
