@@ -7,12 +7,12 @@
 
 void app_sleep(int time)
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(time));
+    std::this_thread::sleep_for(std::chrono::milliseconds(time));
 }
 
 int64_t app_time()
 {
-	return std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000;
+    return std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000;
 }
 
 void app_daemon()
