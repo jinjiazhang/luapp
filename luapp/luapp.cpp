@@ -112,8 +112,8 @@ EXPORT_OFUNC(luapp, mov_time)
 const luaL_Reg* luapp::get_libs()
 {
 	static const luaL_Reg libs[] = {
-		{ "get_time", lua_luapp_get_time },
-		{ "mov_time", lua_luapp_mov_time },
+		{ IMPORT_OFUNC(luapp, get_time) },
+		{ IMPORT_OFUNC(luapp, get_time) },
 		{ NULL, NULL }
 	};
 	return libs;
