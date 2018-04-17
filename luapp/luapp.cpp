@@ -113,7 +113,7 @@ const luaL_Reg* luapp::get_libs()
 {
 	static const luaL_Reg libs[] = {
 		{ IMPORT_OFUNC(luapp, get_time) },
-		{ IMPORT_OFUNC(luapp, get_time) },
+		{ IMPORT_OFUNC(luapp, mov_time) },
 		{ NULL, NULL }
 	};
 	return libs;
