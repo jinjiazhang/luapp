@@ -19,8 +19,9 @@ public:
     virtual const luaL_Reg* get_libs();
 
 public:
-    int64_t get_time();
-    void mov_time(int64_t offset);
+    int64_t time();
+    int64_t mstime();
+    void offset(int64_t ms);
 
 private:
     int init();
@@ -33,7 +34,7 @@ private:
     std::string entry_;
     bool daemon_;
     bool quit_;
-    int64_t app_time_;
+    int64_t app_mstime_;
     int64_t time_offset_;
 };
 

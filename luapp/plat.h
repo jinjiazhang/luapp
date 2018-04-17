@@ -10,7 +10,7 @@ using int64_t = long long;
 void app_sleep(int time);
 
 // returns the millisecond since the 1970
-int64_t app_time();
+int64_t app_mstime();
 
 // fork in linux for daemon
 void app_daemon();
