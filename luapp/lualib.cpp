@@ -1,33 +1,26 @@
 #include "lualib.h"
 
-static std::string _last_err;
 const char* luaL_lasterr(lua_State* L)
 {
-	return _last_err.c_str();
+	lua_getfield(L, LUA_REGISTRYINDEX, "__error");
+	return lua_tostring(L, -1);
 }
 
-void luaL_seterr(lua_State* L, const char* format, ...)
+void luaL_seterr(lua_State* L, const char* fmt, ...)
 {
-	va_list	args;
-	va_start(args, format);
-
-	int length = _vscprintf(format, args);
-
-	if (length > _last_err.capacity()) {
-		_last_err.resize(length + 1);
-	}
-
-	vsprintf((char *)_last_err.c_str(), format, args);
-	va_end(args);
-
-	printf("%s\n", luaL_lasterr(L));
+	va_list argp;
+	va_start(argp, fmt);
+	lua_pushvfstring(L, fmt, argp);
+	lua_writestringerror("%s\n", lua_tostring(L, -1));
+	lua_setfield(L, LUA_REGISTRYINDEX, "__error");
+	va_end(argp);
 }
 
 bool luaL_pushfunc(lua_State* L, const char* name)
 {
 	lua_getglobal(L, name);
 	if (!lua_isfunction(L, -1)) {
-		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, name=%s", lua_typename(L, -1), name);
+		luaL_seterr(L, "luaL_pushfunc not a function, name=%s", name);
 		lua_pop(L, 1);
 		return false;
 	}
@@ -39,14 +32,14 @@ bool luaL_pushfunc(lua_State* L, void* obj, const char* name)
 	lua_pushlightuserdata(L, obj);
 	lua_gettable(L, LUA_REGISTRYINDEX);
 	if (!lua_istable(L, -1)) {
-		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, object=%p", lua_typename(L, -1), obj);
+		luaL_seterr(L, "luaL_pushfunc step1 not a table, object=%p", obj);
 		lua_pop(L, 1);
 		return false;
 	}
 
 	lua_getfield(L, -1, name);
 	if (!lua_isfunction(L, -1)) {
-		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, object=%p, name=%s", lua_typename(L, -1), obj, name);
+		luaL_seterr(L, "luaL_pushfunc step2 not a function, object=%p, name=%s", obj, name);
 		lua_pop(L, 2);
 		return false;
 	}
@@ -58,14 +51,14 @@ bool luaL_pushfunc(lua_State* L, const char* module, const char* name)
 {
 	lua_getglobal(L, module);
 	if (!lua_istable(L, -1)) {
-		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, module=%s", lua_typename(L, -1), module);
+		luaL_seterr(L, "luaL_pushfunc step1 not a table, module=%s", module);
 		lua_pop(L, 1);
 		return false;
 	}
 		
 	lua_getfield(L, -1, name);
 	if (!lua_isfunction(L, -1)) {
-		luaL_seterr(L, "luaL_pushfunc attempt to push a %s, module=%s, name=%s", lua_typename(L, -1), module, name);
+		luaL_seterr(L, "luaL_pushfunc step2 not a function, module=%s, name=%s", module, name);
 		lua_pop(L, 2);
 		return false;
 	}
