@@ -8,8 +8,7 @@ class lobject
 public:
     lobject(lua_State* L);
     ~lobject();
-    
-	virtual const char* meta_name();
+
 	virtual const luaL_Reg* get_libs();
     
 private:

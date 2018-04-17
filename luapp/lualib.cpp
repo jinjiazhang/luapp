@@ -11,9 +11,10 @@ void luaL_seterr(lua_State* L, const char* fmt, ...)
 	va_list argp;
 	va_start(argp, fmt);
 	lua_pushvfstring(L, fmt, argp);
+	va_end(argp);
+
 	lua_writestringerror("%s\n", lua_tostring(L, -1));
 	lua_setfield(L, LUA_REGISTRYINDEX, "__error");
-	va_end(argp);
 }
 
 bool luaL_pushfunc(lua_State* L, const char* name)
@@ -79,7 +80,7 @@ bool luaL_safecall(lua_State* L, int nargs, int nrets)
 
 	if (lua_pcall(L, nargs, nrets, func))
 	{
-		luaL_seterr(L, "luaL_safecall exception, %s", lua_tostring(L, -1));
+		luaL_seterr(L, "luaL_safecall exception: %s", lua_tostring(L, -1));
 		lua_pop(L, 2);
 		return false;
 	}

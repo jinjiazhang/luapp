@@ -17,14 +17,19 @@ int lua_##method(lua_State* L) \
 int lua_##class##_##method(lua_State* L) \
 { \
 	static ofunc f = make_luafunc(&class::method); \
-	class* obj = luaL_getvalue<class*>(L, 1); \
-	if (obj == nullptr) { return 0; } \
+	class* obj = luaL_getvalue<class*>(L, lua_upvalueindex(1)); \
+	if (obj == nullptr) { \
+		luaL_error(L, "lua_"#class"_"#method" obj is nullptr\n"); \
+		return 0; \
+	} \
 	return f(obj, L); \
 }
 
 #define LUAPP_DO(exp) { if(!(exp)) return false; }
+bool  lua_islobject(lua_State* L, int idx);
 void* lua_tolobject(lua_State* L, int idx);
-void lua_pushlobject(lua_State* L, void* obj);
+void  lua_pushlobject(lua_State* L, void* obj);
+
 
 template <typename T> 
 inline T luaL_getvalue(lua_State* L, int i) { return (T)lua_tolobject(L, i); }
@@ -147,7 +152,7 @@ T call_cppfunc(lua_State* L, T(*func)(types...), luapp_sequence<ints...>&&)
 template<size_t ...ints, typename T, class C, typename ...types>
 T call_cppfunc(lua_State* L, C* obj, T(C::*func)(types...), luapp_sequence<ints...>&&)
 {
-	return (obj->*func)(luaL_getvalue<types>(L, ints + 2)...);
+	return (obj->*func)(luaL_getvalue<types>(L, ints + 1)...);
 }
 
 template<typename ...types>

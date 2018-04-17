@@ -74,34 +74,37 @@ int luapp::init()
 	}
 
 	app_time_ = app_time();
-	luaL_callfunc(L, this, "on_init");
+	luaL_callfunc(L, this, "init");
     return 0;
 }
 
 int luapp::proc()
 {
 	app_time_ = app_time();
+	luaL_callfunc(L, this, "proc");
     return 0;
 }
 
 int luapp::tick()
 {
 	app_time_ = app_time();
-	luaL_callfunc(L, this, "on_tick");
-    return 0;
+	luaL_callfunc(L, this, "tick");
+	return 0;
 }
 
 int luapp::idle()
 {
 	app_time_ = app_time();
+	luaL_callfunc(L, this, "idle");
 	app_sleep(1000);
-    return 0;
+	return 0;
 }
 
 int luapp::quit()
 {
 	app_time_ = app_time();
-    return 0;
+	luaL_callfunc(L, this, "quit");
+	return 0;
 }
 
 EXPORT_OFUNC(luapp, get_time)
