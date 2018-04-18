@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_LUAPP_H_
 
 #include "lualib/lobject.h"
+#include "protonet/lnetwork.h"
 
 struct luctx
 {
@@ -41,6 +42,8 @@ private:
     int64_t last_tick_;
     int64_t app_mstime_;
     int64_t time_offset_;
+
+    lnetwork* network_;
 };
 
 #endif

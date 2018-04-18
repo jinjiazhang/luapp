@@ -9,6 +9,8 @@ luapp::luapp() : lobject(luaL_newstate())
     last_tick_ = 0;
     app_mstime_ = 0;
     time_offset_ = 0;
+
+    network_ = nullptr;
 }
 
 luapp::~luapp()
@@ -75,6 +77,10 @@ int luapp::init()
     luaL_openlibs(L);
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
+    network_ = new lnetwork(L);
+    lua_pushlobject(L, network_);
+    lua_setglobal(L, "net");
+
     if (luaL_dofile(L, ctx_->entry))
     {
         printf("%s\n", lua_tostring(L, -1));
@@ -90,6 +96,7 @@ int luapp::init()
 int luapp::proc()
 {
     app_mstime_ = sys_mstime();
+    network_->update(ctx_->idle_sleep);
     luaL_callfunc(L, this, "proc");
 
     int64_t cost_mstime = sys_mstime() - app_mstime_;
