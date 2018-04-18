@@ -53,7 +53,7 @@ template <> inline unsigned long long luaL_getvalue<unsigned long long>(lua_Stat
 template <> inline float luaL_getvalue<float>(lua_State* L, int i) { return (float)lua_tonumber(L, i); }
 template <> inline double luaL_getvalue<double>(lua_State* L, int i) { return lua_tonumber(L, i); }
 template <> inline const char* luaL_getvalue<const char*>(lua_State* L, int i) { return lua_tostring(L, i); }
-template <> inline std::string luaL_getvalue<std::string>(lua_State* L, int i) { const char* str = lua_tostring(L, i); return str ? str : ""; }
+template <> inline std::string luaL_getvalue<std::string>(lua_State* L, int i) { size_t len; const char* str = lua_tolstring(L, i, &len); return std::string(str, len); }
 
 template <typename T> 
 inline void luaL_pushvalue(lua_State* L, T* v) { lua_pushlobject(L, v); }
@@ -71,7 +71,7 @@ inline void luaL_pushvalue(lua_State* L, unsigned long long v) { lua_pushinteger
 inline void luaL_pushvalue(lua_State* L, float v) { lua_pushnumber(L, v); }
 inline void luaL_pushvalue(lua_State* L, double v) { lua_pushnumber(L, v); }
 inline void luaL_pushvalue(lua_State* L, const char* v) { lua_pushstring(L, v); }
-inline void luaL_pushvalue(lua_State* L, const std::string& v) { lua_pushstring(L, v.c_str()); }
+inline void luaL_pushvalue(lua_State* L, const std::string& v) { lua_pushlstring(L, v.c_str(), v.size()); }
 
 template <size_t... ints>
 struct luapp_sequence { };
@@ -187,7 +187,7 @@ ofunc make_luafunc(int(C::*func)(lua_State*))
 {
     return [=](void* obj, lua_State* L)
     {
-        return (((C*)obj)->func)(L);
+        return (((C*)obj)->*func)(L);
     };
 }
 

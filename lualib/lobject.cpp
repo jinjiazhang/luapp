@@ -79,15 +79,15 @@ void* lua_tolobject(lua_State* L, int idx)
 
 void lua_pushlobject(lua_State* L, void* p)
 {
-    lua_pushlightuserdata(L, p);
+    lobject* obj = static_cast<lobject*>(p);
+    lua_pushlightuserdata(L, obj);
     lua_gettable(L, LUA_REGISTRYINDEX);
 
     // _R[p].__this == nullprt
     if (lua_islobject(L, -1) && !lua_tolobject(L, -1))
     {
-        lua_pushlightuserdata(L, p);
+        lua_pushlightuserdata(L, obj);
         lua_gettable(L, LUA_REGISTRYINDEX);
-        lobject* obj = static_cast<lobject*>(p);
         luaL_setfuncs(L, obj->get_libs(), 1);
 
         lua_pushlightuserdata(L, obj);
