@@ -4,19 +4,16 @@
 
 luapp::luapp() : lobject(luaL_newstate())
 {
-    daemon_ = false;
-    quit_ = false;
+    ctx_ = nullptr;
+    status_ = 0;
+    last_tick_ = 0;
     app_mstime_ = 0;
     time_offset_ = 0;
 }
 
 luapp::~luapp()
 {
-    if (L != NULL)
-    {
-        lua_close(L);
-        L = NULL;
-    }
+    // lua_close(L);
 }
 
 int64_t luapp::time()
@@ -34,12 +31,20 @@ void luapp::offset(int64_t ms)
     time_offset_ += ms;
 }
 
+int luapp::status()
+{
+    return status_;
+}
+
+void luapp::change(int state)
+{
+    status_ = state;
+}
+
 void luapp::run(luctx* ctx)
 {
-    entry_ = ctx->entry;
-    daemon_ = ctx->daemon;
-
-    if (ctx->daemon)
+    ctx_ = ctx;
+    if (ctx_->daemon)
     {
         app_daemon();
     }
@@ -49,15 +54,8 @@ void luapp::run(luctx* ctx)
         return;
     }
 
-    while (true)
+    while (status_)
     {
-        if (quit_)
-        {
-            if (quit() == 0)
-            {
-                break;
-            }
-        }
         if (proc() == 0)
         {
             idle();
@@ -66,61 +64,80 @@ void luapp::run(luctx* ctx)
     }
 }
 
+void luapp::signal(int val)
+{
+    luaL_callfunc(L, this, "signal", val);
+}
+
 int luapp::init()
 {
-    app_mstime_ = app_mstime();
+    app_mstime_ = sys_mstime();
     luaL_openlibs(L);
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
-    if (luaL_dofile(L, entry_.c_str()))
+    if (luaL_dofile(L, ctx_->entry))
     {
         printf("%s\n", lua_tostring(L, -1));
         return -1;
     }
 
-    app_mstime_ = app_mstime();
+    ++status_;
+    app_mstime_ = sys_mstime();
     luaL_callfunc(L, this, "init");
     return 0;
 }
 
 int luapp::proc()
 {
-    app_mstime_ = app_mstime();
+    app_mstime_ = sys_mstime();
     luaL_callfunc(L, this, "proc");
+
+    int64_t cost_mstime = sys_mstime() - app_mstime_;
+    if (cost_mstime >= ctx_->tick_invl)
+    {
+        return 1;
+    }
     return 0;
 }
 
 int luapp::tick()
 {
-    app_mstime_ = app_mstime();
+    app_mstime_ = sys_mstime();
+    if (app_mstime_ - last_tick_ < ctx_->tick_invl)
+    {
+        return 1;
+    }
+
+    last_tick_ = app_mstime_;
     luaL_callfunc(L, this, "tick");
     return 0;
 }
 
 int luapp::idle()
 {
-    app_mstime_ = app_mstime();
+    app_mstime_ = sys_mstime();
     luaL_callfunc(L, this, "idle");
-    app_sleep(1000);
-    return 0;
-}
-
-int luapp::quit()
-{
-    app_mstime_ = app_mstime();
-    luaL_callfunc(L, this, "quit");
+    int64_t cost_mstime = sys_mstime() - app_mstime_;
+    if (cost_mstime < ctx_->idle_sleep)
+    {
+        sys_sleep(ctx_->idle_sleep - (int)cost_mstime);
+    }
     return 0;
 }
 
 EXPORT_OFUNC(luapp, time)
 EXPORT_OFUNC(luapp, mstime)
 EXPORT_OFUNC(luapp, offset)
+EXPORT_OFUNC(luapp, status)
+EXPORT_OFUNC(luapp, change)
 const luaL_Reg* luapp::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(luapp, time) },
         { IMPORT_OFUNC(luapp, mstime) },
         { IMPORT_OFUNC(luapp, offset) },
+        { IMPORT_OFUNC(luapp, status) },
+        { IMPORT_OFUNC(luapp, change) },
         { NULL, NULL }
     };
     return libs;
