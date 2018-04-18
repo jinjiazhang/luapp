@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luapp", "luapp\luapp.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "lua\lua.vcxproj", "{446A6D08-1C77-4442-B9B7-3A2C20FD9821}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lualib", "lualib\lualib.vcxproj", "{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{446A6D08-1C77-4442-B9B7-3A2C20FD9821}.Release|Win32.Build.0 = Release|Win32
 		{446A6D08-1C77-4442-B9B7-3A2C20FD9821}.Release|x64.ActiveCfg = Release|x64
 		{446A6D08-1C77-4442-B9B7-3A2C20FD9821}.Release|x64.Build.0 = Release|x64
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Debug|Win32.Build.0 = Debug|Win32
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Debug|x64.ActiveCfg = Debug|x64
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Debug|x64.Build.0 = Debug|x64
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Release|Win32.ActiveCfg = Release|Win32
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Release|Win32.Build.0 = Release|Win32
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Release|x64.ActiveCfg = Release|x64
+		{3A069526-3A3A-4CB5-BBC5-88A8A2E35F55}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

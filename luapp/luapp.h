@@ -1,7 +1,7 @@
 #ifndef _JINJIAZHANG_LUAPP_H_
 #define _JINJIAZHANG_LUAPP_H_
 
-#include "lobject.h"
+#include "lualib/lobject.h"
 
 struct luctx
 {

@@ -51,7 +51,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../lua/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../lua/src;..</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -59,8 +59,8 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua.lib;lualib.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../libs</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
@@ -82,16 +82,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lobject.cpp" />
-    <ClCompile Include="lualib.cpp" />
     <ClCompile Include="luapp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="plat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h" />
-    <ClInclude Include="lobject.h" />
-    <ClInclude Include="lualib.h" />
     <ClInclude Include="luapp.h" />
     <ClInclude Include="plat.h" />
   </ItemGroup>
