@@ -33,15 +33,15 @@ bool ltimer::change(int tid, int second)
     return timer_->change(tid, second);
 }
 
-EXPORT_OFUNC(timer, insert)
-EXPORT_OFUNC(timer, remove)
-EXPORT_OFUNC(timer, change)
+EXPORT_OFUNC(ltimer, insert)
+EXPORT_OFUNC(ltimer, remove)
+EXPORT_OFUNC(ltimer, change)
 const luaL_Reg* ltimer::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(timer, insert) },
-        { IMPORT_OFUNC(timer, remove) },
-        { IMPORT_OFUNC(timer, change) },
+        { IMPORT_OFUNC(ltimer, insert) },
+        { IMPORT_OFUNC(ltimer, remove) },
+        { IMPORT_OFUNC(ltimer, change) },
         { NULL, NULL }
     };
     return libs;
