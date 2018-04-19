@@ -75,15 +75,18 @@ int luapp::init()
 {
     app_mstime_ = sys_mstime();
     luaL_openlibs(L);
+    luaL_opensys(L);
+    luaL_openplat(L);
+
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
     network_ = new lnetwork(L);
     lua_pushlobject(L, network_);
     lua_setglobal(L, "net");
 
-    if (luaL_dofile(L, ctx_->entry))
+    if (luaL_dofile(L, ctx_->entry) != 0)
     {
-        printf("%s\n", lua_tostring(L, -1));
+        luapp_error(lua_tostring(L, -1));
         return -1;
     }
 
