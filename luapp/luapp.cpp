@@ -10,11 +10,14 @@ luapp::luapp() : lobject(luaL_newstate())
     app_mstime_ = 0;
     time_offset_ = 0;
 
+    timer_ = nullptr;
     network_ = nullptr;
 }
 
 luapp::~luapp()
 {
+    delete timer_;
+    delete network_;
     // lua_close(L);
 }
 
@@ -80,6 +83,11 @@ int luapp::init()
 
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
+
+    timer_ = new ltimer(L, this->time());
+    lua_pushlobject(L, timer_);
+    lua_setglobal(L, "timer");
+
     network_ = new lnetwork(L);
     lua_pushlobject(L, network_);
     lua_setglobal(L, "net");

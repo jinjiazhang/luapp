@@ -3,6 +3,7 @@
 
 #include "lualib/lobject.h"
 #include "protonet/lnetwork.h"
+#include "ltimer.h"
 
 struct luctx
 {
@@ -43,6 +44,7 @@ private:
     int64_t app_mstime_;
     int64_t time_offset_;
 
+    ltimer* timer_;
     lnetwork* network_;
 };
 

@@ -34,7 +34,7 @@ std::string lua_showstack(lua_State* L)
         lua_pushvalue(L, -1);  /* function to be called */
         lua_pushvalue(L, i);   /* value to print */
         lua_call(L, 1, 1);
-        if (i > 1) out << "  ";
+        if (i > 1) out << "\t";
         out << lua_tostring(L, -1);  /* get result */
         lua_pop(L, 1);  /* pop result */
     }
@@ -92,6 +92,8 @@ void luaL_opensys(lua_State* L)
 
 void luaL_openplat(lua_State* L)
 {
+    lua_register(L, "print", lua_loginfo);
+    lua_register(L, "error", lua_logerror);
     lua_register(L, "log_info", lua_loginfo);
     lua_register(L, "log_warn", lua_logwarn);
     lua_register(L, "log_error", lua_logerror);

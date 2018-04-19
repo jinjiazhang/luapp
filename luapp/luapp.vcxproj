@@ -82,14 +82,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ltimer.cpp" />
     <ClCompile Include="luapp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="plat.cpp" />
+    <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h" />
+    <ClInclude Include="ltimer.h" />
     <ClInclude Include="luapp.h" />
     <ClInclude Include="plat.h" />
+    <ClInclude Include="timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
