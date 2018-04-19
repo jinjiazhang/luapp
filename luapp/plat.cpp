@@ -34,11 +34,11 @@ std::string lua_showstack(lua_State* L)
         lua_pushvalue(L, -1);  /* function to be called */
         lua_pushvalue(L, i);   /* value to print */
         lua_call(L, 1, 1);
+        if (i > 1) out << "  ";
         out << lua_tostring(L, -1);  /* get result */
-        if (i > 1) out << ' ';
         lua_pop(L, 1);  /* pop result */
     }
-    lua_writeline();
+    out << std::endl;
     return out.str();
 }
 
