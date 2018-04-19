@@ -4,7 +4,9 @@
 #include <tuple>
 #include <string>
 #include <functional>
+
 #include "lua.hpp"
+#include "protolog/protolog.h"
 
 #define IMPORT_CFUNC(method) \
     #method, lua_##method
@@ -31,11 +33,11 @@ int lua_##class##_##method(lua_State* L) \
     return f(obj, L); \
 }
 
-#ifdef proto_log
-#define lualib_info(fmt, ...)  log_info(fmt, ...)
-#define lualib_warn(fmt, ...)  log_warn(fmt, ...)
-#define lualib_error(fmt, ...)  log_error(fmt, ...)
-#define lualib_fatal(fmt, ...)  log_fatal(fmt, ...)
+#ifdef _JINJIAZHANG_PROTOLOG_H_
+#define lualib_info(fmt, ...)  proto_info(fmt, __VA_ARGS__)
+#define lualib_warn(fmt, ...)  proto_warn(fmt, __VA_ARGS__)
+#define lualib_error(fmt, ...)  proto_error(fmt, __VA_ARGS__)
+#define lualib_fatal(fmt, ...)  proto_fatal(fmt, __VA_ARGS__)
 #else
 #define lualib_info(fmt, ...)
 #define lualib_warn(fmt, ...)
