@@ -31,7 +31,20 @@ int lua_##class##_##method(lua_State* L) \
     return f(obj, L); \
 }
 
+#ifdef proto_log
+#define lualib_info(fmt, ...)  log_info(fmt, ...)
+#define lualib_warn(fmt, ...)  log_warn(fmt, ...)
+#define lualib_error(fmt, ...)  log_error(fmt, ...)
+#define lualib_fatal(fmt, ...)  log_fatal(fmt, ...)
+#else
+#define lualib_info(fmt, ...)
+#define lualib_warn(fmt, ...)
+#define lualib_error(fmt, ...)
+#define lualib_fatal(fmt, ...)
+#endif
+
 #define LUAPP_DO(exp) { if(!(exp)) return false; }
+
 bool  lua_islobject(lua_State* L, int idx);
 void* lua_tolobject(lua_State* L, int idx);
 void  lua_pushlobject(lua_State* L, void* obj);
@@ -81,8 +94,6 @@ struct make_luapp_sequence : make_luapp_sequence<size - 1, size - 1, ints...> { 
 
 template <size_t... ints>
 struct make_luapp_sequence<0, ints...> : luapp_sequence<ints...> { };
-
-const char* luaL_lasterr(lua_State* L);
 
 bool luaL_pushfunc(lua_State* L, const char* name);
 
