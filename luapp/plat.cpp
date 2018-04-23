@@ -88,7 +88,7 @@ void luaL_opensys(lua_State* L)
         { "sleep", lua_sys_sleep },
         { "mstime", lua_sys_mstime },
         { "filetime", lua_sys_filetime },
-        { "filetime", lua_sys_md5file },
+        { "md5file", lua_sys_md5file },
         { NULL, NULL }
     };
 
