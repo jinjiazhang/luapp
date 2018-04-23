@@ -1,4 +1,6 @@
 const char* assist_code = u8R"__(
+package.path = package.path.."; .\\?"
+
 app.files = {}
 
 app.load = function ( name )
@@ -37,11 +39,11 @@ app.import = function ( name )
 
 	local status, message = app.load(name)
 	if not status then
-		log_error(string.format("import file: %s ...[fail]", name))
+		log_error(string.format("import file fail: %s", name))
 		error(message)
 		return nil
 	end
-	log_info(string.format("import file: %s ...[succeed]", name))
+	log_info(string.format("import file succeed: %s", name))
 	return env
 end
 
@@ -60,11 +62,11 @@ app.reload = function (  )
 
 		local status, message = app.load(name)
 		if not status then
-			log_error(string.format("reload file: %s ...[fail]", name))
+			log_error(string.format("import file fail: %s", name))
 			log_error(message)
 			goto continue
 		end
-		log_info(string.format("reload file: %s ...[succeed]", name))
+		log_info(string.format("import file succeed: %s", name))
 
 		::continue::
 	end

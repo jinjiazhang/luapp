@@ -93,7 +93,7 @@ int luapp::init()
     lua_setglobal(L, "net");
 
     luaL_dostring(L, assist_code);
-    if (luaL_dofile(L, ctx_->entry) != 0)
+    if (!luaL_callfunc(L, this, "import", ctx_->entry))
     {
         luapp_error(lua_tostring(L, -1));
         return -1;
