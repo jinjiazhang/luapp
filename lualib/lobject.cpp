@@ -91,8 +91,7 @@ void lua_pushlobject(lua_State* L, void* p)
     // _R[p].__this == nullprt
     if (lua_islobject(L, -1) && !lua_tolobject(L, -1))
     {
-        lua_pushlightuserdata(L, obj);
-        lua_gettable(L, LUA_REGISTRYINDEX);
+        lua_pushvalue(L, -1);
         luaL_setfuncs(L, obj->get_libs(), 1);
 
         lua_pushlightuserdata(L, obj);
