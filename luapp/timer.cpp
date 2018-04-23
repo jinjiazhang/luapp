@@ -14,7 +14,7 @@ timer::~timer()
 
 int timer::update(int64_t current)
 {
-    while (current_ + TIME_UNIT < current)
+    while (current_ < current)
     {
         forward();
         current_ += TIME_UNIT;
