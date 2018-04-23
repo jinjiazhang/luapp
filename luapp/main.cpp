@@ -19,8 +19,10 @@ int main(int argc, char* argv[])
     ctx->idle_sleep = cmd.get<int>("idle-sleep");
     ctx->daemon = cmd.exist("daemon");
 
-    luapp* app = new luapp();
+    lua_State* L = luaL_newstate();
+    luapp* app = new luapp(L);
     app->run(ctx);
     delete app;
+    lua_close(L);
     return 0;
 }

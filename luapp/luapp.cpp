@@ -2,7 +2,7 @@
 #include "plat.h"
 #include "luapp.h"
 
-luapp::luapp() : lobject(luaL_newstate())
+luapp::luapp(lua_State* L) : lobject(L)
 {
     ctx_ = nullptr;
     status_ = 0;
@@ -18,7 +18,6 @@ luapp::~luapp()
 {
     delete timer_;
     delete network_;
-    // lua_close(L);
 }
 
 int64_t luapp::time()

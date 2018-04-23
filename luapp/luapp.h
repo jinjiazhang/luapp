@@ -17,7 +17,7 @@ struct luctx
 class luapp : public lobject
 {
 public:
-    luapp();
+    luapp(lua_State* L);
     ~luapp();
 
     void run(luctx* ctx);
