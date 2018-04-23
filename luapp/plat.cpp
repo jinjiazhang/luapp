@@ -25,7 +25,12 @@ int64_t sys_filetime(const char* file)
     return info.st_mtime;
 }
 
-std::string lua_showstack(lua_State* L)
+std::string sys_md5file(const char* file)
+{
+    return std::to_string(sys_filetime(file));
+}
+
+std::string lua_stackview(lua_State* L)
 {
     std::ostringstream out;
     int n = lua_gettop(L);  /* number of arguments */
@@ -44,25 +49,25 @@ std::string lua_showstack(lua_State* L)
 
 int lua_loginfo(lua_State* L)
 {
-    luapp_info(lua_showstack(L).c_str());
+    luapp_info(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logwarn(lua_State* L)
 {
-    luapp_warn(lua_showstack(L).c_str());
+    luapp_warn(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logerror(lua_State* L)
 {
-    luapp_error(lua_showstack(L).c_str());
+    luapp_error(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logfatal(lua_State* L)
 {
-    luapp_fatal(lua_showstack(L).c_str());
+    luapp_fatal(lua_stackview(L).c_str());
     return 0;
 }
 
@@ -76,12 +81,14 @@ void app_daemon()
 EXPORT_CFUNC(sys_sleep)
 EXPORT_CFUNC(sys_mstime)
 EXPORT_CFUNC(sys_filetime)
+EXPORT_CFUNC(sys_md5file)
 void luaL_opensys(lua_State* L)
 {
     static const struct luaL_Reg sysLibs[] = {
         { "sleep", lua_sys_sleep },
         { "mstime", lua_sys_mstime },
         { "filetime", lua_sys_filetime },
+        { "filetime", lua_sys_md5file },
         { NULL, NULL }
     };
 

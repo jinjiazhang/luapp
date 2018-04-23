@@ -31,8 +31,11 @@ int64_t sys_mstime();
 // returns the time when the file last modify
 int64_t sys_filetime(const char* file);
 
+// returns the md5hex of the file
+std::string sys_md5file(const char* file);
+
 // concat string from lua stack
-std::string lua_showstack(lua_State* L);
+std::string lua_stackview(lua_State* L);
 
 // fork in linux for daemon
 void app_daemon();
