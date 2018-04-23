@@ -26,6 +26,9 @@
     <ClCompile Include="ltimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="assist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h">

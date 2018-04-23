@@ -5,7 +5,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     cmdline::parser cmd;
-    cmd.add<string>("main-file", 'm', "lua file which process entry.", false, "mail.lua");
+    cmd.add<string>("main-file", 'm', "lua file which process entry.", false, "./main.lua");
     cmd.add<int>("tick-freq", 't', "call tick function interval.", false, 20);
     cmd.add<int>("idle-sleep", 'i', "sleep duration when idle.", false, 10);
     cmd.add("daemon", 'D', "start this process as a daemon.");

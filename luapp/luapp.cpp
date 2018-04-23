@@ -92,6 +92,7 @@ int luapp::init()
     lua_pushlobject(L, network_);
     lua_setglobal(L, "net");
 
+    luaL_dostring(L, assist_code);
     if (luaL_dofile(L, ctx_->entry) != 0)
     {
         luapp_error(lua_tostring(L, -1));

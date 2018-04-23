@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="assist.cpp" />
     <ClCompile Include="ltimer.cpp" />
     <ClCompile Include="luapp.cpp" />
     <ClCompile Include="main.cpp" />

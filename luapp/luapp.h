@@ -48,4 +48,5 @@ private:
     lnetwork* network_;
 };
 
+extern const char* assist_code;
 #endif
