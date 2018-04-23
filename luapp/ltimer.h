@@ -7,7 +7,7 @@
 class ltimer : public lobject, public timer::callback
 {
 public:
-    ltimer(lua_State* L, int64_t curtime);
+    ltimer(lua_State* L, int64_t current);
     ~ltimer();
 
 public:

@@ -1,19 +1,24 @@
 #include "timer.h"
 #include <assert.h>
 
-timer::timer(int curtime)
+timer::timer(int64_t current)
 {
     last_tid_ = 0;
-    last_time_ = curtime;
+    current_ = current;
+    jiffies_ = 0;
 }
 
 timer::~timer()
 {
 }
 
-int timer::update(int64_t curtime)
+int timer::update(int64_t current)
 {
-    last_time_ = curtime;
+    while (current_ + LEVEL_UNIT < current)
+    {
+        forward();
+        current_ += LEVEL_UNIT;
+    }
     return 0;
 }
 
@@ -21,9 +26,9 @@ int timer::insert(int second, callback* handle)
 {
     tnode* node = new tnode();
     node->tid = ++last_tid_;
-    node->expire = last_time_ + second * 1000;
+    node->index = -1;
+    node->expire = jiffies_ + second * 1000 / LEVEL_UNIT;
     node->handle = handle;
-    node->next = NULL;
 
     assert(insert(node));
     nodes_.insert(std::make_pair(node->tid, node));
@@ -56,62 +61,49 @@ bool timer::change(int tid, int second)
     tnode* node = it->second;
     assert(remove(node));
 
-    node->expire = last_time_ + second * 1000;
+    node->expire = jiffies_ + second * 1000 / LEVEL_UNIT;
     assert(insert(node));
     return true;
 }
 
-timer::tlist* timer::select(tnode* node)
+void timer::forward()
 {
-    return NULL;
+
+}
+
+int timer::select(tnode* node)
+{
+    uint64_t delta = node->expire - jiffies_;
+    for (int level = 0; level < LEVEL_DEPTH; level++)
+    {
+    }
+    return 0;
 }
 
 bool timer::insert(tnode* node)
 {
-    tlist* list = this->select(node);
-    if (list == NULL) {
+    int index = this->select(node);
+    if (index < 0 || index >= WHEEL_SIZE)
+    {
         return false;
     }
 
-    node->next = list->head;
-    list->head = node;
+    node_list& list = wheels_[index];
+    node->index = index;
+    list.push_back(node);
     return true;
 }
 
 bool timer::remove(tnode* node)
 {
-    tlist* list = this->select(node);
-    if (list == NULL) {
+    int index = node->index;
+    if (index < 0 || index >= WHEEL_SIZE)
+    {
         return false;
     }
 
-    tnode* last = NULL;
-    tnode* temp = list->head;
-    while (temp != NULL)
-    {
-        if (temp->tid == node->tid)
-        {
-            if (last != NULL)
-                last->next = node->next;
-            else
-                list->head = node->next;
-        }
-        last = temp;
-        temp = temp->next;
-    }
-    return true;
-}
-
-void timer::timeout(tlist* list)
-{
-    tnode* temp = list->head;
-    list->head = NULL;
-    while (temp != NULL)
-    {
-        tnode* node = temp;
-        temp = temp->next;
-        node->handle->timeout(node->tid);
-        nodes_.erase(node->tid);
-        delete node;
-    }
+    node_list& list = wheels_[index];
+    list.remove(node);
+    node->index = -1;
+    return false;
 }

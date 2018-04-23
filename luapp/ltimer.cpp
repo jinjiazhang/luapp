@@ -1,11 +1,13 @@
 #include "ltimer.h"
 
-ltimer::ltimer(lua_State* L, int64_t curtime) : lobject(L)
+ltimer::ltimer(lua_State* L, int64_t current) : lobject(L)
 {
+    timer_ = new timer(current);
 }
 
 ltimer::~ltimer()
 {
+    delete timer_;
 }
 
 void ltimer::timeout(int tid)
@@ -15,7 +17,7 @@ void ltimer::timeout(int tid)
 
 int ltimer::update(int64_t curtime)
 {
-    return timer_->update((time_t)curtime);
+    return timer_->update(curtime);
 }
 
 int ltimer::insert(int second)
