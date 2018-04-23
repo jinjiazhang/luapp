@@ -45,6 +45,11 @@ void lobject::unlink_object()
     lua_settable(L, LUA_REGISTRYINDEX);
 }
 
+int lua_emptyfunc(lua_State* L)
+{
+    return 0;
+}
+
 bool lua_islobject(lua_State* L, int idx)
 {
     if (!lua_istable(L, idx)) {

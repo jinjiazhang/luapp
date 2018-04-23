@@ -41,6 +41,7 @@ EXPORT_OFUNC(ltimer, change)
 const luaL_Reg* ltimer::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { "timeout", lua_emptyfunc },
         { IMPORT_OFUNC(ltimer, insert) },
         { IMPORT_OFUNC(ltimer, remove) },
         { IMPORT_OFUNC(ltimer, change) },

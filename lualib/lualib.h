@@ -47,6 +47,7 @@ int lua_##class##_##method(lua_State* L) \
 
 #define LUAPP_DO(exp) { if(!(exp)) return false; }
 
+int   lua_emptyfunc(lua_State* L);
 bool  lua_islobject(lua_State* L, int idx);
 void* lua_tolobject(lua_State* L, int idx);
 void  lua_pushlobject(lua_State* L, void* obj);

@@ -151,6 +151,10 @@ EXPORT_OFUNC(luapp, change)
 const luaL_Reg* luapp::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { "init", lua_emptyfunc },
+        { "proc", lua_emptyfunc },
+        { "tick", lua_emptyfunc },
+        { "idle", lua_emptyfunc },
         { IMPORT_OFUNC(luapp, time) },
         { IMPORT_OFUNC(luapp, mstime) },
         { IMPORT_OFUNC(luapp, offset) },
