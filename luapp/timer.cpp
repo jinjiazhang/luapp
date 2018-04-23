@@ -122,7 +122,7 @@ bool timer::remove(tnode* node)
     node_list& list = wheels_[index];
     list.remove(node);
     node->index = -1;
-    return false;
+    return true;
 }
 
 void timer::timeout(int index)
