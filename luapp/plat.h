@@ -7,6 +7,7 @@
 #ifdef linux
 #else
 using int64_t = long long;
+using uint64_t = unsigned long long;
 #endif
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_

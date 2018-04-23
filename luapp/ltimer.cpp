@@ -15,9 +15,9 @@ void ltimer::timeout(int tid)
     luaL_callfunc(L, this, "timeout", tid);
 }
 
-int ltimer::update(int64_t curtime)
+int ltimer::update(int64_t current)
 {
-    return timer_->update(curtime);
+    return timer_->update(current);
 }
 
 int ltimer::insert(int second)

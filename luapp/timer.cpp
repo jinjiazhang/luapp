@@ -14,10 +14,10 @@ timer::~timer()
 
 int timer::update(int64_t current)
 {
-    while (current_ + LEVEL_UNIT < current)
+    while (current_ + TIME_UNIT < current)
     {
         forward();
-        current_ += LEVEL_UNIT;
+        current_ += TIME_UNIT;
     }
     return 0;
 }
@@ -27,7 +27,7 @@ int timer::insert(int second, callback* handle)
     tnode* node = new tnode();
     node->tid = ++last_tid_;
     node->index = -1;
-    node->expire = jiffies_ + second * 1000 / LEVEL_UNIT;
+    node->expire = jiffies_ + second * 1000 / TIME_UNIT;
     node->handle = handle;
 
     assert(insert(node));
@@ -61,23 +61,40 @@ bool timer::change(int tid, int second)
     tnode* node = it->second;
     assert(remove(node));
 
-    node->expire = jiffies_ + second * 1000 / LEVEL_UNIT;
+    node->expire = jiffies_ + second * 1000 / TIME_UNIT;
     assert(insert(node));
     return true;
 }
 
 void timer::forward()
 {
-
+    timeout(jiffies_ & LEVEL_MASK);
+    int64_t point = ++jiffies_;
+    int level = 0;
+    while ((point & LEVEL_MASK) == 0 && level < LEVEL_DEPTH - 1)
+    {
+        int index = (level + 1) * LEVEL_SIZE + ((point >> LEVEL_BITS) & LEVEL_MASK);
+        movlist(index);
+        point >>= LEVEL_BITS;
+        level++;
+    }
 }
 
 int timer::select(tnode* node)
 {
-    uint64_t delta = node->expire - jiffies_;
+    int64_t point = node->expire;
+    int64_t delta = point - jiffies_;
+    int64_t bound = 1 << LEVEL_BITS;
     for (int level = 0; level < LEVEL_DEPTH; level++)
     {
+        if (delta < bound)
+        {
+            return level * LEVEL_SIZE + (point & LEVEL_MASK);
+        }
+        bound <<= LEVEL_BITS;
+        point >>= LEVEL_BITS;
     }
-    return 0;
+    return -1;
 }
 
 bool timer::insert(tnode* node)
@@ -106,4 +123,29 @@ bool timer::remove(tnode* node)
     list.remove(node);
     node->index = -1;
     return false;
+}
+
+void timer::timeout(int index)
+{
+    node_list& list = wheels_[index];
+    while (!list.empty())
+    {
+        tnode* node = list.front();
+        list.pop_front();
+        node->handle->timeout(node->tid);
+        nodes_.erase(node->tid);
+        delete node;
+    }
+}
+
+void timer::movlist(int index)
+{
+    node_list list;
+    wheels_[index].swap(list);
+    while (!list.empty())
+    {
+        tnode* node = list.front();
+        list.pop_front();
+        insert(node);
+    }
 }

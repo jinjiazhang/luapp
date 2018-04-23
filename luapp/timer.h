@@ -5,9 +5,10 @@
 #include <list>
 #include "plat.h"
 
+#define TIME_UNIT       (250)
 #define LEVEL_DEPTH     (4)
-#define LEVEL_UNIT      (1 << 8)
-#define LEVEL_SIZE      (1 << 8)
+#define LEVEL_BITS      (8)
+#define LEVEL_SIZE      (1 << LEVEL_BITS)
 #define LEVEL_MASK      (LEVEL_SIZE - 1)
 #define WHEEL_SIZE      (LEVEL_DEPTH * LEVEL_SIZE)
 
@@ -39,6 +40,8 @@ public:
 
 private:
     void forward();
+    void timeout(int index);
+    void movlist(int index);
     int  select(tnode* node);
     bool insert(tnode* node);
     bool remove(tnode* node);
@@ -46,7 +49,6 @@ private:
 private:
     typedef std::map<int, tnode*> node_map;
     typedef std::list<tnode*> node_list;
-
     node_map nodes_;
     node_list wheels_[WHEEL_SIZE];
 

@@ -14,7 +14,7 @@ public:
     virtual void timeout(int tid);
     virtual const luaL_Reg* get_libs();
     
-    int update(int64_t curtime);
+    int update(int64_t current);
     int insert(int second);
     bool remove(int tid);
     bool change(int tid, int second);

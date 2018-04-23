@@ -84,7 +84,7 @@ int luapp::init()
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
 
-    timer_ = new ltimer(L, this->time());
+    timer_ = new ltimer(L, this->mstime());
     lua_pushlobject(L, timer_);
     lua_setglobal(L, "timer");
 
@@ -108,6 +108,7 @@ int luapp::proc()
 {
     app_mstime_ = sys_mstime();
     network_->update(ctx_->idle_sleep);
+    timer_->update(this->mstime());
     luaL_callfunc(L, this, "proc");
 
     int64_t cost_mstime = sys_mstime() - app_mstime_;
