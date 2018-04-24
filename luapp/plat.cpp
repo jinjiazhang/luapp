@@ -94,7 +94,7 @@ EXPORT_CFUNC(sys_sleep)
 EXPORT_CFUNC(sys_mstime)
 EXPORT_CFUNC(sys_filetime)
 EXPORT_CFUNC(sys_md5file)
-void luaL_opensys(lua_State* L)
+int luaopen_system(lua_State* L)
 {
     static const struct luaL_Reg sysLibs[] = {
         { "sleep", lua_sys_sleep },
@@ -107,9 +107,10 @@ void luaL_opensys(lua_State* L)
     lua_newtable(L);
     luaL_setfuncs(L, sysLibs, 0);
     lua_setglobal(L, "sys");
+	return 0;
 }
 
-void luaL_openplat(lua_State* L)
+int luaopen_protolog(lua_State* L)
 {
 	lua_register(L, "print", lua_loginfo);
 	lua_register(L, "log_trace", lua_logtrace);
@@ -118,4 +119,5 @@ void luaL_openplat(lua_State* L)
     lua_register(L, "log_warn", lua_logwarn);
     lua_register(L, "log_error", lua_logerror);
     lua_register(L, "log_fatal", lua_logfatal);
+	return 0;
 }

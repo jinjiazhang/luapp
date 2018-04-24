@@ -44,8 +44,8 @@ std::string lua_stackview(lua_State* L);
 // fork in linux for daemon
 void app_daemon();
 
-void luaL_opensys(lua_State* L);
+int luaopen_system(lua_State* L);
 
-void luaL_openplat(lua_State* L);
+int luaopen_protolog(lua_State* L);
 
 #endif
