@@ -30,9 +30,8 @@ bool ProtoDecode(const char* proto, lua_State* L, const char* input, size_t size
 bool ProtoPack(const char* proto, lua_State* L, int start, int end, char* output, size_t* size);
 bool ProtoUnpack(const char* proto, lua_State* L, const char* input, size_t size);
 
-int luaopen_protolua(lua_State* L);
-std::vector<const FieldDescriptor*> SortFieldsByNumber(const Descriptor* descriptor);
 extern Importer g_importer;
 extern DynamicMessageFactory g_factory;
+int luaopen_protolua(lua_State* L);
 
 #endif
