@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-#include "lua.hpp"
+#include "lua/lua.hpp"
 #include "protolog/protolog.h"
 
 #define IMPORT_CFUNC(method) \

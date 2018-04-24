@@ -11,8 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lualib", "lualib\lualib.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "protonet", "protonet\protonet.vcxproj", "{447E89A7-FAEA-4961-A98F-4E51F17EC4D7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "protolog", "protolog\protolog.vcxproj", "{5261CD39-66AA-43BA-BECD-CAA28086D1EA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -49,14 +47,6 @@ Global
 		{447E89A7-FAEA-4961-A98F-4E51F17EC4D7}.Release|Win32.ActiveCfg = Release|Win32
 		{447E89A7-FAEA-4961-A98F-4E51F17EC4D7}.Release|Win32.Build.0 = Release|Win32
 		{447E89A7-FAEA-4961-A98F-4E51F17EC4D7}.Release|x64.ActiveCfg = Release|Win32
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Debug|Win32.Build.0 = Debug|Win32
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Debug|x64.ActiveCfg = Debug|x64
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Debug|x64.Build.0 = Debug|x64
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Release|Win32.ActiveCfg = Release|Win32
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Release|Win32.Build.0 = Release|Win32
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Release|x64.ActiveCfg = Release|x64
-		{5261CD39-66AA-43BA-BECD-CAA28086D1EA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

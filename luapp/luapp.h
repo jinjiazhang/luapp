@@ -7,8 +7,9 @@
 
 struct luctx
 {
+	bool daemon;
     const char* entry;
-    bool daemon;
+	const char* log_conf;
     int tick_freq;
     int tick_invl;
     int idle_sleep;
