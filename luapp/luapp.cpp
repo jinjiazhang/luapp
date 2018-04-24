@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include "plat.h"
 #include "luapp.h"
+#include "protolua/protolua.h"
 
 luapp::luapp(lua_State* L) : lobject(L)
 {
@@ -79,6 +79,7 @@ int luapp::init()
     luaL_openlibs(L);
 	luaopen_system(L);
 	luaopen_protolog(L);
+	luaopen_protolua(L);
 
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
