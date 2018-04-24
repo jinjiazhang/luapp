@@ -34,11 +34,15 @@ int lua_##class##_##method(lua_State* L) \
 }
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_
-#define lualib_info(fmt, ...)  proto_info(fmt, __VA_ARGS__)
-#define lualib_warn(fmt, ...)  proto_warn(fmt, __VA_ARGS__)
+#define lualib_trace(fmt, ...)  proto_trace(fmt, __VA_ARGS__)
+#define lualib_debug(fmt, ...)  proto_debug(fmt, __VA_ARGS__)
+#define lualib_info(fmt, ...)   proto_info(fmt, __VA_ARGS__)
+#define lualib_warn(fmt, ...)   proto_warn(fmt, __VA_ARGS__)
 #define lualib_error(fmt, ...)  proto_error(fmt, __VA_ARGS__)
 #define lualib_fatal(fmt, ...)  proto_fatal(fmt, __VA_ARGS__)
 #else
+#define lualib_trace(fmt, ...)
+#define lualib_debug(fmt, ...)
 #define lualib_info(fmt, ...)
 #define lualib_warn(fmt, ...)
 #define lualib_error(fmt, ...)

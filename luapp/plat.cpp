@@ -47,6 +47,18 @@ std::string lua_stackview(lua_State* L)
     return out.str();
 }
 
+int lua_logtrace(lua_State* L)
+{
+	luapp_trace(lua_stackview(L).c_str());
+	return 0;
+}
+
+int lua_logdebug(lua_State* L)
+{
+	luapp_debug(lua_stackview(L).c_str());
+	return 0;
+}
+
 int lua_loginfo(lua_State* L)
 {
     luapp_info(lua_stackview(L).c_str());
@@ -99,8 +111,9 @@ void luaL_opensys(lua_State* L)
 
 void luaL_openplat(lua_State* L)
 {
-    lua_register(L, "print", lua_loginfo);
-    lua_register(L, "error", lua_logerror);
+	lua_register(L, "print", lua_loginfo);
+	lua_register(L, "log_trace", lua_logtrace);
+	lua_register(L, "log_debug", lua_logdebug);
     lua_register(L, "log_info", lua_loginfo);
     lua_register(L, "log_warn", lua_logwarn);
     lua_register(L, "log_error", lua_logerror);

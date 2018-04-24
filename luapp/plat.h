@@ -11,11 +11,15 @@ using uint64_t = unsigned long long;
 #endif
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_
-#define luapp_info(fmt, ...)  proto_info(fmt, __VA_ARGS__)
-#define luapp_warn(fmt, ...)  proto_warn(fmt, __VA_ARGS__)
+#define luapp_trace(fmt, ...)  proto_trace(fmt, __VA_ARGS__)
+#define luapp_debug(fmt, ...)  proto_debug(fmt, __VA_ARGS__)
+#define luapp_info(fmt, ...)   proto_info(fmt, __VA_ARGS__)
+#define luapp_warn(fmt, ...)   proto_warn(fmt, __VA_ARGS__)
 #define luapp_error(fmt, ...)  proto_error(fmt, __VA_ARGS__)
 #define luapp_fatal(fmt, ...)  proto_fatal(fmt, __VA_ARGS__)
 #else
+#define luapp_trace(fmt, ...)
+#define luapp_debug(fmt, ...)
 #define luapp_info(fmt, ...)
 #define luapp_warn(fmt, ...)
 #define luapp_error(fmt, ...)

@@ -59,7 +59,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>lua.lib;lualib.lib;protonet.lib;protolog.lib</AdditionalDependencies>
+      <AdditionalDependencies>lua.lib;lualib.lib;protonet.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../libs</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
