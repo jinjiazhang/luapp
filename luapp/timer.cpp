@@ -22,7 +22,7 @@ int timer::update(int64_t current)
     return 0;
 }
 
-int timer::insert(int second, callback* handle)
+int timer::insert(callback* handle, int second)
 {
     tnode* node = new tnode();
     node->tid = ++last_tid_;

@@ -22,7 +22,7 @@ int ltimer::update(int64_t current)
 
 int ltimer::insert(int second)
 {
-    return timer_->insert(second, this);
+    return timer_->insert(this, second);
 }
 
 bool ltimer::remove(int tid)

@@ -34,7 +34,7 @@ public:
 
 public:
     int update(int64_t current);
-    int insert(int second, callback* handle);
+    int insert(callback* handle, int second);
     bool remove(int tid);
     bool change(int tid, int second);
 
