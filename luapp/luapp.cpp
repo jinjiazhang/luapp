@@ -77,9 +77,9 @@ int luapp::init()
 {
     app_mstime_ = sys_mstime();
     luaL_openlibs(L);
-	luaopen_system(L);
-	luaopen_protolog(L);
-	luaopen_protolua(L);
+    luaopen_system(L);
+    luaopen_protolog(L);
+    luaopen_protolua(L);
 
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");

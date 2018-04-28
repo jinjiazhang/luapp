@@ -133,12 +133,17 @@ class ProtoErrorCollector : public MultiFileErrorCollector
     {
         proto_error("[file]%s line %d, column %d : %s", filename.c_str(), line, column, message.c_str());
     }
+
+    virtual void AddWarning(const std::string& filename, int line, int column, const std::string& message)
+    {
+        proto_warn("[file]%s line %d, column %d : %s", filename.c_str(), line, column, message.c_str());
+    }
 };
 
-ProtoErrorCollector		g_errorCollector;
-DiskSourceTree			g_sourceTree;
-Importer				g_importer(&g_sourceTree, &g_errorCollector);
-DynamicMessageFactory	g_factory;
+ProtoErrorCollector        g_errorCollector;
+DiskSourceTree             g_sourceTree;
+Importer                   g_importer(&g_sourceTree, &g_errorCollector);
+DynamicMessageFactory      g_factory;
 
 int luaopen_protolua(lua_State* L)
 {

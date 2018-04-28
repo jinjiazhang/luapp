@@ -49,14 +49,14 @@ std::string lua_stackview(lua_State* L)
 
 int lua_logtrace(lua_State* L)
 {
-	luapp_trace(lua_stackview(L).c_str());
-	return 0;
+    luapp_trace(lua_stackview(L).c_str());
+    return 0;
 }
 
 int lua_logdebug(lua_State* L)
 {
-	luapp_debug(lua_stackview(L).c_str());
-	return 0;
+    luapp_debug(lua_stackview(L).c_str());
+    return 0;
 }
 
 int lua_loginfo(lua_State* L)
@@ -107,17 +107,17 @@ int luaopen_system(lua_State* L)
     lua_newtable(L);
     luaL_setfuncs(L, sysLibs, 0);
     lua_setglobal(L, "sys");
-	return 0;
+    return 0;
 }
 
 int luaopen_protolog(lua_State* L)
 {
-	lua_register(L, "print", lua_loginfo);
-	lua_register(L, "log_trace", lua_logtrace);
-	lua_register(L, "log_debug", lua_logdebug);
+    lua_register(L, "print", lua_loginfo);
+    lua_register(L, "log_trace", lua_logtrace);
+    lua_register(L, "log_debug", lua_logdebug);
     lua_register(L, "log_info", lua_loginfo);
     lua_register(L, "log_warn", lua_logwarn);
     lua_register(L, "log_error", lua_logerror);
     lua_register(L, "log_fatal", lua_logfatal);
-	return 0;
+    return 0;
 }
