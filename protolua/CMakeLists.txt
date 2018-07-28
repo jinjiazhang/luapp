@@ -4,4 +4,5 @@ project(protolua)
 aux_source_directory(. DIR_SRCS)
 add_library(${PROJECT_NAME} ${DIR_SRCS})
 
-include_directories(../include)
+include_directories(../)
+include_directories(../dep)
