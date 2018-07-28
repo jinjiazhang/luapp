@@ -217,7 +217,7 @@ bool ProtoEncode(const char* proto, lua_State* L, int index, char* output, size_
     PROTO_ASSERT(prototype);
 
     index = lua_absindex(L, index);
-    google::protobuf::scoped_ptr<Message> message(prototype->New());
+    std::unique_ptr<Message> message(prototype->New());
     PROTO_DO(EncodeMessage(message.get(), descriptor, L, index));
 
     if (output && size) // export to buffer
@@ -245,7 +245,7 @@ bool ProtoPack(const char* proto, lua_State* L, int start, int end, char* output
 
     start = lua_absindex(L, start);
     end = lua_absindex(L, end);
-    google::protobuf::scoped_ptr<Message> message(prototype->New());
+    std::unique_ptr<Message> message(prototype->New());
     std::vector<const FieldDescriptor*> fields = SortFieldsByNumber(descriptor);
     for (int i = 0; i < (int)fields.size() && start + i <= end; i++)
     {

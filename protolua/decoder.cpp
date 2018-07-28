@@ -195,7 +195,7 @@ bool ProtoDecode(const char* proto, lua_State* L, const char* input, size_t size
     const Message* prototype = g_factory.GetPrototype(descriptor);
     PROTO_ASSERT(prototype);
 
-    google::protobuf::scoped_ptr<Message> message(prototype->New());
+    std::unique_ptr<Message> message(prototype->New());
     PROTO_DO(message->ParseFromArray(input, size));
     return DecodeMessage(*message.get(), descriptor, L);
 }
@@ -209,7 +209,7 @@ bool ProtoUnpack(const char* proto, lua_State* L, const char* input, size_t size
     const Message* prototype = g_factory.GetPrototype(descriptor);
     PROTO_ASSERT(prototype);
 
-    google::protobuf::scoped_ptr<Message> message(prototype->New());
+    std::unique_ptr<Message> message(prototype->New());
     PROTO_DO(message->ParseFromArray(input, size));
 
     std::vector<const FieldDescriptor*> fields = SortFieldsByNumber(descriptor);
