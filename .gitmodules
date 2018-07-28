@@ -1,6 +1,6 @@
 [submodule "dep/log4cplus"]
 	path = dep/log4cplus
-	url = https://github.com/log4cplus/log4cplus
+	url = https://github.com/log4cplus/log4cplus.git
 [submodule "dep/protobuf"]
 	path = dep/protobuf
 	url = https://github.com/google/protobuf.git
