@@ -7,7 +7,7 @@
 #include "google/protobuf/dynamic_message.h"
 #include "google/protobuf/compiler/importer.h"
 
-#pragma comment(lib, "libprotobuf.lib")
+#pragma comment(lib, "protobuf.lib")
 
 #ifndef _JINJIAZHANG_PROTOLOG_H_
 #define proto_trace(fmt, ...)

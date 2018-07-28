@@ -16,7 +16,7 @@ cd ../..
 cd protobuf/cmake
 git submodule init
 git submodule update
-cmake .
+cmake -Dprotobuf_MSVC_STATIC_RUNTIME=OFF .
 MSBuild.exe ./libprotobuf.vcxproj /p:Configuration=Release
 copy .\Release\libprotobuf.lib ..\..\lib\protobuf.lib
 cd ../..
