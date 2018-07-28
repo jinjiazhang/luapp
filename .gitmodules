@@ -4,6 +4,3 @@
 [submodule "dep/protobuf"]
 	path = dep/protobuf
 	url = https://github.com/google/protobuf.git
-[submodule "dep/lua"]
-	path = dep/lua
-	url = https://github.com/lua/lua.git
