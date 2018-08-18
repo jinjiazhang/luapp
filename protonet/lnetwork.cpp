@@ -78,14 +78,13 @@ int lnetwork::close(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     int number = luaL_getvalue<int>(L, 1);
-    manager_map::iterator it = managers_.find(number);
-    if (it == managers_.end())
-    {
-        return 0;
-    }
-
     network_->close(number);
-    del_manager(it->second);
+
+    manager_map::iterator it = managers_.find(number);
+    if (it != managers_.end())
+    {
+        del_manager(it->second);
+    }
     return 0;
 }
 
