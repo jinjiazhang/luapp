@@ -166,7 +166,7 @@ void session::close()
 
 void session::dispatch()
 {
-    while (recvbuf_.size() > 0)
+    while (!closed_ && recvbuf_.size() > 0)
     {
         int body_len = 0;
         int head_len = decode_var(&body_len, recvbuf_.data(), recvbuf_.size());
