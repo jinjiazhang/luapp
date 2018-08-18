@@ -5,6 +5,7 @@
 #include "platform.h"
 #include "lualib/lobject.h"
 
+class lmanager;
 class lnetwork : public lobject
 {
 public:
@@ -14,7 +15,7 @@ public:
     int update(int timeout);
     inetwork* impl();
 
-    void add_manager(int number, imanager* manager);
+    void add_manager(int number, lmanager* manager);
     void del_manager(int number);
     virtual const luaL_Reg* get_libs();
         
@@ -24,7 +25,7 @@ public:
     int close(lua_State* L);
 
 private:
-    typedef std::map<int, imanager*> manager_map;
+    typedef std::map<int, lmanager*> manager_map;
     manager_map managers_;
     inetwork* network_;
 };

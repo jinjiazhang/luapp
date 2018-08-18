@@ -83,7 +83,7 @@ int lnetwork::close(lua_State* L)
     return 0;
 }
 
-void lnetwork::add_manager(int number, imanager* manager)
+void lnetwork::add_manager(int number, lmanager* manager)
 {
     managers_.insert(std::make_pair(number, manager));
 }
