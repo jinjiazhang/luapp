@@ -15,8 +15,7 @@ public:
     int update(int timeout);
     inetwork* impl();
 
-    void push_manager(lmanager* manager);
-    void pop_manager(lmanager* manager);
+    void add_manager(lmanager* manager);
     void del_manager(lmanager* manager);
     virtual const luaL_Reg* get_libs();
         
@@ -27,10 +26,8 @@ public:
 
 private:
     typedef std::map<int, lmanager*> manager_map;
-    typedef std::set<lmanager*> delete_set;
 
     manager_map managers_;
-    delete_set deletes_;
     inetwork* network_;
 };
 

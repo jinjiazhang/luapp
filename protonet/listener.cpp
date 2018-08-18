@@ -41,7 +41,7 @@ void listener::on_event(int events)
         return;
     }
 
-    network_->push_object(object);
+    network_->add_object(object);
     manager_->on_accept(object->get_number(), 0);
 }
 

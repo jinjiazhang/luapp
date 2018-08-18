@@ -35,8 +35,7 @@ void session::on_event(int events)
 void session::on_error(int error)
 {
     manager_->on_closed(number_, error);
-    network_->del_object(this);
-    close();
+    network_->close(number_);
 }
 
 void session::on_readable()
@@ -68,7 +67,7 @@ void session::on_readable()
 
 void session::on_writable()
 {
-    while (sendbuf_.size() > 0)
+    while (!closed_ && sendbuf_.size() > 0)
     {
         int send_len = send_data(fd_, sendbuf_.data(), sendbuf_.size());
         if (send_len < 0)

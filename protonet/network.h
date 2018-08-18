@@ -53,17 +53,14 @@ public:
     int del_event(iobject* object, socket_t fd, int events);
 
     int new_number();
-    int push_object(iobject* object);
-    int pop_object(iobject* object);
+    int add_object(iobject* object);
     int del_object(iobject* object);
     iobject* get_object(int number);
 
 private:
     typedef std::map<int, iobject*> object_map;
-    typedef std::set<iobject*> delete_set;
 
     object_map objects_;
-    delete_set deletes_;
     int last_number_;
     iframe* frame_;
 };

@@ -42,18 +42,7 @@ bool network::init()
 
 int network::update(int timeout)
 {
-    int ret = frame_->update(timeout);
-    
-    delete_set::iterator it = deletes_.begin();
-    while (it != deletes_.end())
-    {
-        iobject* object = *it;
-        pop_object(object);
-        delete object;
-        deletes_.erase(it++);
-    }
-
-    return ret;
+    return frame_->update(timeout);
 }
 
 int network::listen(imanager* manager, const char* ip, int port)
@@ -64,7 +53,7 @@ int network::listen(imanager* manager, const char* ip, int port)
         delete object;
         return 0;
     }
-    return push_object(object);
+    return add_object(object);
 }
 
 int network::connect(imanager* manager, const char* ip, int port)
@@ -75,7 +64,7 @@ int network::connect(imanager* manager, const char* ip, int port)
         delete object;
         return 0;
     }
-    return push_object(object);
+    return add_object(object);
 }
 
 void network::send(int number, char* data, int len)
@@ -114,7 +103,7 @@ int network::new_number()
     return ++last_number_;
 }
 
-int network::push_object(iobject* object)
+int network::add_object(iobject* object)
 {
     assert(object->get_number() == 0);
     int number = new_number();
@@ -123,17 +112,11 @@ int network::push_object(iobject* object)
     return number;
 }
 
-int network::pop_object(iobject* object)
-{
-    assert(object->get_number() != 0);
-    objects_.erase(object->get_number());
-    return 0;
-}
-
 int network::del_object(iobject* object)
 {
     assert(object->get_number() != 0);
-    deletes_.insert(object);
+    objects_.erase(object->get_number());
+    delete object;
     return 0;
 }
 

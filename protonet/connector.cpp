@@ -54,8 +54,7 @@ void connector::on_event(int events)
 void connector::on_error(int error)
 {
     manager_->on_accept(number_, error);
-    network_->del_object(this);
-    close();
+    network_->close(number_);
 }
 
 void connector::send(char* data, int len)
