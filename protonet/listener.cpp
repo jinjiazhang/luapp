@@ -24,7 +24,7 @@ bool listener::listen(const char* ip, int port)
     return true;
 }
 
-void listener::on_event(int events, int param)
+void listener::on_event(int events)
 {
     assert(events & EVENT_READ);
     sockaddr_in remote;
@@ -41,7 +41,7 @@ void listener::on_event(int events, int param)
         return;
     }
 
-    network_->add_object(object);
+    network_->push_object(object);
     manager_->on_accept(object->get_number(), 0);
 }
 

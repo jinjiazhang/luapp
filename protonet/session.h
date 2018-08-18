@@ -12,7 +12,7 @@ public:
 
     bool init(socket_t fd);
 
-    virtual void on_event(int events, int param);
+    virtual void on_event(int events);
     virtual void send(char* data, int len);
     virtual void close();
 
@@ -26,6 +26,7 @@ protected:
     socket_t fd_;
     imanager* manager_;
     network* network_;
+    bool closed_;
 
     buffer recvbuf_;
     buffer sendbuf_;

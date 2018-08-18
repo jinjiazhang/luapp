@@ -4,6 +4,7 @@ session::session(network* instance, imanager* manager)
 {
     network_ = instance;
     manager_ = manager;
+    closed_ = false;
 }
 
 session::~session()
@@ -18,14 +19,8 @@ bool session::init(socket_t fd)
     return true;
 }
 
-void session::on_event(int events, int param)
+void session::on_event(int events)
 {
-    if (events & EVENT_ERROR)
-    {
-        manager_->on_closed(number_, param);
-        return;
-    }
-
     if (events & EVENT_READ)
     {
         on_readable();
@@ -39,12 +34,14 @@ void session::on_event(int events, int param)
 
 void session::on_error(int error)
 {
-    network_->mark_error(this, error);
+    manager_->on_closed(number_, error);
+    network_->del_object(this);
+    close();
 }
 
 void session::on_readable()
 {
-    while (true)
+    while (!closed_)
     {
         int recv_len = recv_data(fd_, recvbuf_.tail(), recvbuf_.space());
         if (recv_len < 0)
@@ -164,6 +161,8 @@ void session::close()
         close_socket(fd_);
         fd_ = -1;
     }
+
+    closed_ = true;
 }
 
 void session::dispatch()

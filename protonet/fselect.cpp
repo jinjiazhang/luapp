@@ -157,6 +157,6 @@ void fselect::fire_event(socket_t fd, int events)
         assert(0);
         return;
     }
-    it->second->on_event(events, 0);
+    it->second->on_event(events);
 }
 #endif

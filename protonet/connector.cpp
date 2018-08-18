@@ -24,17 +24,11 @@ bool connector::connect(const char* ip, int port)
     return true;
 }
 
-void connector::on_event(int events, int param)
+void connector::on_event(int events)
 {
     if (connected_)
     {
-        session::on_event(events, param);
-        return;
-    }
-
-    if (events & EVENT_ERROR)
-    {
-        manager_->on_accept(number_, param);
+        session::on_event(events);
         return;
     }
 
@@ -59,7 +53,9 @@ void connector::on_event(int events, int param)
 
 void connector::on_error(int error)
 {
-    network_->mark_error(this, error);
+    manager_->on_accept(number_, error);
+    network_->del_object(this);
+    close();
 }
 
 void connector::send(char* data, int len)

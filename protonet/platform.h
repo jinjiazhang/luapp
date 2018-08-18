@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_PLATFORM_H_
 
 #include <map>
+#include <set>
 #include <string.h>
 #include <algorithm>
 #include <assert.h>

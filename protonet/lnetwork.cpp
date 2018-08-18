@@ -14,7 +14,18 @@ lnetwork::~lnetwork()
 
 int lnetwork::update(int timeout)
 {
-    return network_->update(timeout);
+    int ret = network_->update(timeout);
+
+    delete_set::iterator it = deletes_.begin();
+    while (it != deletes_.end())
+    {
+        lmanager* manager = *it;
+        pop_manager(manager);
+        delete manager;
+        deletes_.erase(it++);
+    }
+
+    return ret;
 }
 
 inetwork* lnetwork::impl()
@@ -39,7 +50,7 @@ int lnetwork::listen(lua_State* L)
 
     manager->init(this, number);
     lua_pushlobject(L, manager);
-    add_manager(number, manager);
+    push_manager(manager);
     return 1;
 }
 
@@ -60,7 +71,7 @@ int lnetwork::connect(lua_State* L)
 
     manager->init(this, number);
     lua_pushlobject(L, manager);
-    add_manager(number, manager);
+    push_manager(manager);
     return 1;
 }
 
@@ -78,24 +89,35 @@ int lnetwork::close(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     int number = luaL_getvalue<int>(L, 1);
+    manager_map::iterator it = managers_.find(number);
+    if (it == managers_.end())
+    {
+        return 0;
+    }
+
     network_->close(number);
-    del_manager(number);
+    del_manager(it->second);
     return 0;
 }
 
-void lnetwork::add_manager(int number, lmanager* manager)
+void lnetwork::push_manager(lmanager* manager)
 {
+    assert(manager->get_number() != 0);
+    int number = manager->number();
     managers_.insert(std::make_pair(number, manager));
 }
 
-void lnetwork::del_manager(int number)
+void lnetwork::pop_manager(lmanager* manager)
 {
-    manager_map::iterator it = managers_.find(number);
-    if (it != managers_.end())
-    {
-        delete it->second;
-        managers_.erase(it);
-    }
+    assert(manager->get_number() != 0);
+    int number = manager->number();
+    managers_.erase(number);
+}
+
+void lnetwork::del_manager(lmanager* manager)
+{
+    assert(manager->get_number() != 0);
+    deletes_.insert(manager);
 }
 
 EXPORT_OFUNC(lnetwork, listen)
