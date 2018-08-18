@@ -40,7 +40,7 @@ int fepoll::update(int timeout)
     {
         unsigned int events = results[i].events;
         iobject* handler = (iobject*)results[i].data.ptr;
-        handler->on_event(events);
+        handler->on_event(events, 0);
     }
     return 0;
 }

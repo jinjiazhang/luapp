@@ -12,7 +12,7 @@ public:
 
     bool connect(const char* ip, int port);
 
-    virtual void on_event(int events);
+    virtual void on_event(int events, int param);
     virtual void send(char* data, int len);
     virtual void close();
 

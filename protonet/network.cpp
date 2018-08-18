@@ -42,7 +42,18 @@ bool network::init()
 
 int network::update(int timeout)
 {
-    return frame_->update(timeout);
+    int ret = frame_->update(timeout);
+    
+    object_err::iterator it = errors_.begin();
+    while (it != errors_.end())
+    {
+        iobject* object = it->first;
+        object->on_event(EVENT_ERROR, it->second);
+        close(object->get_number());
+        errors_.erase(it++);
+    }
+
+    return ret;
 }
 
 int network::listen(imanager* manager, const char* ip, int port)
@@ -99,6 +110,17 @@ int network::del_event(iobject* object, socket_t fd, int events)
     return frame_->del_event(object, fd, events);
 }
 
+int network::mark_error(iobject* object, int error)
+{
+    if (errors_.find(object) != errors_.end())
+    {
+        return -1;
+    }
+
+    errors_.insert(std::make_pair(object, error));
+    return 0;
+}
+
 int network::new_number()
 {
     return ++last_number_;
@@ -109,21 +131,21 @@ int network::add_object(iobject* object)
     assert(object->get_number() == 0);
     int number = new_number();
     object->set_number(number);
-    objects.insert(std::make_pair(number, object));
+    objects_.insert(std::make_pair(number, object));
     return number;
 }
 
 int network::del_object(iobject* object)
 {
     assert(object->get_number() != 0);
-    objects.erase(object->get_number());
+    objects_.erase(object->get_number());
     return 0;
 }
 
 iobject* network::get_object(int number)
 {
-    object_map::iterator it = objects.find(number);
-    if (it == objects.end())
+    object_map::iterator it = objects_.find(number);
+    if (it == objects_.end())
     {
         return NULL;
     }

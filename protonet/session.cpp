@@ -18,8 +18,14 @@ bool session::init(socket_t fd)
     return true;
 }
 
-void session::on_event(int events)
+void session::on_event(int events, int param)
 {
+    if (events & EVENT_ERROR)
+    {
+        manager_->on_closed(number_, param);
+        return;
+    }
+
     if (events & EVENT_READ)
     {
         on_readable();
@@ -33,8 +39,7 @@ void session::on_event(int events)
 
 void session::on_error(int error)
 {
-    manager_->on_closed(number_, error);
-    network_->close(number_);
+    network_->mark_error(this, error);
 }
 
 void session::on_readable()
