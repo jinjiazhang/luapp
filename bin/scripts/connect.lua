@@ -20,6 +20,5 @@ end
 
 function on_package( number, data )
 	log_info("connect.on_package", number, data)
-	-- client.close()
-	net.close(number)
+	client.close()
 end

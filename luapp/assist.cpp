@@ -71,4 +71,27 @@ app.reload = function (  )
         ::continue::
     end
 end
+
+timer.setups = {}
+
+timer.setup = function( second, closure )
+    local tid = timer.insert(second)
+    timer.setups[tid] = closure
+    return tid
+end
+
+timer.cancel = function( tid )
+    timer.setups[tid] = nil    
+    return timer.remove(tid)
+end
+
+timer.update = function( tid, second )
+    return timer.change(tid, second)
+end
+
+timer.timeout = function( tid )
+    local closure = timer.setups[tid]
+    timer.setups[tid] = nil
+    closure(tid)
+end
 )__";

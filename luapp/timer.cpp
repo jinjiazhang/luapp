@@ -30,7 +30,8 @@ int timer::insert(callback* handle, int second)
     node->expire = jiffies_ + second * 1000 / TIME_UNIT;
     node->handle = handle;
 
-    assert(insert(node));
+    bool succeed = insert(node);
+    assert(succeed);
     nodes_.insert(std::make_pair(node->tid, node));
     return node->tid;
 }
@@ -44,7 +45,8 @@ bool timer::remove(int tid)
     }
 
     tnode* node = it->second;
-    assert(remove(node));
+    bool succeed = remove(node);
+    assert(succeed);
     nodes_.erase(it);
     delete node;
     return false;
@@ -59,10 +61,12 @@ bool timer::change(int tid, int second)
     }
 
     tnode* node = it->second;
-    assert(remove(node));
+    bool succeed = remove(node);
+    assert(succeed);
 
     node->expire = jiffies_ + second * 1000 / TIME_UNIT;
-    assert(insert(node));
+    succeed = insert(node);
+    assert(succeed);
     return true;
 }
 
