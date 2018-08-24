@@ -10,12 +10,14 @@ luapp::luapp(lua_State* L) : lobject(L)
     app_mstime_ = 0;
     time_offset_ = 0;
 
+    http_ = nullptr;
     timer_ = nullptr;
     network_ = nullptr;
 }
 
 luapp::~luapp()
 {
+    delete http_;
     delete timer_;
     delete network_;
 }
@@ -84,6 +86,10 @@ int luapp::init()
     lua_pushlobject(L, this);
     lua_setglobal(L, "app");
 
+    http_ = new lhttp(L);
+    lua_pushlobject(L, http_);
+    lua_setglobal(L, "http");
+
     timer_ = new ltimer(L, this->mstime());
     lua_pushlobject(L, timer_);
     lua_setglobal(L, "timer");
@@ -109,6 +115,7 @@ int luapp::proc()
 {
     app_mstime_ = sys_mstime();
     network_->update(ctx_->idle_sleep);
+    http_->update();
     timer_->update(this->mstime());
     luaL_callfunc(L, this, "proc");
 

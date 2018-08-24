@@ -94,4 +94,25 @@ timer.timeout = function( tid )
     timer.setups[tid] = nil
     closure(tid)
 end
+
+http.responses = {}
+
+http.async_get = function( url, closure )
+    local token = http.get(url)
+    http.responses[token] = closure
+    return token
+end
+
+http.async_post = function( url, data, closure )
+    local token = http.post(url, data)
+    http.responses[token] = closure
+    return token
+end
+
+http.respond = function( token, code, data )
+    local closure = http.responses[token]
+    http.responses[token] = nil
+    closure(code, data)
+end
+
 )__";
