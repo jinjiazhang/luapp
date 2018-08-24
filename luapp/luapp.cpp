@@ -101,7 +101,6 @@ int luapp::init()
     luaL_dostring(L, assist_code);
     if (!luaL_callfunc(L, this, "import", ctx_->entry))
     {
-        luapp_error(lua_tostring(L, -1));
         return -1;
     }
 

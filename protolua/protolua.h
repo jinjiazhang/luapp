@@ -9,7 +9,14 @@
 
 #pragma comment(lib, "protobuf.lib")
 
-#ifndef _JINJIAZHANG_PROTOLOG_H_
+#ifdef _JINJIAZHANG_PROTOLOG_H_
+#define proto_trace(fmt, ...)  trace_fmt(fmt, __VA_ARGS__)
+#define proto_debug(fmt, ...)  debug_fmt(fmt, __VA_ARGS__)
+#define proto_info(fmt, ...)   info_fmt(fmt, __VA_ARGS__)
+#define proto_warn(fmt, ...)   warn_fmt(fmt, __VA_ARGS__)
+#define proto_error(fmt, ...)  error_fmt(fmt, __VA_ARGS__)
+#define proto_fatal(fmt, ...)  fatal_fmt(fmt, __VA_ARGS__)
+#else
 #define proto_trace(fmt, ...)
 #define proto_debug(fmt, ...)
 #define proto_info(fmt, ...)

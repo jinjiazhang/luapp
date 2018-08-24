@@ -49,37 +49,37 @@ std::string lua_stackview(lua_State* L)
 
 int lua_logtrace(lua_State* L)
 {
-    luapp_trace(lua_stackview(L).c_str());
+    trace_str(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logdebug(lua_State* L)
 {
-    luapp_debug(lua_stackview(L).c_str());
+    debug_str(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_loginfo(lua_State* L)
 {
-    luapp_info(lua_stackview(L).c_str());
+    info_str(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logwarn(lua_State* L)
 {
-    luapp_warn(lua_stackview(L).c_str());
+    warn_str(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logerror(lua_State* L)
 {
-    luapp_error(lua_stackview(L).c_str());
+    error_str(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logfatal(lua_State* L)
 {
-    luapp_fatal(lua_stackview(L).c_str());
+    fatal_str(lua_stackview(L).c_str());
     return 0;
 }
 
