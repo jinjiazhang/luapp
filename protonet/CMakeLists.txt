@@ -8,4 +8,4 @@ source_group("Include Files" FILES ${DIR_INCS})
 add_library(${PROJECT_NAME} ${DIR_SRCS} ${DIR_INCS})
 
 include_directories(../)
-include_directories(../include)
+include_directories(../thirdparty/include)

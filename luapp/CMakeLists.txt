@@ -8,7 +8,7 @@ source_group("Include Files" FILES ${DIR_INCS})
 add_executable(${PROJECT_NAME} ${DIR_SRCS} ${DIR_INCS})
 
 include_directories(../)
-include_directories(../include)
+include_directories(../thirdparty/include)
 link_libraries(../dep/lib/lua.lib)
 link_libraries(../dep/lib/log4cplus.lib)
 link_libraries(../dep/lib/protobuf.lib)
