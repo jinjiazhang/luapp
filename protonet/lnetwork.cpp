@@ -90,7 +90,7 @@ int lnetwork::close(lua_State* L)
 
 void lnetwork::add_manager(lmanager* manager)
 {
-    assert(manager->get_number() != 0);
+    assert(manager->number() != 0);
     int number = manager->number();
     managers_.insert(std::make_pair(number, manager));
 }

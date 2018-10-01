@@ -56,7 +56,7 @@ if not exist google (
 )
 
 rem goto root
-cd ..
+cd ../..
 
 
 if not exist build (mkdir build)
