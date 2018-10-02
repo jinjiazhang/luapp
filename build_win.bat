@@ -8,6 +8,7 @@ if not exist include (mkdir include)
 if not exist lua-5.3.5/build (mkdir "lua-5.3.5/build")
 if not exist curl-7.61.0/build (mkdir "curl-7.61.0/build")
 if not exist log4cplus/build (mkdir "log4cplus/build")
+if not exist protobuf/cmake/build (mkdir "protobuf/cmake/build")
 
 rem build lua
 cd lua-5.3.5/build
@@ -31,11 +32,11 @@ copy .\src\Release\log4cplusS.lib ..\..\lib\log4cplus.lib
 cd ../..
 
 rem build protobuf
-cd protobuf/cmake
-cmake -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ..\cmake
+cd protobuf/cmake/build
+cmake -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ..
 MSBuild.exe ./libprotobuf.vcxproj /p:Configuration=Release
-copy .\Release\libprotobuf.lib ..\..\lib\protobuf.lib
-cd ../..
+copy .\Release\libprotobuf.lib ..\..\..\lib\protobuf.lib
+cd ../../..
 
 rem copy include
 cd include

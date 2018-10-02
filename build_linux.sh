@@ -18,6 +18,9 @@ fi
 if [ ! -d log4cplus/build ];then
     mkdir log4cplus/build
 fi
+if [ ! -d protobuf/cmake/build ];then
+    mkdir protobuf/cmake/build
+fi
 
 # build lua
 cd lua-5.3.5/build
@@ -41,10 +44,10 @@ cp ./src/liblog4cplusS.a ../../lib/liblog4cplus.a
 cd ../..
 
 # build protobuf
-cd protobuf/cmake
-cmake -DCMAKE_BUILD_TYPE=Release -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ../cmake
+cd protobuf/cmake/build
+cmake -DCMAKE_BUILD_TYPE=Release -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ..
 make libprotobuf
-cp ./libprotobuf.a ../../lib/libprotobuf.a
+cp ./libprotobuf.a ../../../lib/libprotobuf.a
 cd ../..
 
 # copy include
