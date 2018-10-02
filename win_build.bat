@@ -6,6 +6,7 @@ cd thirdparty
 if not exist lib (mkdir lib)
 if not exist include (mkdir include)
 if not exist lua-5.3.5/build (mkdir "lua-5.3.5/build")
+if not exist curl-7.61.0/build (mkdir "curl-7.61.0/build")
 if not exist log4cplus/build (mkdir "log4cplus/build")
 
 rem build lua
@@ -13,6 +14,13 @@ cd lua-5.3.5/build
 cmake ..\src
 MSBuild.exe ./lua.vcxproj /p:Configuration=Release
 copy .\Release\lua.lib ..\..\lib\lua.lib
+cd ../..
+
+rem build curl
+cd curl-7.61.0/build
+cmake -DCURL_STATICLIB=ON ..
+MSBuild.exe ./lib/libcurl.vcxproj /p:Configuration=Release
+copy .\lib\Release\libcurl.lib ..\..\lib\log4cplus.lib
 cd ../..
 
 rem build log4cplus
@@ -62,3 +70,6 @@ cd ../..
 if not exist build (mkdir build)
 cd build
 cmake ..
+MSBuild.exe ./ALL_BUILD.vcxproj /p:Configuration=Release
+copy .\Release\luapp.exe ..\..\bin\luapp.exe
+cd ../..
