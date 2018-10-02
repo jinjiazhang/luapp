@@ -3,8 +3,8 @@
 
 #include "log4cplus/log4cplus.h"
 
-#pragma comment(lib, "log4cplus.lib")
-#pragma comment(lib, "advapi32.lib")
+// #pragma comment(lib, "log4cplus.lib")
+// #pragma comment(lib, "advapi32.lib")
 
 using namespace log4cplus;
 

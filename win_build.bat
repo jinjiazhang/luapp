@@ -20,7 +20,7 @@ rem build curl
 cd curl-7.61.0/build
 cmake -DCURL_STATICLIB=ON ..
 MSBuild.exe ./lib/libcurl.vcxproj /p:Configuration=Release
-copy .\lib\Release\libcurl.lib ..\..\lib\log4cplus.lib
+copy .\lib\Release\libcurl.lib ..\..\lib\curl.lib
 cd ../..
 
 rem build log4cplus
@@ -71,5 +71,5 @@ if not exist build (mkdir build)
 cd build
 cmake ..
 MSBuild.exe ./ALL_BUILD.vcxproj /p:Configuration=Release
-copy .\Release\luapp.exe ..\..\bin\luapp.exe
+copy .\luapp\Release\luapp.exe ..\bin\luapp.exe
 cd ../..

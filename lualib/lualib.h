@@ -8,7 +8,7 @@
 #include "lua/lua.hpp"
 #include "protolog/protolog.h"
 
-#pragma comment(lib, "lua.lib")
+// #pragma comment(lib, "lua.lib")
 
 #define IMPORT_CFUNC(method) \
     #method, lua_##method
