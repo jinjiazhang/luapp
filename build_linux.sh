@@ -48,7 +48,7 @@ cd protobuf/cmake/build
 cmake -DCMAKE_BUILD_TYPE=Release -Dprotobuf_MSVC_STATIC_RUNTIME=OFF ..
 make libprotobuf
 cp ./libprotobuf.a ../../../lib/libprotobuf.a
-cd ../..
+cd ../../..
 
 # copy include
 cd include
