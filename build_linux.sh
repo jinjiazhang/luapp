@@ -87,5 +87,5 @@ fi
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
-cp ./luapp/Release/luapp ../bin/luapp
+cp ./luapp/luapp ../bin/luapp
 cd ../..
