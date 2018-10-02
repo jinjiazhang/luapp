@@ -27,7 +27,7 @@ void network::release()
 
 bool network::init()
 {
-#ifdef linux
+#ifdef __linux__
     frame_ = new fepoll();
 #else
     frame_ = new fselect();

@@ -85,7 +85,7 @@ int lua_logfatal(lua_State* L)
 
 void app_daemon()
 {
-#ifdef linux
+#ifdef __linux__
 
 #endif
 }

@@ -65,7 +65,7 @@ socket_t net_connect(const char* ip, int port)
 
 socket_t net_accept(socket_t listenfd, sockaddr_in& addr)
 {
-#ifdef linux
+#ifdef __linux__
     unsigned int len = sizeof (struct sockaddr_in);
 #else
     int len = sizeof (struct sockaddr_in);
@@ -94,7 +94,7 @@ int send_data(socket_t fd, char* data, int len)
 
 int send_iovec(socket_t fd, iovec *iov, int cnt)
 {
-#ifdef linux
+#ifdef __linux__
     return ::writev(fd, iov, cnt);
 #else
     unsigned long sendLen = 0;
@@ -109,7 +109,7 @@ int send_iovec(socket_t fd, iovec *iov, int cnt)
 
 int close_socket(socket_t fd)
 {
-#ifdef linux
+#ifdef __linux__
     return ::close(fd);
 #else
     return ::closesocket(fd);
@@ -118,7 +118,7 @@ int close_socket(socket_t fd)
 
 int set_no_block(socket_t fd)
 {
-#ifdef linux
+#ifdef __linux__
     int flags = fcntl(fd, F_GETFL, 0);
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 #else
@@ -152,7 +152,7 @@ int get_socket_err(socket_t fd)
 
 int get_socket_err()
 {
-#ifdef linux
+#ifdef __linux__
     int error = errno;
     if (error == 0 || error == EINTR || error == EAGAIN || error == EINPROGRESS)
     {

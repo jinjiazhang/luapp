@@ -5,7 +5,7 @@
 
 class fepoll : public iframe
 {
-#ifdef linux
+#ifdef __linux__
 public:
     fepoll();
     ~fepoll();

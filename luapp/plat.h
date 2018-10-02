@@ -4,7 +4,7 @@
 #include "lualib/lualib.h"
 #include "protolog/protolog.h"
 
-#ifdef linux
+#ifdef __linux__
 #else
 using int64_t = long long;
 using uint64_t = unsigned long long;

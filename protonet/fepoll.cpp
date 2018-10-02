@@ -1,6 +1,6 @@
 #include "fepoll.h"
 
-#ifdef linux
+#ifdef __linux__
 fepoll::fepoll()
 {
     epfd_ = -1;
