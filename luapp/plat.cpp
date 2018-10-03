@@ -47,7 +47,6 @@ std::string lua_stackview(lua_State* L)
         out << lua_tostring(L, -1);  /* get result */
         lua_pop(L, 1);  /* pop result */
     }
-    out << std::endl;
     return out.str();
 }
 
