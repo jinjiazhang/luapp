@@ -1,6 +1,10 @@
 #!/bin/sh
 #set -x
 
+# yum install libstdc++-devel.x86_64 libstdc++.x86_64 compat-libstdc++-33.x86_64 libstdc++-static.x86_64 
+# yum install openssl openssl-devel
+# yum install libcurl-devel.x86_64
+
 # build thirdparty
 cd thirdparty
 if [ ! -d lib ];then
@@ -30,11 +34,11 @@ cp ./liblua.a ../../lib/liblua.a
 cd ../..
 
 # build curl
-cd curl-7.61.0/build
-cmake -DCMAKE_BUILD_TYPE=Release -DCURL_STATICLIB=ON ..
-make libcurl
-cp ./lib/libcurl.a ../../lib/libcurl.a
-cd ../..
+## cd curl-7.61.0/build
+## cmake -DCMAKE_BUILD_TYPE=Release -DCURL_STATICLIB=ON ..
+## make libcurl
+## cp ./lib/libcurl.a ../../lib/libcurl.a
+## cd ../..
 
 # build log4cplus
 cd log4cplus/build
@@ -61,10 +65,10 @@ if [ ! -d lua ];then
 	cp ../lua-5.3.5/src/lualib.h ./lua
 fi
 
-if [ ! -d curl ];then
-	mkdir curl
-	cp -r ../curl-7.61.0/include/curl ./
-fi
+## if [ ! -d curl ];then
+## 	mkdir curl
+## 	cp -r ../curl-7.61.0/include/curl ./
+## fi
 
 if [ ! -d log4cplus ];then
 	mkdir log4cplus

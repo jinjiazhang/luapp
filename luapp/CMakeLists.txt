@@ -22,14 +22,13 @@ include_directories(../)
 include_directories(../thirdparty/include)
 
 find_library(LUA_LIB lua ../thirdparty/lib)
-find_library(CURL_LIB curl ../thirdparty/lib)
 find_library(LOG4CPLUS_LIB log4cplus ../thirdparty/lib)
 find_library(PROTOBUF_LIB protobuf ../thirdparty/lib)
 
 
-
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} protonet protolua lualib ${LUA_LIB} ${CURL_LIB} ${LOG4CPLUS_LIB} ${PROTOBUF_LIB} dl)
+    target_link_libraries(${PROJECT_NAME} protonet protolua lualib ${LUA_LIB} ${LOG4CPLUS_LIB} ${PROTOBUF_LIB} curl dl pthread)
 ELSE ()
+	find_library(CURL_LIB curl ../thirdparty/lib)
     target_link_libraries(${PROJECT_NAME} protonet protolua lualib ${LUA_LIB} ${CURL_LIB} ${LOG4CPLUS_LIB} ${PROTOBUF_LIB})
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
