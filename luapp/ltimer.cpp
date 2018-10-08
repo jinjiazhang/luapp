@@ -20,9 +20,9 @@ int ltimer::update(int64_t current)
     return timer_->update(current);
 }
 
-int ltimer::insert(int second)
+int ltimer::insert(int second, bool repeat)
 {
-    return timer_->insert(this, second);
+    return timer_->insert(this, second, repeat);
 }
 
 bool ltimer::remove(int tid)

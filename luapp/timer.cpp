@@ -22,11 +22,13 @@ int timer::update(int64_t current)
     return 0;
 }
 
-int timer::insert(callback* handle, int second)
+int timer::insert(callback* handle, int second, bool repeat)
 {
     tnode* node = new tnode();
     node->tid = ++last_tid_;
     node->index = -1;
+    node->second = second;
+    node->repeat = repeat;
     node->expire = jiffies_ + second * 1000 / TIME_UNIT;
     node->handle = handle;
 
@@ -64,6 +66,7 @@ bool timer::change(int tid, int second)
     bool succeed = remove(node);
     assert(succeed);
 
+    node->second = second;
     node->expire = jiffies_ + second * 1000 / TIME_UNIT;
     succeed = insert(node);
     assert(succeed);
@@ -137,8 +140,18 @@ void timer::timeout(int index)
         tnode* node = list.front();
         list.pop_front();
         node->handle->timeout(node->tid);
-        nodes_.erase(node->tid);
-        delete node;
+
+        if (node->repeat)
+        {
+            node->expire = jiffies_ + node->second * 1000 / TIME_UNIT;
+            bool succeed = insert(node);
+            assert(succeed);
+        }
+        else
+        {
+            nodes_.erase(node->tid);
+            delete node;
+        }
     }
 }
 

@@ -24,6 +24,8 @@ public:
     {
         int tid;
         int index;
+        int second;
+        bool repeat;
         int64_t expire;
         callback* handle;
     };
@@ -34,7 +36,7 @@ public:
 
 public:
     int update(int64_t current);
-    int insert(callback* handle, int second);
+    int insert(callback* handle, int second, bool repeat);
     bool remove(int tid);
     bool change(int tid, int second);
 

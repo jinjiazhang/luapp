@@ -74,9 +74,12 @@ end
 
 timer.setups = {}
 
-timer.setup = function( second, closure )
-    local tid = timer.insert(second)
-    timer.setups[tid] = closure
+timer.setup = function( second, loop, closure )
+    local tid = timer.insert(second, loop)
+    timer.setups[tid] = {
+        loop = loop,
+        closure = closure,
+    }
     return tid
 end
 
@@ -90,9 +93,11 @@ timer.update = function( tid, second )
 end
 
 timer.timeout = function( tid )
-    local closure = timer.setups[tid]
-    timer.setups[tid] = nil
-    closure(tid)
+    local setup = timer.setups[tid]
+    if not setup.loop then
+        timer.setups[tid] = nil
+    end
+    setup.closure(tid)
 end
 
 http.responses = {}

@@ -15,7 +15,7 @@ public:
     virtual const luaL_Reg* get_libs();
     
     int update(int64_t current);
-    int insert(int second);
+    int insert(int second, bool repeat);
     bool remove(int tid);
     bool change(int tid, int second);
 
