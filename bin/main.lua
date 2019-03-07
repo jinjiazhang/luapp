@@ -6,6 +6,7 @@ httpreq = import("scripts/httpreq.lua")
 
 app.init = function ( ... )
 	log_info("app.time", app.time())
+	proto.parse("game.proto")
 	timeout.init()
 	listen.init()
 	connect.init()

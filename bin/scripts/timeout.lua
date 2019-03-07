@@ -11,7 +11,7 @@ function init( ... )
 	end)
 	timer.cancel(tid2)
 
-	local tid3 = timer.setup(3, true, function( tid )
+	local tid3 = timer.setup(3, false, function( tid )
 		log_info(string.format("timer[%d] is timeout, cost %dms", tid, app.mstime() - start))
 	end)
 	timer.update(tid3, 2)

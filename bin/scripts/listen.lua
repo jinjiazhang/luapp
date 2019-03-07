@@ -17,7 +17,8 @@ function on_closed( number, error )
 end
 
 function on_package( number, data )
-	log_info("listen.on_package", number, data)
-	local data = "hello, I am server"
+	local user, password = proto.unpack("LoginReq", data)
+	log_info("listen.on_package", number, "LoginReq", user, password)
+	local data = proto.pack("LoginRsp", "ok")
 	net.send(number, data)
 end

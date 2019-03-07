@@ -10,7 +10,7 @@ end
 
 function on_accept( number, error )
 	log_info("connect.on_accept", number, error)
-	local data = "hello, I am client-"..number
+	local data = proto.pack("LoginReq", "jinjiazh", "genius")
 	net.send(number, data)
 end
 
@@ -19,6 +19,7 @@ function on_closed( number, error )
 end
 
 function on_package( number, data )
-	log_info("connect.on_package", number, data)
+	local result = proto.unpack("LoginRsp", data)
+	log_info("connect.on_package", number, "LoginRsp", result)
 	client.close()
 end
