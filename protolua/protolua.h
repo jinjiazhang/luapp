@@ -28,17 +28,14 @@
 #define PROTO_DO(exp) { if(!(exp)) return false; }
 #define PROTO_ASSERT(exp) { if(!(exp)) return false; }
 
-using namespace google::protobuf;
-using namespace google::protobuf::compiler;
+bool proto_parse(const char* file, lua_State* L);
+bool proto_encode(const char* proto, lua_State* L, int index, char* output, size_t* size);
+bool proto_decode(const char* proto, lua_State* L, const char* input, size_t size);
+bool proto_pack(const char* proto, lua_State* L, int start, int end, char* output, size_t* size);
+bool proto_unpack(const char* proto, lua_State* L, const char* input, size_t size);
 
-bool ProtoParse(const char* file);
-bool ProtoEncode(const char* proto, lua_State* L, int index, char* output, size_t* size);
-bool ProtoDecode(const char* proto, lua_State* L, const char* input, size_t size);
-bool ProtoPack(const char* proto, lua_State* L, int start, int end, char* output, size_t* size);
-bool ProtoUnpack(const char* proto, lua_State* L, const char* input, size_t size);
-
-extern Importer g_importer;
-extern DynamicMessageFactory g_factory;
+extern google::protobuf::compiler::Importer g_importer;
+extern google::protobuf::DynamicMessageFactory g_factory;
 int luaopen_protolua(lua_State* L);
 
 #endif
