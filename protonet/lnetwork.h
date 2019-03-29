@@ -21,7 +21,7 @@ public:
         
     int listen(lua_State* L);
     int connect(lua_State* L);
-    int send(lua_State* L);
+    int call(lua_State* L);
     int close(lua_State* L);
 
 private:

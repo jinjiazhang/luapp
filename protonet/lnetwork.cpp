@@ -1,5 +1,6 @@
 #include "lnetwork.h"
 #include "lmanager.h"
+#include "protolua/protolua.h"
 
 lnetwork::lnetwork(lua_State* L) : lobject(L)
 {
@@ -64,14 +65,28 @@ int lnetwork::connect(lua_State* L)
     return 1;
 }
 
-int lnetwork::send(lua_State* L)
+int lnetwork::call(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     int number = luaL_getvalue<int>(L, 1);
     luaL_checktype(L, 2, LUA_TSTRING);
-    std::string data = luaL_getvalue<std::string>(L, 2);
-    network_->send(number, (char*)data.c_str(), data.size());
-    return 0;
+    std::string proto = luaL_getvalue<std::string>(L, 2);
+
+    static char buffer[64 * 1024];
+    strcpy(buffer, proto.c_str());
+
+    int top = lua_gettop(L);
+    char* output = buffer + proto.size() + 1;
+    size_t size = sizeof(buffer) - proto.size() - 1;
+    if (!proto_pack(proto.c_str(), L, 3, top, output, &size))
+    {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    network_->send(number, buffer, proto.size() + 1 + size);
+    lua_pushboolean(L, true);
+    return 1;
 }
 
 int lnetwork::close(lua_State* L)
@@ -104,14 +119,14 @@ void lnetwork::del_manager(lmanager* manager)
 
 EXPORT_OFUNC(lnetwork, listen)
 EXPORT_OFUNC(lnetwork, connect)
-EXPORT_OFUNC(lnetwork, send)
+EXPORT_OFUNC(lnetwork, call)
 EXPORT_OFUNC(lnetwork, close)
 const luaL_Reg* lnetwork::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(lnetwork, listen) },
         { IMPORT_OFUNC(lnetwork, connect) },
-        { IMPORT_OFUNC(lnetwork, send) },
+        { IMPORT_OFUNC(lnetwork, call) },
         { IMPORT_OFUNC(lnetwork, close) },
         { NULL, NULL }
     };

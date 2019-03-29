@@ -5,21 +5,19 @@ function init( ... )
 	client = net.connect("127.0.0.1", 8087)
 	client.on_accept = on_accept
 	client.on_closed = on_closed
-	client.on_package = on_package
+	client.on_message = on_message
 end
 
 function on_accept( number, error )
 	log_info("connect.on_accept", number, error)
-	local data = proto.pack("LoginReq", "jinjiazh", "genius")
-	net.send(number, data)
+	net.call(number, "LoginReq", "jinjiazh", "genius")
 end
 
 function on_closed( number, error )
 	log_info("connect.on_closed", number, error)
 end
 
-function on_package( number, data )
-	local result = proto.unpack("LoginRsp", data)
-	log_info("connect.on_package", number, "LoginRsp", result)
+function on_message( number, proto, ... )
+	log_info("connect.on_message", proto, ...)
 	client.close()
 end

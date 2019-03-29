@@ -5,7 +5,7 @@ function init( ... )
 	server = net.listen("127.0.0.1", 8087)
 	server.on_accept = on_accept
 	server.on_closed = on_closed
-	server.on_package = on_package
+	server.on_message = on_message
 end
 
 function on_accept( number, error )
@@ -16,9 +16,7 @@ function on_closed( number, error )
 	log_info("listen.on_closed", number, error)
 end
 
-function on_package( number, data )
-	local user, password = proto.unpack("LoginReq", data)
-	log_info("listen.on_package", number, "LoginReq", user, password)
-	local data = proto.pack("LoginRsp", "ok")
-	net.send(number, data)
+function on_message( number, proto, ... )
+	log_info("listen.on_message", proto, ...)
+	net.call(number, "LoginRsp", "ok")
 end
