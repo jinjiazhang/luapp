@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-#include "lua/lua.hpp"
+#include "lua.hpp"
 #include "protolog/protolog.h"
 
 // #pragma comment(lib, "lua.lib")

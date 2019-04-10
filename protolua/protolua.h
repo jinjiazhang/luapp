@@ -1,7 +1,7 @@
 #ifndef _JINJIAZHANG_PROTO_H_
 #define _JINJIAZHANG_PROTO_H_
 
-#include "lua/lua.hpp"
+#include "lua.hpp"
 #include "protolog/protolog.h"
 
 #include "google/protobuf/dynamic_message.h"

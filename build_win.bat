@@ -4,7 +4,6 @@ set PATH=%PATH%;%VS_PATH%
 rem build thirdparty
 cd thirdparty
 if not exist lib (mkdir lib)
-if not exist include (mkdir include)
 if not exist lua-5.3.5/build (mkdir "lua-5.3.5/build")
 if not exist curl-7.61.0/build (mkdir "curl-7.61.0/build")
 if not exist log4cplus/build (mkdir "log4cplus/build")
@@ -38,36 +37,9 @@ MSBuild.exe ./libprotobuf.vcxproj /p:Configuration=Release
 copy .\Release\libprotobuf.lib ..\..\..\lib\protobuf.lib
 cd ../../..
 
-rem copy include
-cd include
-if not exist lua (
-	mkdir lua
-	copy ..\lua-5.3.5\src\lauxlib.h .\lua
-	copy ..\lua-5.3.5\src\lua.h .\lua
-	copy ..\lua-5.3.5\src\lua.hpp .\lua
-	copy ..\lua-5.3.5\src\luaconf.h .\lua
-	copy ..\lua-5.3.5\src\lualib.h .\lua
-)
 
-if not exist curl (
-	mkdir curl
-	xcopy /E ..\curl-7.61.0\include\curl .\curl
-)
-
-if not exist log4cplus (
-	mkdir log4cplus
-	xcopy  /E ..\log4cplus\include\log4cplus .\log4cplus
-)
-
-if not exist google (
-	mkdir google
-	xcopy  /E ..\protobuf\src\google .\google
-)
-
-rem goto root
-cd ../..
-
-
+rem build luapp
+cd ..
 if not exist build (mkdir build)
 cd build
 cmake ..
