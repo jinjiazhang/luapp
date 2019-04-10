@@ -17,7 +17,8 @@ struct iobject
     void set_events(int events) { events_ = events; }
 
     virtual void on_event(int events) = 0;
-    virtual void send(char* data, int len) = 0;
+    virtual void send(const void* data, int len) = 0;
+    virtual void sendv(iobuf bufs[], int count) = 0;
     virtual void close() = 0;
 
 protected:
@@ -44,7 +45,8 @@ public:
     virtual int update(int timeout);
     virtual int listen(imanager* manager, const char* ip, int port);
     virtual int connect(imanager* manager, const char* ip, int port);
-    virtual void send(int number, char* data, int len);
+    virtual void send(int number, const void* data, int len);
+    virtual void sendv(int number, iobuf bufs[], int count);
     virtual void close(int number);
     virtual void release();
 

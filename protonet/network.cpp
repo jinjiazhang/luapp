@@ -67,7 +67,7 @@ int network::connect(imanager* manager, const char* ip, int port)
     return add_object(object);
 }
 
-void network::send(int number, char* data, int len)
+void network::send(int number, const void* data, int len)
 {
     iobject* object = get_object(number);
     if (!object)
@@ -75,6 +75,16 @@ void network::send(int number, char* data, int len)
         return;
     }
     object->send(data, len);
+}
+
+void network::sendv(int number, iobuf bufs[], int count)
+{
+    iobject* object = get_object(number);
+    if (!object)
+    {
+        return;
+    }
+    object->send(bufs, count);
 }
 
 void network::close(int number)

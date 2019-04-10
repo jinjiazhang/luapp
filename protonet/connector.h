@@ -13,7 +13,8 @@ public:
     bool connect(const char* ip, int port);
 
     virtual void on_event(int events);
-    virtual void send(char* data, int len);
+    virtual void send(const void* data, int len);
+    virtual void sendv(iobuf bufs[], int count);
     virtual void close();
 
 private:

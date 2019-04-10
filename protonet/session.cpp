@@ -1,4 +1,5 @@
 #include "session.h"
+#include <vector>
 
 session::session(network* instance, imanager* manager)
 {
@@ -97,26 +98,48 @@ void session::on_writable()
     }
 }
 
-void session::send(char* data, int len)
+void session::send(const void* data, int len)
 {
-    char head[16];
-    int head_len = encode_var(head, sizeof(head), len);
+    char head_data[16];
+    int head_len = encode_var(head_data, sizeof(head_data), len);
     iovec iov[2];
-    iov[0].iov_base = head;
+    iov[0].iov_base = head_data;
     iov[0].iov_len = head_len;
-    iov[1].iov_base = data;
+    iov[1].iov_base = (char*)data;
     iov[1].iov_len = len;
+    transmit(iov, 2);
+}
 
+void session::sendv(iobuf bufs[], int count)
+{
+    int total = 0;
+    std::vector<iovec> iov(count + 1);
+    for (int i = 0; i < count; i++)
+    {
+        iov[i+1].iov_base = (char*)bufs[i].data;
+        iov[i+1].iov_len = bufs[i].len;
+        total += bufs[i].len;
+    }
+
+    char head_data[16];
+    int head_len = encode_var(head_data, sizeof(head_data), total);
+    iov[0].iov_base = head_data;
+    iov[0].iov_len = head_len;
+    transmit(iov.data(), iov.size());
+}
+
+void session::transmit(iovec* iov, int iovcnt)
+{
     if (sendbuf_.size() > 0)
     {
-        if (!sendbuf_.push_data(iov, 2, 0))
+        if (!sendbuf_.push_data(iov, iovcnt, 0))
         {
             on_error(-1);
         }
         return;
     }
 
-    int send_len = send_iovec(fd_, iov, 2);
+    int send_len = send_iovec(fd_, iov, iovcnt);
     if (send_len < 0)
     {
         int error = get_socket_err();
@@ -126,7 +149,7 @@ void session::send(char* data, int len)
             return;
         }
 
-        if (!sendbuf_.push_data(iov, 2, 0))
+        if (!sendbuf_.push_data(iov, iovcnt, 0))
         {
             on_error(-2);
             return;
@@ -141,9 +164,15 @@ void session::send(char* data, int len)
         return;
     }
 
-    if (send_len < head_len + len)
+    int total = 0;
+    for (int i = 0; i < iovcnt; i++)
     {
-        if (!sendbuf_.push_data(iov, 2, send_len))
+        total += iov[i].iov_len;
+    }
+
+    if (send_len < total)
+    {
+        if (!sendbuf_.push_data(iov, iovcnt, send_len))
         {
             on_error(-3);
             return;

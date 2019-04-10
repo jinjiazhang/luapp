@@ -13,7 +13,8 @@ public:
     bool init(socket_t fd);
 
     virtual void on_event(int events);
-    virtual void send(char* data, int len);
+    virtual void send(const void* data, int len);
+    virtual void sendv(iobuf bufs[], int count);
     virtual void close();
 
 private:
@@ -21,6 +22,7 @@ private:
     void on_writable();
     void on_error(int error);
     void dispatch();
+    void transmit(iovec* iov, int iovcnt);
 
 protected:
     socket_t fd_;

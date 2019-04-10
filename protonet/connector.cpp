@@ -57,11 +57,19 @@ void connector::on_error(int error)
     network_->close(number_);
 }
 
-void connector::send(char* data, int len)
+void connector::send(const void* data, int len)
 {
     if (connected_)
     {
         session::send(data, len);
+    }
+}
+
+void connector::sendv(iobuf bufs[], int count)
+{
+    if (connected_)
+    {
+        session::sendv(bufs, count);
     }
 }
 
