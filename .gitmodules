@@ -4,3 +4,6 @@
 [submodule "dep/protobuf"]
 	path = thirdparty/protobuf
 	url = https://github.com/google/protobuf.git
+[submodule "thirdparty/hiredis-win"]
+	path = thirdparty/hiredis-win
+	url = https://github.com/Microsoft/hiredis.git

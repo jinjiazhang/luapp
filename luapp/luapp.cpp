@@ -13,6 +13,7 @@ luapp::luapp(lua_State* L) : lobject(L)
     http_ = nullptr;
     timer_ = nullptr;
     network_ = nullptr;
+	luaredis_ = nullptr;
 }
 
 luapp::~luapp()
@@ -20,6 +21,7 @@ luapp::~luapp()
     delete http_;
     delete timer_;
     delete network_;
+	delete luaredis_;
 }
 
 int64_t luapp::time()
@@ -97,6 +99,10 @@ int luapp::init()
     network_ = new lnetwork(L);
     lua_pushlobject(L, network_);
     lua_setglobal(L, "net");
+
+	luaredis_ = new luaredis(L);
+	lua_pushlobject(L, luaredis_);
+	lua_setglobal(L, "redis");
 
     luaL_dostring(L, assist_code);
     if (!luaL_callfunc(L, this, "import", ctx_->entry))

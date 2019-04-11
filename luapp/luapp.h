@@ -3,6 +3,7 @@
 
 #include "lualib/lobject.h"
 #include "protonet/lnetwork.h"
+#include "luaredis/luaredis.h"
 #include "lhttp.h"
 #include "ltimer.h"
 
@@ -49,6 +50,7 @@ private:
     lhttp* http_;
     ltimer* timer_;
     lnetwork* network_;
+	luaredis* luaredis_;
 };
 
 extern const char* assist_code;

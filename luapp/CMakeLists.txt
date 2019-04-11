@@ -26,7 +26,7 @@ include_directories(../thirdparty/curl-7.61.0/include)
 
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} protonet protolua lualib lua log4cplusS protobuf curl dl pthread)
+    target_link_libraries(${PROJECT_NAME} protonet protolua lualib luaredis lua log4cplusS protobuf curl hiredis dl pthread)
 ELSE ()
-    target_link_libraries(${PROJECT_NAME} protonet protolua lualib lua log4cplusS libprotobuf libcurl wldap32)
+    target_link_libraries(${PROJECT_NAME} protonet protolua lualib luaredis lua log4cplusS libprotobuf libcurl wldap32 hiredis win32_interop)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
