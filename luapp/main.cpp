@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
     ctx->idle_sleep = cmd.get<int>("idle-sleep");
     ctx->daemon = cmd.exist("daemon");
 
+    log4cplus::initialize();
     PropertyConfigurator::doConfigure(ctx->log_conf);
     lua_State* L = luaL_newstate();
     luapp* app = new luapp(L);

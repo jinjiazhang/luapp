@@ -2,9 +2,6 @@
 #define _JINJIAZHANG_HTTP_H_
 
 #define CURL_STATICLIB
-#pragma comment(lib, "wldap32.lib")
-#pragma comment(lib, "curl.lib")
-
 
 #include <string>
 #include "curl/curl.h"
