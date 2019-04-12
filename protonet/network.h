@@ -16,10 +16,10 @@ struct iobject
     int get_events() { return events_; }
     void set_events(int events) { events_ = events; }
 
-    virtual void on_event(int events) = 0;
-    virtual void send(const void* data, int len) = 0;
-    virtual void sendv(iobuf bufs[], int count) = 0;
-    virtual void close() = 0;
+    virtual void on_event(int events) { }
+    virtual void send(const void* data, int len) { }
+    virtual void sendv(iobuf bufs[], int count) { }
+    virtual void close() { }
 
 protected:
     int number_;

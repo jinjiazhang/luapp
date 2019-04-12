@@ -45,16 +45,6 @@ void listener::on_event(int events)
     manager_->on_accept(object->get_number(), 0);
 }
 
-void listener::send(const void* data, int len)
-{
-    return;
-}
-
-void listener::sendv(iobuf bufs[], int count)
-{
-
-}
-
 void listener::close()
 {
     if (listenfd_ >= 0)
