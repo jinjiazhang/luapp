@@ -7,3 +7,6 @@
 [submodule "thirdparty/hiredis-win"]
 	path = thirdparty/hiredis-win
 	url = https://github.com/Microsoft/hiredis.git
+[submodule "thirdparty/hiredis"]
+	path = thirdparty/hiredis
+	url = https://github.com/redis/hiredis.git
