@@ -3,16 +3,19 @@
 
 #include "lualib/lobject.h"
 
+struct inetwork;
 class luaredis : public lobject
 {
 public:
-	luaredis(lua_State* L);
-	~luaredis();
+    luaredis(lua_State* L, inetwork* network);
+    ~luaredis();
 
-	int connect(const char* ip, int port);
+    inetwork* get_network();
+    int connect(lua_State* L);
+    virtual const luaL_Reg* get_libs();
 
 private:
-
+    inetwork* network_;
 };
 
 #endif

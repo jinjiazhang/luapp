@@ -100,7 +100,7 @@ int luapp::init()
     lua_pushlobject(L, network_);
     lua_setglobal(L, "net");
 
-	luaredis_ = new luaredis(L);
+	luaredis_ = new luaredis(L, network_->impl());
 	lua_pushlobject(L, luaredis_);
 	lua_setglobal(L, "redis");
 

@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.1)
 project(hiredis_win)
 
+include_directories(.)
 add_library(hiredis 
     async.c
     hiredis.c
     net.c
     sds.c
+    msvs/deps/adlist.c
+    msvs/deps/ae.c
 )
 
 add_library(win32_interop
