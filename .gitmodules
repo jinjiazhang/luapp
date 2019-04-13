@@ -7,3 +7,6 @@
 [submodule "thirdparty/hiredis"]
 	path = thirdparty/hiredis
 	url = https://github.com/jinjiazhang/hiredis.git
+[submodule "thirdparty/curl"]
+	path = thirdparty/curl
+	url = https://github.com/curl/curl.git

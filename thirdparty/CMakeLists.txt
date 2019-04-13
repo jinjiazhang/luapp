@@ -12,7 +12,7 @@ option (protobuf_BUILD_TESTS "protobuf build tests" OFF)
 option (protobuf_BUILD_PROTOC_BINARIES "protobuf build binaries" OFF)
 
 add_subdirectory(lua-5.3.5)
-add_subdirectory(curl-7.61.0)
+add_subdirectory(curl)
 add_subdirectory(log4cplus)
 add_subdirectory(protobuf/cmake)
 add_subdirectory(hiredis)

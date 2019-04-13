@@ -1,8 +1,6 @@
 #ifndef _JINJIAZHANG_HTTP_H_
 #define _JINJIAZHANG_HTTP_H_
 
-#define CURL_STATICLIB
-
 #include <string>
 #include "curl/curl.h"
 

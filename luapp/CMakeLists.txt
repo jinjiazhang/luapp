@@ -22,7 +22,7 @@ include_directories(../)
 include_directories(../thirdparty/lua-5.3.5/src)
 include_directories(../thirdparty/log4cplus/include)
 include_directories(../thirdparty/protobuf/src)
-include_directories(../thirdparty/curl-7.61.0/include)
+include_directories(../thirdparty/curl/include)
 
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
