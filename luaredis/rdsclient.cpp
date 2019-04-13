@@ -1,7 +1,8 @@
 #include "rdsclient.h"
 #include "luaredis.h"
-#include "protonet/network.h"
 #include "async.h"
+#include "protonet/network.h"
+#include "protolog/protolog.h"
 
 rdsclient::rdsclient(lua_State* L, luaredis* rds) : lobject(L)
 {
@@ -44,6 +45,12 @@ static void redis_cleanup(void *privdata)
 {
     rdsclient* client = (rdsclient*)privdata;
     client->del_event(EVENT_READ | EVENT_WRITE);
+}
+
+static void redis_schedule_timer(void *privdata, struct timeval tv)
+{
+    rdsclient* client = (rdsclient*)privdata;
+    log_warn("redis_schedule_timer todo add timer");
 }
 
 static void redis_on_connect(const redisAsyncContext *ac, int status)
@@ -107,6 +114,7 @@ bool rdsclient::init(redisAsyncContext* context)
     context->ev.addWrite = redis_add_write;
     context->ev.delWrite = redis_del_write;
     context->ev.cleanup = redis_cleanup;
+    context->ev.scheduleTimer = redis_schedule_timer;
 
     redisAsyncSetConnectCallback(context, redis_on_connect);
     redisAsyncSetDisconnectCallback(context, redis_on_disconnect);
@@ -133,11 +141,11 @@ void rdsclient::del_event(int events)
 
 void rdsclient::on_event(int events)
 {
-    if (events | EVENT_READ)
+    if (events & EVENT_READ)
     {
         redisAsyncHandleRead(context_);
     }
-    if (events | EVENT_WRITE)
+    if (events & EVENT_WRITE)
     {
         redisAsyncHandleWrite(context_);
     }
@@ -155,8 +163,9 @@ void rdsclient::on_disconnect(int status)
 
 void rdsclient::on_reply(redisReply* reply, void* privdata)
 {
+    int token = (long)privdata;
     luaL_pushfunc(L, this, "on_reply");
-    luaL_pushvalue(L, (int)privdata);
+    luaL_pushvalue(L, token);
     luaL_pushreply(L, reply);
     luaL_safecall(L, 2, 0);
 }
