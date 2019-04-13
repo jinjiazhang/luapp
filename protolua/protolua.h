@@ -10,12 +10,12 @@
 // #pragma comment(lib, "protobuf.lib")
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_
-#define proto_trace(fmt, ...)  trace_fmt(fmt, __VA_ARGS__)
-#define proto_debug(fmt, ...)  debug_fmt(fmt, __VA_ARGS__)
-#define proto_info(fmt, ...)   info_fmt(fmt, __VA_ARGS__)
-#define proto_warn(fmt, ...)   warn_fmt(fmt, __VA_ARGS__)
-#define proto_error(fmt, ...)  error_fmt(fmt, __VA_ARGS__)
-#define proto_fatal(fmt, ...)  fatal_fmt(fmt, __VA_ARGS__)
+#define proto_trace(fmt, ...)  log_trace(fmt, __VA_ARGS__)
+#define proto_debug(fmt, ...)  log_debug(fmt, __VA_ARGS__)
+#define proto_info(fmt, ...)   log_info(fmt, __VA_ARGS__)
+#define proto_warn(fmt, ...)   log_warn(fmt, __VA_ARGS__)
+#define proto_error(fmt, ...)  log_error(fmt, __VA_ARGS__)
+#define proto_fatal(fmt, ...)  log_fatal(fmt, __VA_ARGS__)
 #else
 #define proto_trace(fmt, ...)
 #define proto_debug(fmt, ...)

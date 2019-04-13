@@ -43,7 +43,7 @@ std::string lua_stackview(lua_State* L)
         lua_pushvalue(L, -1);  /* function to be called */
         lua_pushvalue(L, i);   /* value to print */
         lua_call(L, 1, 1);
-        if (i > 1) out << "\t";
+        if (i > 1) out << ", ";
         out << lua_tostring(L, -1);  /* get result */
         lua_pop(L, 1);  /* pop result */
     }
@@ -52,37 +52,37 @@ std::string lua_stackview(lua_State* L)
 
 int lua_logtrace(lua_State* L)
 {
-    trace_str(lua_stackview(L).c_str());
+    put_trace(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logdebug(lua_State* L)
 {
-    debug_str(lua_stackview(L).c_str());
+    put_debug(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_loginfo(lua_State* L)
 {
-    info_str(lua_stackview(L).c_str());
+    put_info(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logwarn(lua_State* L)
 {
-    warn_str(lua_stackview(L).c_str());
+    put_warn(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logerror(lua_State* L)
 {
-    error_str(lua_stackview(L).c_str());
+    put_error(lua_stackview(L).c_str());
     return 0;
 }
 
 int lua_logfatal(lua_State* L)
 {
-    fatal_str(lua_stackview(L).c_str());
+    put_fatal(lua_stackview(L).c_str());
     return 0;
 }
 

@@ -36,12 +36,12 @@ int lua_##class##_##method(lua_State* L) \
 }
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_
-#define lualib_trace(fmt, ...)  trace_fmt(fmt, __VA_ARGS__)
-#define lualib_debug(fmt, ...)  debug_fmt(fmt, __VA_ARGS__)
-#define lualib_info(fmt, ...)   info_fmt(fmt, __VA_ARGS__)
-#define lualib_warn(fmt, ...)   warn_fmt(fmt, __VA_ARGS__)
-#define lualib_error(fmt, ...)  error_fmt(fmt, __VA_ARGS__)
-#define lualib_fatal(fmt, ...)  fatal_fmt(fmt, __VA_ARGS__)
+#define lualib_trace(fmt, ...)  log_trace(fmt, __VA_ARGS__)
+#define lualib_debug(fmt, ...)  log_debug(fmt, __VA_ARGS__)
+#define lualib_info(fmt, ...)   log_info(fmt, __VA_ARGS__)
+#define lualib_warn(fmt, ...)   log_warn(fmt, __VA_ARGS__)
+#define lualib_error(fmt, ...)  log_error(fmt, __VA_ARGS__)
+#define lualib_fatal(fmt, ...)  log_fatal(fmt, __VA_ARGS__)
 #else
 #define lualib_trace(fmt, ...)
 #define lualib_debug(fmt, ...)
