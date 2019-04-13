@@ -6,6 +6,7 @@
 
 class luaredis;
 struct inetwork;
+struct redisReply;
 struct redisAsyncContext;
 class rdsclient : public lobject, public iobject
 {
@@ -18,12 +19,16 @@ public:
     void del_event(int events);
 
     virtual void on_event(int events);
+    void on_connect(int status);
+    void on_disconnect(int status);
+    void on_reply(redisReply* reply, void* privdata);
 
     int command(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:
+    int last_token_;
     luaredis* luaredis_;
     redisAsyncContext* context_;
 };

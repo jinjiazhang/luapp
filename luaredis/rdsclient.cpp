@@ -5,6 +5,7 @@
 
 rdsclient::rdsclient(lua_State* L, luaredis* rds) : lobject(L)
 {
+    last_token_ = 0;
     luaredis_ = rds;
     context_ = nullptr;
 }
@@ -47,20 +48,54 @@ static void redis_cleanup(void *privdata)
 
 static void redis_on_connect(const redisAsyncContext *ac, int status)
 {
-    rdsclient* client = (rdsclient*)ac->data;
-    // client->on_connect(status);
+    rdsclient* client = (rdsclient*)ac->ev.data;
+    client->on_connect(status);
 }
 
 static void redis_on_disconnect(const redisAsyncContext *ac, int status)
 {
-    rdsclient* client = (rdsclient*)ac->data;
-    // client->on_disconnect(status);
+    rdsclient* client = (rdsclient*)ac->ev.data;
+    client->on_disconnect(status);
 }
 
-static void redis_on_reply(redisAsyncContext *c, void *data, void *privdata)
+static void redis_on_reply(redisAsyncContext *ac, void *reply, void *privdata)
 {
-    rdsclient* client = (rdsclient*)privdata;
-    // client->on_reply(data);
+    rdsclient* client = (rdsclient*)ac->ev.data;
+    client->on_reply((redisReply*)reply, privdata);
+}
+
+static void luaL_pushreply(lua_State* L, redisReply* reply)
+{
+    switch (reply->type)
+    {
+    case REDIS_REPLY_STRING:
+    case REDIS_REPLY_STATUS:
+    case REDIS_REPLY_ERROR:
+        lua_pushlstring(L, reply->str, reply->len);
+        break;
+
+    case REDIS_REPLY_NIL:
+        lua_pushnil(L);
+        break;
+
+    case REDIS_REPLY_INTEGER:
+        lua_pushinteger(L, reply->integer);
+        break;
+
+    case REDIS_REPLY_ARRAY:
+        lua_newtable(L);
+        for (int i = 0; i < reply->elements; i++)
+        {
+            lua_pushinteger(L, i + 1);
+            luaL_pushreply(L, reply->element[i]);
+            lua_settable(L, -3);
+        }
+        break;
+
+    default:
+        lua_pushnil(L);
+        break;
+    }
 }
 
 bool rdsclient::init(redisAsyncContext* context)
@@ -108,11 +143,48 @@ void rdsclient::on_event(int events)
     }
 }
 
+void rdsclient::on_connect(int status)
+{
+    luaL_callfunc(L, this, "on_connect", status);
+}
+
+void rdsclient::on_disconnect(int status)
+{
+    luaL_callfunc(L, this, "on_disconnect", status);
+}
+
+void rdsclient::on_reply(redisReply* reply, void* privdata)
+{
+    luaL_pushfunc(L, this, "on_reply");
+    luaL_pushvalue(L, (int)privdata);
+    luaL_pushreply(L, reply);
+    luaL_safecall(L, 2, 0);
+}
+
 int rdsclient::command(lua_State* L)
 {
-    const char* cmd = lua_tostring(L, 1);
-    int ret = redisAsyncCommand(context_, redis_on_reply, this, cmd);
-    lua_pushinteger(L, ret);
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
+
+    int top = lua_gettop(L);
+    for (int i = 1; i <= top; i++)
+    {
+        size_t len = 0;
+        const char* arg = lua_tolstring(L, i, &len);
+        if (arg == nullptr || len == 0)
+            return 0;
+        args.push_back(arg);
+        lens.push_back(len);
+    }
+
+    int token = ++last_token_;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, (void*)token, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        return 0;
+    }
+
+    lua_pushinteger(L, token);
     return 1;
 }
 
@@ -126,6 +198,9 @@ EXPORT_OFUNC(rdsclient, close)
 const luaL_Reg* rdsclient::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { "on_connect", lua_emptyfunc },
+        { "on_disconnect", lua_emptyfunc },
+        { "on_reply", lua_emptyfunc },
         { IMPORT_OFUNC(rdsclient, command) },
         { IMPORT_OFUNC(rdsclient, close) },
         { NULL, NULL }
