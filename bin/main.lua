@@ -3,6 +3,7 @@ timeout = import("scripts/timeout.lua")
 listen = import("scripts/listen.lua")
 connect = import("scripts/connect.lua")
 httpreq = import("scripts/httpreq.lua")
+rdsclient = import("scripts/rdsclient.lua")
 
 app.init = function ( ... )
 	log_info("app.time", app.time())
@@ -11,6 +12,7 @@ app.init = function ( ... )
 	listen.init()
 	connect.init()
 	httpreq.init()
+	rdsclient.init()
 end
 
 app.proc = function ( ... )
