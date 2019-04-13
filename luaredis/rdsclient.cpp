@@ -50,7 +50,7 @@ static void redis_cleanup(void *privdata)
 static void redis_schedule_timer(void *privdata, struct timeval tv)
 {
     rdsclient* client = (rdsclient*)privdata;
-    log_warn("redis_schedule_timer todo add timer");
+    put_warn("redis_schedule_timer todo add timer");
 }
 
 static void redis_on_connect(const redisAsyncContext *ac, int status)
