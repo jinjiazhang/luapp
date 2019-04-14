@@ -8,14 +8,14 @@ function init( ... )
 	client.command("get", "counter")
 end
 
-function on_connect( status )
-	log_debug("rdsclient.on_connect", status)
+function on_connect( status, errmsg )
+	log_debug("rdsclient.on_connect", status, errmsg)
 end
 
-function on_disconnect( status )
-	log_info("rdsclient.on_disconnect", status)
+function on_disconnect( status, errmsg )
+	log_info("rdsclient.on_disconnect", status, errmsg)
 end
 
-function on_reply( token, data )
-	log_info("rdsclient.on_reply", token, data)
+function on_reply( token, status, data )
+	log_info("rdsclient.on_reply", token, status, data)
 end

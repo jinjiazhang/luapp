@@ -71,24 +71,38 @@ static void redis_on_reply(redisAsyncContext *ac, void *reply, void *privdata)
     client->on_reply((redisReply*)reply, privdata);
 }
 
+static void luaL_pushstatus(lua_State* L, redisReply* reply)
+{
+    if (reply == nullptr)
+    {
+        lua_pushinteger(L, -1);
+    }
+    else if (reply->type == REDIS_REPLY_ERROR)
+    {
+        lua_pushinteger(L, -2);
+    }
+    else
+    {
+        lua_pushinteger(L, 0);
+    }
+}
+
 static void luaL_pushreply(lua_State* L, redisReply* reply)
 {
-    switch (reply->type)
+    int reply_type = reply ? reply->type : 0;
+    switch (reply_type)
     {
     case REDIS_REPLY_STRING:
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_ERROR:
         lua_pushlstring(L, reply->str, reply->len);
         break;
-
     case REDIS_REPLY_NIL:
         lua_pushnil(L);
         break;
-
     case REDIS_REPLY_INTEGER:
         lua_pushinteger(L, reply->integer);
         break;
-
     case REDIS_REPLY_ARRAY:
         lua_newtable(L);
         for (int i = 0; i < reply->elements; i++)
@@ -98,7 +112,6 @@ static void luaL_pushreply(lua_State* L, redisReply* reply)
             lua_settable(L, -3);
         }
         break;
-
     default:
         lua_pushnil(L);
         break;
@@ -153,12 +166,12 @@ void rdsclient::on_event(int events)
 
 void rdsclient::on_connect(int status)
 {
-    luaL_callfunc(L, this, "on_connect", status);
+    luaL_callfunc(L, this, "on_connect", status, context_->errstr);
 }
 
 void rdsclient::on_disconnect(int status)
 {
-    luaL_callfunc(L, this, "on_disconnect", status);
+    luaL_callfunc(L, this, "on_disconnect", status, context_->errstr);
 }
 
 void rdsclient::on_reply(redisReply* reply, void* privdata)
@@ -166,8 +179,9 @@ void rdsclient::on_reply(redisReply* reply, void* privdata)
     int token = (long)privdata;
     luaL_pushfunc(L, this, "on_reply");
     luaL_pushvalue(L, token);
+    luaL_pushstatus(L, reply);
     luaL_pushreply(L, reply);
-    luaL_safecall(L, 2, 0);
+    luaL_safecall(L, 3, 0);
 }
 
 int rdsclient::command(lua_State* L)
