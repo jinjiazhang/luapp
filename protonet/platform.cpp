@@ -53,7 +53,7 @@ socket_t net_connect(const char* ip, int port)
 
     if (::connect(fd, (struct sockaddr*)&addr, len) < 0)
     {
-        if (get_socket_err() != 0)
+        if (get_network_err() != 0)
         {
             close_socket(fd);
             return -1;
@@ -150,7 +150,7 @@ int get_socket_err(socket_t fd)
     return error;
 }
 
-int get_socket_err()
+int get_network_err()
 {
 #ifdef __linux__
     int error = errno;

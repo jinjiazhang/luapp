@@ -46,7 +46,7 @@ void session::on_readable()
         int recv_len = recv_data(fd_, recvbuf_.tail(), recvbuf_.space());
         if (recv_len < 0)
         {
-            int error = get_socket_err();
+            int error = get_network_err();
             if (error != 0)
             {
                 on_error(error);
@@ -73,7 +73,7 @@ void session::on_writable()
         int send_len = send_data(fd_, sendbuf_.data(), sendbuf_.size());
         if (send_len < 0)
         {
-            int error = get_socket_err();
+            int error = get_network_err();
             if (error != 0)
             {
                 on_error(error);
@@ -142,7 +142,7 @@ void session::transmit(iovec* iov, int iovcnt)
     int send_len = send_iovec(fd_, iov, iovcnt);
     if (send_len < 0)
     {
-        int error = get_socket_err();
+        int error = get_network_err();
         if (error != 0)
         {
             on_error(error);
