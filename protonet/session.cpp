@@ -5,7 +5,7 @@ session::session(network* instance, imanager* manager)
 {
     network_ = instance;
     manager_ = manager;
-    closed_ = false;
+    closed_ = true;
 }
 
 session::~session()
@@ -16,6 +16,7 @@ session::~session()
 bool session::init(socket_t fd)
 {
     fd_ = fd;
+    closed_ = false;
     network_->add_event(this, fd_, EVENT_READ);
     return true;
 }
@@ -130,7 +131,7 @@ void session::sendv(iobuf bufs[], int count)
 
 void session::transmit(iovec* iov, int iovcnt)
 {
-    if (sendbuf_.size() > 0)
+    if (closed_ || sendbuf_.size() > 0)
     {
         if (!sendbuf_.push_data(iov, iovcnt, 0))
         {

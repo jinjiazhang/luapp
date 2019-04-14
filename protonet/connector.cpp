@@ -40,8 +40,7 @@ void connector::on_event(int events)
         return;
     }
 
-    network_->del_event(this, connectfd_, EVENT_WRITE);
-    if (!this->init(connectfd_))
+    if (!session::init(connectfd_))
     {
         on_error(-1);
         return;
@@ -49,6 +48,7 @@ void connector::on_event(int events)
 
     connected_ = true;
     manager_->on_accept(number_, 0);
+    session::on_event(events);
 }
 
 void connector::on_error(int error)
@@ -57,36 +57,19 @@ void connector::on_error(int error)
     network_->close(number_);
 }
 
-void connector::send(const void* data, int len)
-{
-    if (connected_)
-    {
-        session::send(data, len);
-    }
-}
-
-void connector::sendv(iobuf bufs[], int count)
-{
-    if (connected_)
-    {
-        session::sendv(bufs, count);
-    }
-}
-
 void connector::close()
 {
     if (connected_)
     {
         session::close();
+        return;
     }
-    else
+
+    if (connectfd_ >= 0)
     {
-        if (connectfd_ >= 0)
-        {
-            network_->del_event(this, connectfd_, events_);
-            close_socket(connectfd_);
-            connectfd_ = -1;
-            connected_ = false;
-        }
+        network_->del_event(this, connectfd_, events_);
+        close_socket(connectfd_);
+        connectfd_ = -1;
+        connected_ = false;
     }
 }
