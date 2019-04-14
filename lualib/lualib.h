@@ -92,6 +92,7 @@ inline void luaL_pushvalue(lua_State* L, long long v) { lua_pushinteger(L, (lua_
 inline void luaL_pushvalue(lua_State* L, unsigned long long v) { lua_pushinteger(L, (lua_Integer)v); }
 inline void luaL_pushvalue(lua_State* L, float v) { lua_pushnumber(L, v); }
 inline void luaL_pushvalue(lua_State* L, double v) { lua_pushnumber(L, v); }
+inline void luaL_pushvalue(lua_State* L, char* v) { lua_pushstring(L, v); }
 inline void luaL_pushvalue(lua_State* L, const char* v) { lua_pushstring(L, v); }
 inline void luaL_pushvalue(lua_State* L, const std::string& v) { lua_pushlstring(L, v.c_str(), v.size()); }
 
