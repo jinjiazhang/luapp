@@ -24,6 +24,7 @@ public:
 private:
     svrid_t svrid_;
     int number_;
+    inetwork* network_;
     routermgr* manager_;
 };
 

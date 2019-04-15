@@ -13,6 +13,11 @@ routermgr::~routermgr()
     
 }
 
+inetwork* routermgr::network()
+{
+    return network_;
+}
+
 int routermgr::listen(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);

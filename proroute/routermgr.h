@@ -11,6 +11,7 @@ public:
     routermgr(lua_State* L, inetwork* network, svrid_t svrid);
     ~routermgr();
 
+    inetwork* network();
     int listen(lua_State* L);
     int connect(lua_State* L);
     virtual const luaL_Reg* get_libs();

@@ -1,4 +1,5 @@
 #include "rtserver.h"
+#include "routermgr.h"
 
 rtserver::rtserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
@@ -17,6 +18,9 @@ int rtserver::number()
 
 bool rtserver::init(routermgr* manager, int number)
 {
+    network_ = manager->network();
+    manager_ = manager;
+    number_ = number;
     return true;
 }
 

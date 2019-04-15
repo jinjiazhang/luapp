@@ -136,7 +136,7 @@ bool rdsclient::init(redisAsyncContext* context)
 
 void rdsclient::add_event(int events)
 {
-    network* impl = dynamic_cast<network*>(luaredis_->get_network());
+    network* impl = dynamic_cast<network*>(luaredis_->network());
     if (impl != nullptr)
     {
         impl->add_event(this, context_->c.fd, events);
@@ -145,7 +145,7 @@ void rdsclient::add_event(int events)
 
 void rdsclient::del_event(int events)
 {
-    network* impl = dynamic_cast<network*>(luaredis_->get_network());
+    network* impl = dynamic_cast<network*>(luaredis_->network());
     if (impl != nullptr)
     {
         impl->del_event(this, context_->c.fd, events);

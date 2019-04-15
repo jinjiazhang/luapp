@@ -10,7 +10,7 @@ public:
     luaredis(lua_State* L, inetwork* network);
     ~luaredis();
 
-    inetwork* get_network();
+    inetwork* network();
     int connect(lua_State* L);
     virtual const luaL_Reg* get_libs();
 

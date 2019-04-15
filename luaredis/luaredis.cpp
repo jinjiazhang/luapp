@@ -12,7 +12,7 @@ luaredis::~luaredis()
     network_ = nullptr;
 }
 
-inetwork* luaredis::get_network()
+inetwork* luaredis::network()
 {
     return network_;
 }
