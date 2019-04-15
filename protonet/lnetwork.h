@@ -9,12 +9,10 @@ class lmanager;
 class lnetwork : public lobject
 {
 public:
-    lnetwork(lua_State* L);
+    lnetwork(lua_State* L, inetwork* network);
     ~lnetwork();
 
-    int update(int timeout);
     inetwork* impl();
-
     void add_manager(lmanager* manager);
     void del_manager(lmanager* manager);
     virtual const luaL_Reg* get_libs();

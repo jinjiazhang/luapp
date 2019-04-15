@@ -10,18 +10,25 @@ luapp::luapp(lua_State* L) : lobject(L)
     app_mstime_ = 0;
     time_offset_ = 0;
 
+    network_ = nullptr;
     http_ = nullptr;
     timer_ = nullptr;
-    network_ = nullptr;
+    luanet_ = nullptr;
 	luaredis_ = nullptr;
 }
 
 luapp::~luapp()
 {
-    delete http_;
-    delete timer_;
-    delete network_;
-	delete luaredis_;
+    if (http_) 
+        delete http_;
+    if (timer_) 
+        delete timer_;
+    if (luanet_) 
+        delete luanet_;
+    if (luaredis_) 
+        delete luaredis_;
+    if (network_) 
+        network_->release();
 }
 
 int64_t luapp::time()
@@ -96,11 +103,12 @@ int luapp::init()
     lua_pushlobject(L, timer_);
     lua_setglobal(L, "timer");
 
-    network_ = new lnetwork(L);
-    lua_pushlobject(L, network_);
+    network_ = create_network();
+    luanet_ = new lnetwork(L, network_);
+    lua_pushlobject(L, luanet_);
     lua_setglobal(L, "net");
 
-	luaredis_ = new luaredis(L, network_->impl());
+	luaredis_ = new luaredis(L, network_);
 	lua_pushlobject(L, luaredis_);
 	lua_setglobal(L, "redis");
 

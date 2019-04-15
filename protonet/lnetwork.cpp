@@ -2,20 +2,14 @@
 #include "lmanager.h"
 #include "protolua/protolua.h"
 
-lnetwork::lnetwork(lua_State* L) : lobject(L)
+lnetwork::lnetwork(lua_State* L, inetwork* network) : lobject(L)
 {
-    network_ = create_network();
+    network_ = network;
 }
 
 lnetwork::~lnetwork()
 {
-    network_->release();
     network_ = nullptr;
-}
-
-int lnetwork::update(int timeout)
-{
-    return network_->update(timeout);
 }
 
 inetwork* lnetwork::impl()

@@ -47,9 +47,10 @@ private:
     int64_t app_mstime_;
     int64_t time_offset_;
 
+    inetwork* network_;
     lhttp* http_;
     ltimer* timer_;
-    lnetwork* network_;
+    lnetwork* luanet_;
 	luaredis* luaredis_;
 };
 
