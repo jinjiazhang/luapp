@@ -2,7 +2,7 @@
 
 client = nil -- 监听实例
 function init( ... )
-	client = net.connect("127.0.0.1", 8087)
+	client = net.connect("127.0.0.1", 8086)
 	client.on_accept = on_accept
 	client.on_closed = on_closed
 	client.on_message = on_message
@@ -18,6 +18,6 @@ function on_closed( number, error )
 end
 
 function on_message( number, proto, ... )
-	log_info("connect.on_message", proto, ...)
+	log_info("connect.on_message", number, proto, ...)
 	client.close()
 end

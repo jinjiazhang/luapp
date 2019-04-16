@@ -116,7 +116,22 @@ void rtclient::on_forward_roleid(char* data, int len)
     data += sizeof(rtm_forward_roleid);
     len -= sizeof(rtm_forward_roleid);
 
-    //TODO send to client
+    std::string proto = data;
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_transmit");
+    luaL_pushvalue(L, msg->roleid);
+    luaL_pushvalue(L, proto);
+
+    const char* input = data + proto.size() + 1;
+    size_t size = len - proto.size() - 1;
+    if (!proto_unpack(proto.c_str(), L, input, size))
+    {
+        lua_settop(L, top);
+        return;
+    }
+
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 int rtclient::reg_role(lua_State* L)

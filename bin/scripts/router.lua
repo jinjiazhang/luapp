@@ -9,6 +9,7 @@ function init( ... )
 end
 
 function on_accept( svrid, error )
+	router.set_group(svrid, 1)
 	log_info("router.on_accept", svrid, error)
 end
 
@@ -17,5 +18,5 @@ function on_closed( svrid, error )
 end
 
 function on_message( svrid, proto, ... )
-	log_info("router.on_message", proto, ...)
+	log_info("router.on_message", svrid, proto, ...)
 end
