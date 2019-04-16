@@ -2,7 +2,7 @@
 
 local router = nil
 function init( ... )
-	router = route.listen(101, "127.0.0.1", 8087)
+	router = route.listen("127.0.0.1", 8087)
 	router.on_accept = on_accept
 	router.on_closed = on_closed
 	router.on_message = on_message

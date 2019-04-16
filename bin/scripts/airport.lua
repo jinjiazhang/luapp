@@ -2,7 +2,7 @@
 
 local airport = nil
 function init( ... )
-	airport = route.connect(102, "127.0.0.1", 8087)
+	airport = route.connect("127.0.0.1", 8087)
 	airport.on_accept = on_accept
 	airport.on_closed = on_closed
 	airport.on_message = on_message

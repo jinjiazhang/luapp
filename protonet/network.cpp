@@ -84,7 +84,7 @@ void network::sendv(int number, iobuf bufs[], int count)
     {
         return;
     }
-    object->send(bufs, count);
+    object->sendv(bufs, count);
 }
 
 void network::close(int number)

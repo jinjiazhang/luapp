@@ -142,7 +142,7 @@ void rtserver::on_call_target(int number, char* data, int len)
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
-    bufs[1] = { &data, len };
+    bufs[1] = { data, len };
     network_->sendv(dst_num, bufs, 2);
 }
 
