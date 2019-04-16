@@ -191,9 +191,53 @@ void rtserver::on_forward_roleid(int number, char* data, int len)
     network_->sendv(dst_num, bufs, 2);
 }
 
+int rtserver::set_group(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    svrid_t svrid = luaL_getvalue<svrid_t>(L, 1);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+    group_t group = luaL_getvalue<group_t>(L, 2);
+
+    if (group > 0)
+    {
+        svrid_group_map_[svrid] = group;
+        group_svrids_map_[group].insert(svrid);
+    }
+    else
+    {
+        svrid_group_map::iterator it1 = svrid_group_map_.find(svrid);
+        if (it1 == svrid_group_map_.end())
+        {
+            lua_pushboolean(L, false);
+            return 1;
+        }
+
+        group = it1->second;
+        svrid_group_map_.erase(it1);
+
+        group_svrids_map::iterator it2 = group_svrids_map_.find(group);
+        if (it2 == group_svrids_map_.end())
+        {
+            lua_pushboolean(L, false);
+            return 1;
+        }
+
+        it2->second.erase(svrid);
+        if (it2->second.empty())
+        {
+            group_svrids_map_.erase(it2);
+        }
+    }
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+EXPORT_OFUNC(rtserver, set_group)
 const luaL_Reg* rtserver::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { IMPORT_OFUNC(rtserver, set_group) },
         { NULL, NULL }
     };
     return libs;

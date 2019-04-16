@@ -16,8 +16,8 @@ public:
     bool init(routermgr* manager, int number);
     void close();
 
-    int reg_roleid(lua_State* L);
-    int unreg_roleid(lua_State* L);
+    int reg_role(lua_State* L);
+    int unreg_role(lua_State* L);
     int call_target(lua_State* L);
     int call_client(lua_State* L);
     virtual const luaL_Reg* get_libs();

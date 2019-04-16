@@ -4,6 +4,7 @@
 #include "rtstruct.h"
 #include "protonet/inetwork.h"
 #include "lualib/lobject.h"
+#include <set>
 #include <unordered_map>
 
 class routermgr;
@@ -16,6 +17,8 @@ public:
     int number();
     bool init(routermgr* manager, int number);
     void close();
+
+    int set_group(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
@@ -38,6 +41,10 @@ private:
     typedef std::unordered_map<int, svrid_t> num_svrid_map;
     typedef std::unordered_map<roleid_t, int> roleid_num_map;
 
+    typedef std::set<svrid_t> svrid_list;
+    typedef std::unordered_map<svrid_t, group_t> svrid_group_map;
+    typedef std::unordered_map<group_t, svrid_list> group_svrids_map;
+
     svrid_t svrid_;
     int number_;
     inetwork* network_;
@@ -46,6 +53,8 @@ private:
     svrid_num_map svrid_num_map_;
     num_svrid_map num_svrid_map_;
     roleid_num_map roleid_num_map_;
+    svrid_group_map svrid_group_map_;
+    group_svrids_map group_svrids_map_;
 };
 
 #endif

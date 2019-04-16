@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_RTSTRUCT_H_
 
 typedef unsigned int            svrid_t;
+typedef unsigned int            group_t;
 typedef unsigned long long      roleid_t;
 
 enum rtm_type
@@ -14,6 +15,7 @@ enum rtm_type
     forward_svrid,
     forward_roleid,
     forward_random,
+    forward_broadcast,
 };
 
 #pragma pack(1)
@@ -54,7 +56,12 @@ struct rtm_forward_roleid : rtm_head
 
 struct rtm_forward_random : rtm_head
 {
-    svrid_t group;
+    group_t group;
+};
+
+struct rtm_forward_broadcast : rtm_head
+{
+    group_t group;
 };
 
 #pragma pack()

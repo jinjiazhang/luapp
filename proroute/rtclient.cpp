@@ -119,10 +119,10 @@ void rtclient::on_forward_roleid(char* data, int len)
     //TODO send to client
 }
 
-int rtclient::reg_roleid(lua_State* L)
+int rtclient::reg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    roleid_t roleid = luaL_getvalue<int>(L, 1);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
     rtm_reg_roleid msg;
     msg.msg_type = rtm_type::reg_roleid;
     msg.roleid = roleid;
@@ -130,10 +130,10 @@ int rtclient::reg_roleid(lua_State* L)
     return 0;
 }
 
-int rtclient::unreg_roleid(lua_State* L)
+int rtclient::unreg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    roleid_t roleid = luaL_getvalue<int>(L, 1);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
     rtm_unreg_roleid msg;
     msg.msg_type = rtm_type::unreg_roleid;
     msg.roleid = roleid;
@@ -203,15 +203,15 @@ int rtclient::call_client(lua_State* L)
     return 1;
 }
 
-EXPORT_OFUNC(rtclient, reg_roleid)
-EXPORT_OFUNC(rtclient, unreg_roleid)
+EXPORT_OFUNC(rtclient, reg_role)
+EXPORT_OFUNC(rtclient, unreg_role)
 EXPORT_OFUNC(rtclient, call_target)
 EXPORT_OFUNC(rtclient, call_client)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(rtclient, reg_roleid) },
-        { IMPORT_OFUNC(rtclient, unreg_roleid) },
+        { IMPORT_OFUNC(rtclient, reg_role) },
+        { IMPORT_OFUNC(rtclient, unreg_role) },
         { IMPORT_OFUNC(rtclient, call_target) },
         { IMPORT_OFUNC(rtclient, call_client) },
         { NULL, NULL }
