@@ -141,20 +141,31 @@ int rtclient::unreg_role(lua_State* L)
     return 0;
 }
 
+static char buffer[64 * 1024];
+static int pack_message(lua_State* L, int start, int end)
+{
+    luaL_checktype(L, start, LUA_TSTRING);
+    std::string proto = luaL_getvalue<std::string>(L, start);
+    strcpy(buffer, proto.c_str());
+
+    char* output = buffer + proto.size() + 1;
+    size_t size = sizeof(buffer) - proto.size() - 1;
+    if (!proto_pack(proto.c_str(), L, start + 1, end, output, &size))
+    {
+        log_error("proroute::pack_message false, proto =%s", proto.c_str());
+        return -1;
+    }
+    return size;
+}
+
 int rtclient::call_target(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     svrid_t dstid = luaL_getvalue<int>(L, 1);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    std::string proto = luaL_getvalue<std::string>(L, 2);
-
-    static char buffer[64 * 1024];
-    strcpy(buffer, proto.c_str());
 
     int top = lua_gettop(L);
-    char* output = buffer + proto.size() + 1;
-    size_t size = sizeof(buffer) - proto.size() - 1;
-    if (!proto_pack(proto.c_str(), L, 3, top, output, &size))
+    int len = pack_message(L, 2, top);
+    if (len <= 0)
     {
         lua_pushboolean(L, false);
         return 1;
@@ -166,7 +177,7 @@ int rtclient::call_target(lua_State* L)
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
-    bufs[1] = { &buffer, (int)(proto.size() + 1 + size) };
+    bufs[1] = { &buffer, len };
     network_->sendv(number_, bufs, 2);
     lua_pushboolean(L, true);
     return 1;
@@ -176,16 +187,10 @@ int rtclient::call_client(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    std::string proto = luaL_getvalue<std::string>(L, 2);
-
-    static char buffer[64 * 1024];
-    strcpy(buffer, proto.c_str());
 
     int top = lua_gettop(L);
-    char* output = buffer + proto.size() + 1;
-    size_t size = sizeof(buffer) - proto.size() - 1;
-    if (!proto_pack(proto.c_str(), L, 3, top, output, &size))
+    int len = pack_message(L, 2, top);
+    if (len <= 0)
     {
         lua_pushboolean(L, false);
         return 1;
@@ -197,7 +202,57 @@ int rtclient::call_client(lua_State* L)
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
-    bufs[1] = { &buffer, (int)(proto.size() + 1 + size) };
+    bufs[1] = { &buffer, len };
+    network_->sendv(number_, bufs, 2);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+int rtclient::call_group(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    group_t group = luaL_getvalue<group_t>(L, 1);
+
+    int top = lua_gettop(L);
+    int len = pack_message(L, 2, top);
+    if (len <= 0)
+    {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    rtm_forward_group head;
+    head.msg_type = rtm_type::forward_group;
+    head.group = group;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { &buffer, len };
+    network_->sendv(number_, bufs, 2);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+int rtclient::call_random(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    group_t group = luaL_getvalue<group_t>(L, 1);
+
+    int top = lua_gettop(L);
+    int len = pack_message(L, 2, top);
+    if (len <= 0)
+    {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    rtm_forward_random head;
+    head.msg_type = rtm_type::forward_random;
+    head.group = group;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { &buffer, len };
     network_->sendv(number_, bufs, 2);
     lua_pushboolean(L, true);
     return 1;
