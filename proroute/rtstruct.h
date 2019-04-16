@@ -14,8 +14,8 @@ enum rtm_type
     remote_call,
     forward_svrid,
     forward_roleid,
+    forward_group,
     forward_random,
-    forward_broadcast,
 };
 
 #pragma pack(1)
@@ -54,12 +54,12 @@ struct rtm_forward_roleid : rtm_head
     roleid_t roleid;
 };
 
-struct rtm_forward_random : rtm_head
+struct rtm_forward_group : rtm_head
 {
     group_t group;
 };
 
-struct rtm_forward_broadcast : rtm_head
+struct rtm_forward_random : rtm_head
 {
     group_t group;
 };

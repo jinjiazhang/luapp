@@ -33,8 +33,12 @@ private:
     void on_reg_svrid(int number, char* data, int len);
     void on_reg_roleid(int number, char* data, int len);
     void on_unreg_roleid(int number, char* data, int len);
+
+    void on_call_server(int number, char* data, int len);
     void on_forward_svrid(int number, char* data, int len);
     void on_forward_roleid(int number, char* data, int len);
+    void on_forward_group(int number, char* data, int len);
+    void on_forward_random(int number, char* data, int len);
 
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;

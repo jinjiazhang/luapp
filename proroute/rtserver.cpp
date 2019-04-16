@@ -1,5 +1,6 @@
 #include "rtserver.h"
 #include "routermgr.h"
+#include "protolua/protolua.h"
 
 rtserver::rtserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
@@ -112,6 +113,12 @@ void rtserver::on_package(int number, char* data, int len)
     case rtm_type::forward_roleid:
         on_forward_roleid(number, data, len);
         break;
+    case rtm_type::forward_group:
+        on_forward_group(number, data, len);
+        break;
+    case rtm_type::forward_random:
+        on_forward_random(number, data, len);
+        break;
     default:
         log_error("rtserver::on_package msg_type =%d invalid", head->msg_type);
         break;
@@ -138,11 +145,42 @@ void rtserver::on_unreg_roleid(int number, char* data, int len)
     roleid_num_map_.erase(msg->roleid);
 }
 
+void rtserver::on_call_server(int number, char* data, int len)
+{
+    rtm_forward_svrid* msg = (rtm_forward_svrid*)data;
+    data += sizeof(rtm_forward_svrid);
+    len -= sizeof(rtm_forward_svrid);
+    svrid_t srcid = num_to_svrid(number);
+
+    std::string proto = data;
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_message");
+    luaL_pushvalue(L, srcid);
+    luaL_pushvalue(L, proto);
+
+    const char* input = data + proto.size() + 1;
+    size_t size = len - proto.size() - 1;
+    if (!proto_unpack(proto.c_str(), L, input, size))
+    {
+        lua_settop(L, top);
+        return;
+    }
+
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
+}
+
 void rtserver::on_forward_svrid(int number, char* data, int len)
 {
     rtm_forward_svrid* msg = (rtm_forward_svrid*)data;
     data += sizeof(rtm_forward_svrid);
     len -= sizeof(rtm_forward_svrid);
+
+    if (msg->dstid == svrid_)
+    {
+        on_call_server(number, data, len);
+        return;
+    }
 
     int dst_num = svrid_to_num(msg->dstid);
     if (dst_num <= 0)
@@ -184,6 +222,88 @@ void rtserver::on_forward_roleid(int number, char* data, int len)
     rtm_forward_roleid head;
     head.msg_type = rtm_type::forward_roleid;
     head.roleid = msg->roleid;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { data, len };
+    network_->sendv(dst_num, bufs, 2);
+}
+
+void rtserver::on_forward_group(int number, char* data, int len)
+{
+    rtm_forward_group* msg = (rtm_forward_group*)data;
+    data += sizeof(rtm_forward_group);
+    len -= sizeof(rtm_forward_group);
+
+    svrid_t scrid = num_to_svrid(number);
+    if (scrid <= 0)
+    {
+        log_error("rtserver::on_forward_group number =%d notfound", number);
+        return;
+    }
+
+    group_svrids_map::iterator it = group_svrids_map_.find(msg->group);
+    if (it == group_svrids_map_.end())
+    {
+        log_error("rtserver::on_forward_group group =%d notfound", msg->group);
+        return;
+    }
+
+    rtm_remote_call head;
+    head.msg_type = rtm_type::remote_call;
+    head.srcid = scrid;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { data, len };
+
+    for (svrid_t dstid : it->second)
+    {
+        int dst_num = svrid_to_num(dstid);
+        if (dst_num <= 0)
+        {
+            log_error("rtserver::on_forward_group dstid =%d notfound", dstid);
+            continue;
+        }
+        network_->sendv(dst_num, bufs, 2);
+    }
+}
+
+void rtserver::on_forward_random(int number, char* data, int len)
+{
+    rtm_forward_random* msg = (rtm_forward_random*)data;
+    data += sizeof(rtm_forward_random);
+    len -= sizeof(rtm_forward_random);
+
+    svrid_t scrid = num_to_svrid(number);
+    if (scrid <= 0)
+    {
+        log_error("rtserver::on_forward_random number =%d notfound", number);
+        return;
+    }
+
+    group_svrids_map::iterator it = group_svrids_map_.find(msg->group);
+    if (it == group_svrids_map_.end())
+    {
+        log_error("rtserver::on_forward_random group =%d notfound", msg->group);
+        return;
+    }
+
+    int index = rand() % it->second.size();
+    svrid_list::iterator select = it->second.begin();
+    std::advance(select, index);
+    svrid_t dstid = *select;
+
+    int dst_num = svrid_to_num(dstid);
+    if (dst_num <= 0)
+    {
+        log_error("rtserver::on_forward_random dstid =%d notfound", dstid);
+        return;
+    }
+
+    rtm_remote_call head;
+    head.msg_type = rtm_type::remote_call;
+    head.srcid = scrid;
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
