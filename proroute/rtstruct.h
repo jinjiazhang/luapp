@@ -1,15 +1,19 @@
 #ifndef _JINJIAZHANG_RTSTRUCT_H_
 #define _JINJIAZHANG_RTSTRUCT_H_
 
-typedef unsigned int    svrid_t;
+typedef unsigned int            svrid_t;
+typedef unsigned long long      roleid_t;
 
 enum rtm_type
 {
     invalid = 0,
     reg_svrid,
-    call_self,
-    call_target,
-    call_random,
+    reg_roleid,
+    unreg_roleid,
+    remote_call,
+    forward_svrid,
+    forward_roleid,
+    forward_random,
 };
 
 #pragma pack(1)
@@ -23,17 +27,32 @@ struct rtm_reg_svrid : rtm_head
     svrid_t svrid;
 };
 
-struct rtm_call_self : rtm_head
+struct rtm_reg_roleid : rtm_head
+{
+    roleid_t roleid;
+};
+
+struct rtm_unreg_roleid : rtm_head
+{
+    roleid_t roleid;
+};
+
+struct rtm_remote_call : rtm_head
 {
     svrid_t srcid;
 };
 
-struct rtm_call_target : rtm_head
+struct rtm_forward_svrid : rtm_head
 {
     svrid_t dstid;
 };
 
-struct rtm_call_random : rtm_head
+struct rtm_forward_roleid : rtm_head
+{
+    roleid_t roleid;
+};
+
+struct rtm_forward_random : rtm_head
 {
     svrid_t group;
 };

@@ -67,8 +67,11 @@ void rtclient::on_package(int number, char* data, int len)
     case rtm_type::reg_svrid:
         on_reg_svrid(data, len);
         break;
-    case rtm_type::call_self:
-        on_call_self(data, len);
+    case rtm_type::remote_call:
+        on_remote_call(data, len);
+        break;
+    case rtm_type::forward_roleid:
+        on_forward_roleid(data, len);
         break;
     default:
         log_error("rtclient::on_package msg_type =%d invalid", head->msg_type);
@@ -83,11 +86,11 @@ void rtclient::on_reg_svrid(char* data, int len)
     luaL_callfunc(L, this, "on_accept", router_, 0);
 }
 
-void rtclient::on_call_self(char* data, int len)
+void rtclient::on_remote_call(char* data, int len)
 {
-    rtm_call_self* msg = (rtm_call_self*)data;
-    data += sizeof(rtm_call_self);
-    len -= sizeof(rtm_call_self);
+    rtm_remote_call* msg = (rtm_remote_call*)data;
+    data += sizeof(rtm_remote_call);
+    len -= sizeof(rtm_remote_call);
 
     std::string proto = data;
     int top = lua_gettop(L);
@@ -105,6 +108,37 @@ void rtclient::on_call_self(char* data, int len)
 
     int nargs = lua_gettop(L) - top - 1;
     luaL_safecall(L, nargs, 0);
+}
+
+void rtclient::on_forward_roleid(char* data, int len)
+{
+    rtm_forward_roleid* msg = (rtm_forward_roleid*)data;
+    data += sizeof(rtm_forward_roleid);
+    len -= sizeof(rtm_forward_roleid);
+
+    //TODO send to client
+}
+
+int rtclient::reg_roleid(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    roleid_t roleid = luaL_getvalue<int>(L, 1);
+    rtm_reg_roleid msg;
+    msg.msg_type = rtm_type::reg_roleid;
+    msg.roleid = roleid;
+    network_->send(number_, &msg, sizeof(msg));
+    return 0;
+}
+
+int rtclient::unreg_roleid(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    roleid_t roleid = luaL_getvalue<int>(L, 1);
+    rtm_unreg_roleid msg;
+    msg.msg_type = rtm_type::unreg_roleid;
+    msg.roleid = roleid;
+    network_->send(number_, &msg, sizeof(msg));
+    return 0;
 }
 
 int rtclient::call_target(lua_State* L)
@@ -126,8 +160,8 @@ int rtclient::call_target(lua_State* L)
         return 1;
     }
 
-    rtm_call_target head;
-    head.msg_type = rtm_type::call_target;
+    rtm_forward_svrid head;
+    head.msg_type = rtm_type::forward_svrid;
     head.dstid = dstid;
 
     iobuf bufs[2];
@@ -138,11 +172,48 @@ int rtclient::call_target(lua_State* L)
     return 1;
 }
 
+int rtclient::call_client(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    std::string proto = luaL_getvalue<std::string>(L, 2);
+
+    static char buffer[64 * 1024];
+    strcpy(buffer, proto.c_str());
+
+    int top = lua_gettop(L);
+    char* output = buffer + proto.size() + 1;
+    size_t size = sizeof(buffer) - proto.size() - 1;
+    if (!proto_pack(proto.c_str(), L, 3, top, output, &size))
+    {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    rtm_forward_roleid head;
+    head.msg_type = rtm_type::forward_roleid;
+    head.roleid = roleid;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { &buffer, (int)(proto.size() + 1 + size) };
+    network_->sendv(number_, bufs, 2);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+EXPORT_OFUNC(rtclient, reg_roleid)
+EXPORT_OFUNC(rtclient, unreg_roleid)
 EXPORT_OFUNC(rtclient, call_target)
+EXPORT_OFUNC(rtclient, call_client)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { IMPORT_OFUNC(rtclient, reg_roleid) },
+        { IMPORT_OFUNC(rtclient, unreg_roleid) },
         { IMPORT_OFUNC(rtclient, call_target) },
+        { IMPORT_OFUNC(rtclient, call_client) },
         { NULL, NULL }
     };
     return libs;

@@ -16,7 +16,10 @@ public:
     bool init(routermgr* manager, int number);
     void close();
 
+    int reg_roleid(lua_State* L);
+    int unreg_roleid(lua_State* L);
     int call_target(lua_State* L);
+    int call_client(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
@@ -25,7 +28,8 @@ public:
 
 private:
     void on_reg_svrid(char* data, int len);
-    void on_call_self(char* data, int len);
+    void on_remote_call(char* data, int len);
+    void on_forward_roleid(char* data, int len);
 
 private:
     svrid_t svrid_;

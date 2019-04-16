@@ -28,12 +28,20 @@ private:
     void map_num_svrid(int number, svrid_t svrid);
     void clean_num_svrid(int number);
 
+    int roleid_to_num(roleid_t roleid);
+    void map_roleid_num(roleid_t roleid, int number);
+    void clean_roleid_num(roleid_t roleid);
+
     void on_reg_svrid(int number, char* data, int len);
-    void on_call_target(int number, char* data, int len);
+    void on_reg_roleid(int number, char* data, int len);
+    void on_unreg_roleid(int number, char* data, int len);
+    void on_forward_svrid(int number, char* data, int len);
+    void on_forward_roleid(int number, char* data, int len);
 
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;
     typedef std::unordered_map<int, svrid_t> num_svrid_map;
+    typedef std::unordered_map<roleid_t, int> roleid_num_map;
 
     svrid_t svrid_;
     int number_;
@@ -42,6 +50,7 @@ private:
 
     svrid_num_map svrid_num_map_;
     num_svrid_map num_svrid_map_;
+    roleid_num_map roleid_num_map_;
 };
 
 #endif
