@@ -23,14 +23,9 @@ public:
     virtual void on_package(int number, char* data, int len);
 
 private:
-    int svrid_to_num(svrid_t svrid);
     svrid_t num_to_svrid(int number);
-    void map_num_svrid(int number, svrid_t svrid);
-    void clean_num_svrid(int number);
-
+    int svrid_to_num(svrid_t svrid);
     int roleid_to_num(roleid_t roleid);
-    void map_roleid_num(roleid_t roleid, int number);
-    void clean_roleid_num(roleid_t roleid);
 
     void on_reg_svrid(int number, char* data, int len);
     void on_reg_roleid(int number, char* data, int len);

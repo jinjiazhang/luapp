@@ -49,22 +49,6 @@ svrid_t rtserver::num_to_svrid(int number)
     return it->second;
 }
 
-void rtserver::map_num_svrid(int number, svrid_t svrid)
-{
-    svrid_num_map_[svrid] = number;
-    num_svrid_map_[number] = svrid;
-}
-
-void rtserver::clean_num_svrid(int number)
-{
-    num_svrid_map::iterator it = num_svrid_map_.find(number);
-    if (it != num_svrid_map_.end())
-    {
-        svrid_num_map_.erase(it->second);
-        num_svrid_map_.erase(it);
-    }
-}
-
 int rtserver::roleid_to_num(roleid_t roleid)
 {
     roleid_num_map::iterator it = roleid_num_map_.find(roleid);
@@ -73,16 +57,6 @@ int rtserver::roleid_to_num(roleid_t roleid)
         return 0;
     }
     return it->second;
-}
-
-void rtserver::map_roleid_num(roleid_t roleid, int number)
-{
-    roleid_num_map_[roleid] = number;
-}
-
-void rtserver::clean_roleid_num(roleid_t roleid)
-{
-    roleid_num_map_.erase(roleid);
 }
 
 void rtserver::on_accept(int number, int error)
@@ -103,7 +77,13 @@ void rtserver::on_closed(int number, int error)
 {
     svrid_t svrid = num_to_svrid(number);
     luaL_callfunc(L, this, "on_closed", svrid, error);
-    clean_num_svrid(number);
+
+    num_svrid_map::iterator it = num_svrid_map_.find(number);
+    if (it != num_svrid_map_.end())
+    {
+        svrid_num_map_.erase(it->second);
+        num_svrid_map_.erase(it);
+    }
 }
 
 void rtserver::on_package(int number, char* data, int len)
@@ -141,20 +121,21 @@ void rtserver::on_package(int number, char* data, int len)
 void rtserver::on_reg_svrid(int number, char* data, int len)
 {
     rtm_reg_svrid* msg = (rtm_reg_svrid*)data;
-    map_num_svrid(number, msg->svrid);
+    svrid_num_map_[msg->svrid] = number;
+    num_svrid_map_[number] = msg->svrid;
     luaL_callfunc(L, this, "on_accept", msg->svrid, 0);
 }
 
 void rtserver::on_reg_roleid(int number, char* data, int len)
 {
     rtm_reg_roleid* msg = (rtm_reg_roleid*)data;
-    map_roleid_num(msg->roleid, number);
+    roleid_num_map_[msg->roleid] = number;
 }
 
 void rtserver::on_unreg_roleid(int number, char* data, int len)
 {
     rtm_unreg_roleid* msg = (rtm_unreg_roleid*)data;
-    clean_roleid_num(msg->roleid);
+    roleid_num_map_.erase(msg->roleid);
 }
 
 void rtserver::on_forward_svrid(int number, char* data, int len)
