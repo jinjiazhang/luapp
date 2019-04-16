@@ -147,11 +147,7 @@ void rtserver::on_unreg_roleid(int number, char* data, int len)
 
 void rtserver::on_call_server(int number, char* data, int len)
 {
-    rtm_forward_svrid* msg = (rtm_forward_svrid*)data;
-    data += sizeof(rtm_forward_svrid);
-    len -= sizeof(rtm_forward_svrid);
     svrid_t srcid = num_to_svrid(number);
-
     std::string proto = data;
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");

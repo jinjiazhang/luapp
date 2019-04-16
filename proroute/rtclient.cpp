@@ -155,7 +155,7 @@ static int pack_message(lua_State* L, int start, int end)
         log_error("proroute::pack_message false, proto =%s", proto.c_str());
         return -1;
     }
-    return size;
+    return proto.size() + 1 + size;
 }
 
 int rtclient::call_target(lua_State* L)
