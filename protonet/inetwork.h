@@ -3,8 +3,8 @@
 
 struct iobuf
 {
-    int len;
     const void* data;
+    int len;
 };
 
 struct imanager

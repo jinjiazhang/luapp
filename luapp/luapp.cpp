@@ -6,6 +6,7 @@ luapp::luapp(lua_State* L) : lobject(L)
 {
     ctx_ = nullptr;
     status_ = 0;
+    svrid_ = 0;
     last_tick_ = 0;
     app_mstime_ = 0;
     time_offset_ = 0;
@@ -15,6 +16,7 @@ luapp::luapp(lua_State* L) : lobject(L)
     timer_ = nullptr;
     luanet_ = nullptr;
 	luaredis_ = nullptr;
+    routermgr_ = nullptr;
 }
 
 luapp::~luapp()
@@ -27,8 +29,15 @@ luapp::~luapp()
         delete luanet_;
     if (luaredis_) 
         delete luaredis_;
+    if (routermgr_)
+        delete routermgr_;
     if (network_) 
         network_->release();
+}
+
+unsigned int luapp::svrid()
+{
+    return svrid_;
 }
 
 int64_t luapp::time()
@@ -59,6 +68,8 @@ void luapp::change(int state)
 void luapp::run(luctx* ctx)
 {
     ctx_ = ctx;
+    svrid_ = ctx_->svrid;
+
     if (ctx_->daemon)
     {
         app_daemon();
@@ -111,6 +122,10 @@ int luapp::init()
 	luaredis_ = new luaredis(L, network_);
 	lua_pushlobject(L, luaredis_);
 	lua_setglobal(L, "redis");
+
+    routermgr_ = new routermgr(L, network_, svrid_);
+    lua_pushlobject(L, routermgr_);
+    lua_setglobal(L, "route");
 
     luaL_dostring(L, assist_code);
     if (!luaL_callfunc(L, this, "import", ctx_->entry))
@@ -165,6 +180,7 @@ int luapp::idle()
     return 0;
 }
 
+EXPORT_OFUNC(luapp, svrid)
 EXPORT_OFUNC(luapp, time)
 EXPORT_OFUNC(luapp, mstime)
 EXPORT_OFUNC(luapp, offset)
@@ -177,6 +193,7 @@ const luaL_Reg* luapp::get_libs()
         { "proc", lua_emptyfunc },
         { "tick", lua_emptyfunc },
         { "idle", lua_emptyfunc },
+        { IMPORT_OFUNC(luapp, svrid) },
         { IMPORT_OFUNC(luapp, time) },
         { IMPORT_OFUNC(luapp, mstime) },
         { IMPORT_OFUNC(luapp, offset) },

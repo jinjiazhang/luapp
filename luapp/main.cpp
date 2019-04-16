@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
     ctx->tick_invl = ctx->tick_freq > 0 ? (1000 / ctx->tick_freq) : 0x7FFFFFFF;
     ctx->idle_sleep = cmd.get<int>("idle-sleep");
     ctx->daemon = cmd.exist("daemon");
+    ctx->svrid = 101;
 
     log4cplus::initialize();
     PropertyConfigurator::doConfigure(ctx->log_conf);

@@ -15,6 +15,8 @@ public:
     int number();
     bool init(routermgr* manager, int number);
     void close();
+
+    int call_target(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
@@ -22,7 +24,12 @@ public:
     virtual void on_package(int number, char* data, int len);
 
 private:
+    void on_reg_svrid(char* data, int len);
+    void on_call_self(char* data, int len);
+
+private:
     svrid_t svrid_;
+    svrid_t router_;
     int number_;
     inetwork* network_;
     routermgr* manager_;

@@ -4,12 +4,14 @@
 #include "lualib/lobject.h"
 #include "protonet/lnetwork.h"
 #include "luaredis/luaredis.h"
+#include "proroute/routermgr.h"
 #include "lhttp.h"
 #include "ltimer.h"
 
 struct luctx
 {
     bool daemon;
+    unsigned int svrid;
     const char* entry;
     const char* log_conf;
     int tick_freq;
@@ -28,6 +30,7 @@ public:
     virtual const luaL_Reg* get_libs();
 
 public:
+    unsigned int svrid();
     int64_t time();
     int64_t mstime();
     void offset(int64_t ms);
@@ -43,6 +46,7 @@ private:
 private:
     luctx* ctx_;
     int status_;
+    unsigned int svrid_;
     int64_t last_tick_;
     int64_t app_mstime_;
     int64_t time_offset_;
@@ -52,6 +56,7 @@ private:
     ltimer* timer_;
     lnetwork* luanet_;
 	luaredis* luaredis_;
+    routermgr* routermgr_;
 };
 
 extern const char* assist_code;
