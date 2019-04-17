@@ -24,7 +24,7 @@ bool luaL_isarray(lua_State* L, int index)
             break;
         }
 
-        if (lua_tointeger(L, index) > count)
+        if (lua_tointeger(L, key_index) > count)
         {
             isarray = false;
             break;
