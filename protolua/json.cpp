@@ -7,7 +7,33 @@
 
 bool luaL_isarray(lua_State* L, int index)
 {
-    return false;
+    luaL_checktype(L, index, LUA_TTABLE);
+    int count = (int)luaL_len(L, index);
+    if (count <= 0) return false;
+
+    bool isarray = true;
+    int stack = lua_gettop(L);
+
+    lua_pushnil(L);
+    while (lua_next(L, index))
+    {
+        int key_index = lua_absindex(L, -2);
+        if (!lua_isinteger(L, key_index))
+        {
+            isarray = false;
+            break;
+        }
+
+        if (lua_tointeger(L, index) > count)
+        {
+            isarray = false;
+            break;
+        }
+        lua_pop(L, 1);
+    }
+    
+    lua_settop(L, stack);
+    return isarray;
 }
 
 void luaL_fillkey(lua_State* L, int index, rapidjson::Value& key, rapidjson::Document::AllocatorType& allocator)
