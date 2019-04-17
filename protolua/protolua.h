@@ -33,7 +33,7 @@ bool proto_encode(const char* proto, lua_State* L, int index, char* output, size
 bool proto_decode(const char* proto, lua_State* L, const char* input, size_t size);
 bool proto_pack(const char* proto, lua_State* L, int start, int end, char* output, size_t* size);
 bool proto_unpack(const char* proto, lua_State* L, const char* input, size_t size);
-bool proto_tojson(lua_State* L, int index, char* output, size_t* size);
+bool proto_tojson(lua_State* L, int index, bool pretty, char* output, size_t* size);
 bool proto_fromjson(lua_State* L, const char* input, size_t size);
 
 extern google::protobuf::compiler::Importer g_importer;
