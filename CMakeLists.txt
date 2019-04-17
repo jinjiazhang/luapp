@@ -22,10 +22,11 @@ add_definitions(-DLOG4CPLUS_DISABLE_DLL_RUNTIME_WARNING)
 
 add_subdirectory(luapp)
 add_subdirectory(lualib)
+add_subdirectory(gateway)
 add_subdirectory(luaredis)
 add_subdirectory(proroute)
 add_subdirectory(protolua)
 add_subdirectory(protonet)
 add_subdirectory(thirdparty)
 
-add_dependencies(luapp lualib luaredis protolua protonet lua log4cplusS libprotobuf libcurl)
+add_dependencies(luapp lualib gateway luaredis proroute protolua protonet lua log4cplusS libprotobuf libcurl)
