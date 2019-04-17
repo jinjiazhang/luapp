@@ -10,7 +10,7 @@ static int parse(lua_State *L)
     const char* file = lua_tostring(L, 1);
     if (!proto_parse(file, L))
     {
-        proto_error("proto.parse fail, file=%s\n", file);
+        proto_error("proto.parse fail, file=%s", file);
         lua_pushboolean(L, false);
         return 1;
     }
@@ -26,7 +26,7 @@ static int build(lua_State *L)
     const char* proto = lua_tostring(L, 1);
     if (!proto_decode(proto, L, 0, 0))
     {
-        proto_error("proto.build fail, proto=%s\n", proto);
+        proto_error("proto.build fail, proto=%s", proto);
         return 0;
     }
 
@@ -41,7 +41,7 @@ static int encode(lua_State *L)
     const char* proto = lua_tostring(L, 1);
     if (!proto_encode(proto, L, 2, 0, 0))
     {
-        proto_error("proto.encode fail, proto=%s\n", proto);
+        proto_error("proto.encode fail, proto=%s", proto);
         return 0;
     }
 
@@ -57,7 +57,7 @@ static int decode(lua_State *L)
     const char* data = lua_tolstring(L, 2, &size);
     if (!proto_decode(proto, L, data, size))
     {
-        proto_error("proto.decode fail, proto=%s\n", proto);
+        proto_error("proto.decode fail, proto=%s", proto);
         return 0;
     }
 
@@ -72,7 +72,7 @@ static int pack(lua_State *L)
     const char* proto = lua_tostring(L, 1);
     if (!proto_pack(proto, L, 2, stack, 0, 0))
     {
-        proto_error("proto.pack fail, proto=%s\n", proto);
+        proto_error("proto.pack fail, proto=%s", proto);
         return 0;
     }
 
@@ -88,11 +88,39 @@ static int unpack(lua_State *L)
     const char* data = lua_tolstring(L, 2, &size);
     if (!proto_unpack(proto, L, data, size))
     {
-        proto_error("proto.unpack fail, proto=%s\n", proto);
+        proto_error("proto.unpack fail, proto=%s", proto);
         return 0;
     }
     
     return lua_gettop(L) - 2;
+}
+
+static int to_json(lua_State *L)
+{
+    assert(lua_gettop(L) == 1);
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    if (!proto_tojson(L, 1, 0, 0))
+    {
+        proto_error("proto.to_json fail, table=%s", lua_tostring(L, 1));
+        return 0;
+    }
+    return lua_gettop(L) - 1;
+}
+
+static int from_json(lua_State *L)
+{
+    assert(lua_gettop(L) == 1);
+    luaL_checktype(L, 1, LUA_TSTRING);
+    size_t size = 0;
+    const char* data = lua_tolstring(L, 1, &size);
+
+    if (!proto_fromjson(L, data, size))
+    {
+        proto_error("proto.from_json fail, json=%s", data);
+        return 0;
+    }
+    return lua_gettop(L) - 1;
 }
 
 static const struct luaL_Reg protoLib[]={
@@ -102,6 +130,8 @@ static const struct luaL_Reg protoLib[]={
     {"decode", decode},
     {"pack", pack},
     {"unpack", unpack},
+    {"to_json", to_json},
+    {"from_json", from_json},
     {NULL, NULL}
 };
 
