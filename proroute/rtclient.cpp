@@ -26,11 +26,6 @@ bool rtclient::init(routermgr* manager, int number)
     return true;
 }
 
-void rtclient::close()
-{
-
-}
-
 void rtclient::on_accept(int number, int error)
 {
     assert(number == number_);
@@ -247,12 +242,18 @@ int rtclient::call_random(lua_State* L)
     return 1;
 }
 
+int rtclient::close(lua_State* L)
+{
+    return 0;
+}
+
 EXPORT_OFUNC(rtclient, reg_role)
 EXPORT_OFUNC(rtclient, unreg_role)
 EXPORT_OFUNC(rtclient, call_target)
 EXPORT_OFUNC(rtclient, call_client)
 EXPORT_OFUNC(rtclient, call_group)
 EXPORT_OFUNC(rtclient, call_random)
+EXPORT_OFUNC(rtclient, close)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
@@ -262,6 +263,7 @@ const luaL_Reg* rtclient::get_libs()
         { IMPORT_OFUNC(rtclient, call_client) },
         { IMPORT_OFUNC(rtclient, call_group) },
         { IMPORT_OFUNC(rtclient, call_random) },
+        { IMPORT_OFUNC(rtclient, close) },
         { NULL, NULL }
     };
     return libs;

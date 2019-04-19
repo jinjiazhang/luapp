@@ -14,7 +14,6 @@ public:
 
     int number();
     bool init(routermgr* manager, int number);
-    void close();
 
     int reg_role(lua_State* L);
     int unreg_role(lua_State* L);
@@ -22,6 +21,7 @@ public:
     int call_client(lua_State* L);
     int call_group(lua_State* L);
     int call_random(lua_State* L);
+    int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);

@@ -25,11 +25,6 @@ bool rtserver::init(routermgr* manager, int number)
     return true;
 }
 
-void rtserver::close()
-{
-
-}
-
 int rtserver::svrid_to_num(svrid_t svrid)
 {
     svrid_num_map::iterator it = svrid_num_map_.find(svrid);
@@ -376,13 +371,20 @@ int rtserver::call_target(lua_State* L)
     return 1;
 }
 
+int rtserver::close(lua_State* L)
+{
+    return 0;
+}
+
 EXPORT_OFUNC(rtserver, set_group)
 EXPORT_OFUNC(rtserver, call_target)
+EXPORT_OFUNC(rtserver, close)
 const luaL_Reg* rtserver::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(rtserver, set_group) },
         { IMPORT_OFUNC(rtserver, call_target) },
+        { IMPORT_OFUNC(rtserver, close) },
         { NULL, NULL }
     };
     return libs;
