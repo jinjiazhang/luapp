@@ -148,20 +148,15 @@ void rtserver::on_unreg_roleid(int number, char* data, int len)
 void rtserver::on_call_server(int number, char* data, int len)
 {
     svrid_t srcid = num_to_svrid(number);
-    std::string proto = data;
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, srcid);
-    luaL_pushvalue(L, proto);
 
-    const char* input = data + proto.size() + 1;
-    size_t size = len - proto.size() - 1;
-    if (!proto_unpack(proto.c_str(), L, input, size))
+    if (!stack_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;
     }
-
     int nargs = lua_gettop(L) - top - 1;
     luaL_safecall(L, nargs, 0);
 }
@@ -349,11 +344,45 @@ int rtserver::set_group(lua_State* L)
     return 1;
 }
 
+static char buffer[64 * 1024];
+int rtserver::call_target(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    svrid_t dstid = luaL_getvalue<int>(L, 1);
+    int dst_num = svrid_to_num(dstid);
+    if (dst_num <= 0)
+    {
+        log_error("rtserver::call_target dstid =%d notfound", dstid);
+        return 0;
+    }
+
+    int top = lua_gettop(L);
+    size_t len = sizeof(buffer);
+    if (!stack_pack(L, 2, top, buffer, &len))
+    {
+        return 0;
+    }
+
+    rtm_remote_call head;
+    head.msg_type = rtm_type::remote_call;
+    head.srcid = svrid_;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { buffer, (int)len };
+    network_->sendv(dst_num, bufs, 2);
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
 EXPORT_OFUNC(rtserver, set_group)
+EXPORT_OFUNC(rtserver, call_target)
 const luaL_Reg* rtserver::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(rtserver, set_group) },
+        { IMPORT_OFUNC(rtserver, call_target) },
         { NULL, NULL }
     };
     return libs;

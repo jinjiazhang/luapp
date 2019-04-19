@@ -19,6 +19,7 @@ public:
     void close();
 
     int set_group(lua_State* L);
+    int call_target(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
