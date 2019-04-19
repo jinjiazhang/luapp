@@ -339,7 +339,7 @@ int rtserver::set_group(lua_State* L)
     return 1;
 }
 
-static char buffer[64 * 1024];
+static char buffer[PROTO_BUFFER_SIZE];
 int rtserver::call_target(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);

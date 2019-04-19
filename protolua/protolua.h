@@ -27,6 +27,7 @@
 
 #define PROTO_DO(exp) { if(!(exp)) return false; }
 #define PROTO_ASSERT(exp) { if(!(exp)) return false; }
+#define PROTO_BUFFER_SIZE (1024 * 1024)
 
 bool proto_parse(const char* file, lua_State* L);
 bool proto_encode(const char* proto, lua_State* L, int index, char* output, size_t* size);
