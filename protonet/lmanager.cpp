@@ -39,7 +39,10 @@ void lmanager::on_accept(int number, int error)
 void lmanager::on_closed(int number, int error)
 {
     luaL_callfunc(L, this, "on_closed", number, error);
-    network_->del_manager(this);
+    if (number == number_)
+    {
+        network_->del_manager(this);
+    }
 }
 
 void lmanager::on_package(int number, char* data, int len)
