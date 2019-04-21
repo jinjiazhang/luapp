@@ -3,31 +3,23 @@
 using namespace google::protobuf;
 typedef unsigned int len_t;
 
-bool pack_message(lua_State* L, int start, int end, char* output, size_t* size)
+bool pack_message(lua_State* L, Message* message, char* output, size_t* size)
 {
-    size_t len = 0;
-    const char* proto = lua_tolstring(L, start, &len);
-    if (*size < len + 1 + sizeof(len_t))
+    const std::string& proto = message->GetDescriptor()->name();
+    if (*size < proto.size() + 1 + sizeof(len_t))
     {
-        proto_error("pack_message buffer limit, proto=%s", proto);
+        proto_error("pack_message buffer limit, proto=%s", proto.c_str());
         return false;
     }
 
-    memcpy(output, proto, len);
-    output[len + 1] = '\0';
+    memcpy(output, proto.c_str(), proto.size() + 1);
+    len_t* data_len = (len_t*)(output + proto.size() + 1);
+    output += proto.size() + 1 + sizeof(len_t);
+    *size -= proto.size() + 1 + sizeof(len_t);
+    PROTO_DO(message->SerializeToArray(output, *size));
 
-    len_t* data_len = (len_t*)(output + len + 1);
-    output += len + 1 + sizeof(len_t);
-    *size -= len + 1 + sizeof(len_t);
-    
-    if (!proto_pack(proto, L, start + 1, end, output, size))
-    {
-        log_error("pack_message fail, proto=%s", proto);
-        return false;
-    }
-
-    *data_len = *size;
-    *size = len + 1 + sizeof(len_t) + *data_len;
+    *data_len = message->GetCachedSize();
+    *size = proto.size() + 1 + sizeof(len_t) + *data_len;
     return true;
 }
 
@@ -58,20 +50,38 @@ bool unpack_message(lua_State* L, const char* input, size_t* size)
 }
 
 // proto1, '0', data_len, data, proto2, '0', ...
+bool encode_field(Message* message, const FieldDescriptor* field, lua_State* L, int index);
+std::vector<const FieldDescriptor*> SortFieldsByNumber(const Descriptor* descriptor);
 bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size)
 {
     int total_size = 0;
     int left_size = *size;
+
+    start = lua_absindex(L, start);
+    end = lua_absindex(L, end);
+
     while (start <= end)
     {
         PROTO_ASSERT(lua_type(L, start) == LUA_TSTRING);
         const char* proto = lua_tostring(L, start);
+
         const Descriptor* descriptor = g_importer.pool()->FindMessageTypeByName(proto);
         PROTO_ASSERT(descriptor);
+
+        const Message* prototype = g_factory.GetPrototype(descriptor);
+        PROTO_ASSERT(prototype);
+
         int limit = std::min(end, start + descriptor->field_count());
+        std::unique_ptr<Message> message(prototype->New());
+        std::vector<const FieldDescriptor*> fields = SortFieldsByNumber(descriptor);
+        for (int i = 0; i < (int)fields.size() && start + i <= limit; i++)
+        {
+            const FieldDescriptor* field = fields[i];
+            PROTO_DO(encode_field(message.get(), field, L, start + i));
+        }
 
         size_t msg_size = left_size;
-        PROTO_DO(pack_message(L, start, limit, output, &msg_size));
+        PROTO_DO(pack_message(L, message.get(), output, &msg_size));
 
         output += msg_size;
         left_size -= msg_size;
