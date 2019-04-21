@@ -47,20 +47,15 @@ void lmanager::on_closed(int number, int error)
 
 void lmanager::on_package(int number, char* data, int len)
 {
-    std::string proto = data;
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, number);
-    luaL_pushvalue(L, proto);
 
-    const char* input = data + proto.size() + 1;
-    size_t size = len - proto.size() - 1;
-    if (!proto_unpack(proto.c_str(), L, input, size))
+    if (!stack_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;
     }
-
     int nargs = lua_gettop(L) - top - 1;
     luaL_safecall(L, nargs, 0);
 }

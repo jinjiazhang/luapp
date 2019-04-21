@@ -59,26 +59,20 @@ int lnetwork::connect(lua_State* L)
     return 1;
 }
 
+static char buffer[PROTO_BUFFER_SIZE];
 int lnetwork::call(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     int number = luaL_getvalue<int>(L, 1);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    std::string proto = luaL_getvalue<std::string>(L, 2);
-
-    static char buffer[64 * 1024];
-    strcpy(buffer, proto.c_str());
 
     int top = lua_gettop(L);
-    char* output = buffer + proto.size() + 1;
-    size_t size = sizeof(buffer) - proto.size() - 1;
-    if (!proto_pack(proto.c_str(), L, 3, top, output, &size))
+    size_t len = sizeof(buffer);
+    if (!stack_pack(L, 2, top, buffer, &len))
     {
-        lua_pushboolean(L, false);
-        return 1;
+        return 0;
     }
 
-    network_->send(number, buffer, proto.size() + 1 + size);
+    network_->send(number, buffer, (int)len);
     lua_pushboolean(L, true);
     return 1;
 }
