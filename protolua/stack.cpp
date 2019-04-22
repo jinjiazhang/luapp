@@ -2,24 +2,30 @@
 #include "varint.h"
 
 using namespace google::protobuf;
-typedef unsigned int len_t;
 
 bool pack_message(lua_State* L, Message* message, char* output, size_t* size)
 {
     const std::string& proto = message->GetDescriptor()->name();
+    int proto_len = (int)proto.size();
     int data_len = message->ByteSize();
+    
+    int head_len = length_varint(proto_len);
     int var_len = length_varint(data_len);
     int left_size = *size;
 
-    if (left_size < (int)proto.size() + 1 + var_len + data_len)
+    if (left_size < head_len + proto_len + var_len + data_len)
     {
         proto_error("pack_message buffer limit, proto=%s", proto.c_str());
         return false;
     }
 
-    memcpy(output, proto.c_str(), proto.size() + 1);
-    output += proto.size() + 1;
-    left_size -= proto.size() + 1;
+    PROTO_DO(encode_varint(output, left_size, proto_len));
+    output += head_len;
+    left_size -= head_len;
+
+    memcpy(output, proto.data(), proto_len);
+    output += proto_len;
+    left_size -= proto_len;
 
     PROTO_DO(encode_varint(output, left_size, data_len));
     output += var_len;
@@ -33,36 +39,42 @@ bool pack_message(lua_State* L, Message* message, char* output, size_t* size)
         return false;
     }
 
-    *size = proto.size() + 1 + var_len + data_len;
+    *size = head_len + proto_len + var_len + data_len;
     return true;
 }
 
 bool unpack_message(lua_State* L, const char* input, size_t* size)
 {
-    const char* proto = input;
-    int proto_len = std::strlen(input);
     int left_size = *size;
-
-    if (left_size < proto_len + 1)
+    int proto_len = 0;
+    int head_len = decode_varint(&proto_len, input, left_size);
+    if (head_len <= 0)
     {
-        proto_error("unpack_message buffer limit, proto=%s", proto);
+        proto_error("unpack_message decode head_len fail");
         return false;
     }
 
-    input += proto_len + 1;
-    left_size -= proto_len + 1;
+    if (left_size < head_len + proto_len)
+    {
+        proto_error("unpack_message buffer not enough proto");
+        return false;
+    }
+
+    std::string proto(input + head_len, proto_len);
+    input += head_len + proto_len;
+    left_size -= head_len + proto_len;
 
     int data_len = 0;
     int var_len = decode_varint(&data_len, input, left_size);
     if (var_len <= 0)
     {
-        proto_error("unpack_message decode varint fail, proto=%s", proto);
+        proto_error("unpack_message decode varint fail, proto=%s", proto.c_str());
         return false;
     }
 
     if (left_size < var_len + data_len)
     {
-        proto_error("unpack_message buffer limit, proto=%s", proto);
+        proto_error("unpack_message buffer limit, proto=%s", proto.c_str());
         return false;
     }
 
@@ -70,20 +82,21 @@ bool unpack_message(lua_State* L, const char* input, size_t* size)
     left_size -= var_len;
 
     int top = lua_gettop(L);
-    lua_pushlstring(L, proto, proto_len);
-    if (!proto_unpack(proto, L, input, data_len))
+    lua_pushlstring(L, proto.data(), proto.size());
+    if (!proto_unpack(proto.c_str(), L, input, data_len))
     {
         lua_settop(L, top);
         return false;
     }
 
-    *size = proto_len + 1 + var_len + data_len;
+    *size = head_len + proto_len + var_len + data_len;
     return true;
 }
 
-// proto1, '0', data_len, data, proto2, '0', ...
 bool encode_field(Message* message, const FieldDescriptor* field, lua_State* L, int index);
 std::vector<const FieldDescriptor*> SortFieldsByNumber(const Descriptor* descriptor);
+
+// proto1_len, proto1, data1_len, data1, proto2_len, proto2, ...
 bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size)
 {
     int total_size = 0;
