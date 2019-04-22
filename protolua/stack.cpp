@@ -50,13 +50,13 @@ bool unpack_message(lua_State* L, const char* input, size_t* size)
     int head_len = decode_varint(&proto_len, input, left_size);
     if (head_len <= 0)
     {
-        proto_error("unpack_message decode head_len fail");
+        proto_error("unpack_message decode head_len fail, left_size=%d", left_size);
         return false;
     }
 
     if (left_size < head_len + proto_len)
     {
-        proto_error("unpack_message buffer not enough proto");
+        proto_error("unpack_message buffer not enough proto, proto_len=%d", proto_len);
         return false;
     }
 
