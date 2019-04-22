@@ -1,4 +1,5 @@
 #include "protolua.h"
+#include "varint.h"
 
 using namespace google::protobuf;
 typedef unsigned int len_t;
@@ -6,46 +7,77 @@ typedef unsigned int len_t;
 bool pack_message(lua_State* L, Message* message, char* output, size_t* size)
 {
     const std::string& proto = message->GetDescriptor()->name();
-    if (*size < proto.size() + 1 + sizeof(len_t))
+    int data_len = message->ByteSize();
+    int var_len = length_varint(data_len);
+    int left_size = *size;
+
+    if (left_size < (int)proto.size() + 1 + var_len + data_len)
     {
         proto_error("pack_message buffer limit, proto=%s", proto.c_str());
         return false;
     }
 
     memcpy(output, proto.c_str(), proto.size() + 1);
-    len_t* data_len = (len_t*)(output + proto.size() + 1);
-    output += proto.size() + 1 + sizeof(len_t);
-    *size -= proto.size() + 1 + sizeof(len_t);
-    PROTO_DO(message->SerializeToArray(output, *size));
+    output += proto.size() + 1;
+    left_size -= proto.size() + 1;
 
-    *data_len = message->GetCachedSize();
-    *size = proto.size() + 1 + sizeof(len_t) + *data_len;
+    PROTO_DO(encode_varint(output, left_size, data_len));
+    output += var_len;
+    left_size -= var_len;
+
+    uint8* start = reinterpret_cast<uint8*>(output);
+    uint8* end = message->SerializeWithCachedSizesToArray((uint8*)output);
+    if (end - start != data_len)
+    {
+        proto_error("pack_message serialize fail, proto=%s", proto.c_str());
+        return false;
+    }
+
+    *size = proto.size() + 1 + var_len + data_len;
     return true;
 }
 
 bool unpack_message(lua_State* L, const char* input, size_t* size)
 {
     const char* proto = input;
-    int len = std::strlen(input);
-    
-    len_t data_len = *(len_t*)(input + len + 1);
-    input += len + 1 + sizeof(len_t);
-    size_t msg_size = len + 1 + sizeof(len_t) + data_len;
-    if (*size < msg_size)
+    int proto_len = std::strlen(input);
+    int left_size = *size;
+
+    if (left_size < proto_len + 1)
     {
         proto_error("unpack_message buffer limit, proto=%s", proto);
         return false;
     }
 
+    input += proto_len + 1;
+    left_size -= proto_len + 1;
+
+    int data_len = 0;
+    int var_len = decode_varint(&data_len, input, left_size);
+    if (var_len <= 0)
+    {
+        proto_error("unpack_message decode varint fail, proto=%s", proto);
+        return false;
+    }
+
+    if (left_size < var_len + data_len)
+    {
+        proto_error("unpack_message buffer limit, proto=%s", proto);
+        return false;
+    }
+
+    input += var_len;
+    left_size -= var_len;
+
     int top = lua_gettop(L);
-    lua_pushlstring(L, proto, len);
+    lua_pushlstring(L, proto, proto_len);
     if (!proto_unpack(proto, L, input, data_len))
     {
         lua_settop(L, top);
         return false;
     }
 
-    *size = msg_size;
+    *size = proto_len + 1 + var_len + data_len;
     return true;
 }
 
