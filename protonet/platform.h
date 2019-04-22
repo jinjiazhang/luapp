@@ -42,7 +42,4 @@ int set_reuse_addr(socket_t fd);
 int get_socket_err(socket_t fd);
 int get_network_err();
 
-int encode_var(char* data, int len, int var);
-int decode_var(int* var, char* data, int len);
-
 #endif
