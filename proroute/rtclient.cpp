@@ -6,6 +6,9 @@ rtclient::rtclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
     router_ = 0;
+    number_ = 0;
+    network_ = nullptr;
+    manager_ = nullptr;
 }
 
 rtclient::~rtclient()

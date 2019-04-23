@@ -5,6 +5,9 @@
 rtserver::rtserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
+    number_ = 0;
+    network_ = nullptr;
+    manager_ = nullptr;
 }
 
 rtserver::~rtserver()
@@ -201,7 +204,7 @@ void rtserver::on_forward_roleid(int number, char* data, int len)
     int dst_num = roleid_to_num(msg->roleid);
     if (dst_num <= 0)
     {
-        log_error("rtserver::on_forward_roleid roleid =%d notfound", msg->roleid);
+        log_error("rtserver::on_forward_roleid roleid =%lld notfound", msg->roleid);
         return;
     }
 

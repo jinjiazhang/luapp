@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     cmd.parse_check(argc, argv);
 
     luctx* ctx = new luctx();
-    memset(ctx, 0, sizeof(ctx));
+    memset(ctx, 0, sizeof(luctx));
     ctx->entry = cmd.get<string>("main-file").c_str();
     ctx->log_conf = cmd.get<string>("log-conf").c_str();
     ctx->tick_freq = cmd.get<int>("tick-freq");

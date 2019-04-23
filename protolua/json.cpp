@@ -187,7 +187,7 @@ bool proto_fromjson(lua_State* L, const char* input, size_t size)
     document.Parse(input, size);
     if (document.HasParseError())
     {
-        proto_error("proto_fromjson parse error: %s", document.GetParseError());
+        proto_error("proto_fromjson parse error, code: %d", (int)document.GetParseError());
         return false;
     }
 

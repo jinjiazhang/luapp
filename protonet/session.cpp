@@ -4,6 +4,7 @@
 
 session::session(network* instance, imanager* manager)
 {
+    fd_ = -1;
     network_ = instance;
     manager_ = manager;
     closed_ = true;
