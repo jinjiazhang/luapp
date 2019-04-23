@@ -158,9 +158,15 @@ bool proto_tojson(lua_State* L, int index, bool pretty, char* output, size_t* si
 
     rapidjson::StringBuffer buffer;
     if (pretty)
-        document.Accept(rapidjson::PrettyWriter<rapidjson::StringBuffer>(buffer));
+    {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+    }
     else
-        document.Accept(rapidjson::Writer<rapidjson::StringBuffer>(buffer));
+    {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+    }
 
     if (output && size) // export to buffer
     {
