@@ -61,6 +61,8 @@ int http::get(callback* handle, const char* url)
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 8);
     curl_easy_setopt(curl, CURLOPT_SHARE, share_);
     curl_easy_setopt(curl, CURLOPT_PRIVATE, task);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, task);
@@ -80,6 +82,8 @@ int http::post(callback* handle, const char* url, const char* data)
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 8);
     curl_easy_setopt(curl, CURLOPT_SHARE, share_);
     curl_easy_setopt(curl, CURLOPT_PRIVATE, task);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, task);

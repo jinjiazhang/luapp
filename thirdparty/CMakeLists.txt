@@ -10,6 +10,14 @@ option (LOG4CPLUS_BUILD_TESTING "log4cplus build testing" OFF)
 option (UNICODE "log4cplus use unicode" OFF)
 option (protobuf_BUILD_TESTS "protobuf build tests" OFF)
 option (protobuf_BUILD_PROTOC_BINARIES "protobuf build binaries" OFF)
+option (CMAKE_USE_OPENSSL "Use OpenSSL code. Experimental" OFF)
+
+# http://slproweb.com/products/Win32OpenSSL.html
+# http://slproweb.com/download/Win32OpenSSL-1_1_1b.exe
+find_package(OpenSSL)
+IF (OpenSSL_FOUND)
+	set(CMAKE_USE_OPENSSL ON)
+ENDIF()
 
 add_subdirectory(lua-5.3.5)
 add_subdirectory(curl)
