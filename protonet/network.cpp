@@ -34,7 +34,7 @@ bool network::init()
 #endif
     if (!frame_->init())
     {
-        delete frame_;
+        frame_->release();
         return false;
     }
     return true;

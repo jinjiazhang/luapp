@@ -7,7 +7,8 @@ lhttp::lhttp(lua_State* L) : lobject(L)
 
 lhttp::~lhttp()
 {
-    delete http_;
+    if (http_)
+        delete http_;
 }
 
 void lhttp::respond(int token, int code, const char* data)
