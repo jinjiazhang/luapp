@@ -145,7 +145,7 @@ inetwork* create_network()
     network* instance = new network();
     if (!instance->init())
     {
-        delete instance;
+        instance->release();
         return NULL;
     }
     return instance;
