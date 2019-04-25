@@ -2,9 +2,10 @@
 #define _JINJIAZHANG_LUAPP_H_
 
 #include "lualib/lobject.h"
-#include "protonet/lnetwork.h"
 #include "luaredis/luaredis.h"
+#include "protonet/lnetwork.h"
 #include "proroute/routermgr.h"
+#include "protosql/mysqlmgr.h"
 #include "lhttp.h"
 #include "ltimer.h"
 
@@ -57,6 +58,7 @@ private:
     lnetwork* luanet_;
 	luaredis* luaredis_;
     routermgr* routermgr_;
+    mysqlmgr* mysqlmgr_;
 };
 
 extern const char* assist_code;
