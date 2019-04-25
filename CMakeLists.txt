@@ -27,6 +27,7 @@ add_subdirectory(luaredis)
 add_subdirectory(proroute)
 add_subdirectory(protolua)
 add_subdirectory(protonet)
+add_subdirectory(protosql)
 add_subdirectory(thirdparty)
 
 add_dependencies(luapp lualib gateway luaredis proroute protolua protonet lua log4cplusS libprotobuf libcurl)

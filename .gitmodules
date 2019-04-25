@@ -13,3 +13,6 @@
 [submodule "thirdparty/rapidjson"]
 	path = thirdparty/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "thirdparty/mariadb-connector-c"]
+	path = thirdparty/mariadb-connector-c
+	url = https://github.com/MariaDB/mariadb-connector-c.git
