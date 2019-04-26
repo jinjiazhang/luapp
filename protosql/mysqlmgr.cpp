@@ -1,6 +1,8 @@
 #include "mysqlmgr.h"
 #include "sqlclient.h"
 
+using namespace google::protobuf;
+
 mysqlmgr::mysqlmgr(lua_State* L) : lobject(L), 
     importer_(&source_tree_, nullptr)
 {
@@ -44,8 +46,19 @@ int mysqlmgr::connect(lua_State* L)
     sqlclient* client = new sqlclient();
     client->connect(host, user, passwd, db, port);
 
-    auto desc = importer_.pool()->FindMessageTypeByName("user");
-    client->sql_select(desc, "");
+    const Descriptor* descriptor = importer_.pool()->FindMessageTypeByName("user");
+    DynamicMessageFactory factory;
+    const Message* prototype = factory.GetPrototype(descriptor);
+    Message* message = prototype->New();
+    const FieldDescriptor* id_field = descriptor->FindFieldByName("id");
+    const FieldDescriptor* name_field = descriptor->FindFieldByName("name");
+    const Reflection* reflection = message->GetReflection();
+    reflection->SetString(message, id_field, "test002");
+    reflection->SetString(message, name_field, "123456");
+
+
+    client->sql_insert(message);
+    client->sql_select(descriptor, "");
     return 0;
 }
 

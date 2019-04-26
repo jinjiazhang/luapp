@@ -95,7 +95,10 @@ int resultbuf::parpare_field(const FieldDescriptor* field, MYSQL_BIND& bind)
         parpare_bind(bind, MYSQL_TYPE_TINY, sizeof(uint8));
         break;
     case FieldDescriptor::CPPTYPE_STRING:
-        parpare_bind(bind, MYSQL_TYPE_VAR_STRING, STRING_PARPARE_LENGTH);
+        if (field->type() == FieldDescriptor::TYPE_BYTES)
+            parpare_bind(bind, MYSQL_TYPE_BLOB, BLOB_PARPARE_LENGTH);
+        else
+            parpare_bind(bind, MYSQL_TYPE_VAR_STRING, STRING_PARPARE_LENGTH);       
         break;
     case FieldDescriptor::CPPTYPE_MESSAGE:
         parpare_bind(bind, MYSQL_TYPE_BLOB, BLOB_PARPARE_LENGTH);

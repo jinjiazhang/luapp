@@ -4,6 +4,7 @@
 #include "lualib/lobject.h"
 #include "google/protobuf/message.h"
 #include "google/protobuf/compiler/importer.h"
+#include "google/protobuf/dynamic_message.h"
 
 class mysqlmgr : public lobject
 {

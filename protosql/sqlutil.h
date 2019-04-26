@@ -7,7 +7,7 @@
 class sqlutil {
 public:
     static std::string make_select(const google::protobuf::Descriptor* descriptor, const std::string& condition);
-    static std::string make_insert(const google::protobuf::Descriptor* descriptor, const std::string& condition);
+    static std::string make_insert(const google::protobuf::Descriptor* descriptor);
     static std::string make_update(const google::protobuf::Descriptor* descriptor, const std::string& condition);
     static std::string make_delete(const google::protobuf::Descriptor* descriptor, const std::string& condition);
 };

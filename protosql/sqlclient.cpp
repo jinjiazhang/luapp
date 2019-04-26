@@ -1,9 +1,10 @@
 #include "sqlclient.h"
 #include "sqlutil.h"
 #include "protolog/protolog.h"
-#include "protolog/protolog.h"
 #include <vector>
+
 #include "google/protobuf/util/json_util.h"
+using namespace google::protobuf;
 
 sqlclient::sqlclient() : parambuf_(256*1024), resultbuf_(256*1024)
 {
@@ -27,7 +28,7 @@ bool sqlclient::connect(const char* host, const char* user, const char* passwd, 
     return true;
 }
 
-int sqlclient::sql_select(const google::protobuf::Descriptor* descriptor, const std::string& condition)
+int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
     std::string query = sqlutil::make_select(descriptor, condition);
@@ -74,9 +75,9 @@ int sqlclient::sql_select(const google::protobuf::Descriptor* descriptor, const 
         return -1;
     }
 
-    google::protobuf::DynamicMessageFactory factory;
-    const google::protobuf::Message* prototype = factory.GetPrototype(descriptor);
-    google::protobuf::Message* message = prototype->New();
+    DynamicMessageFactory factory;
+    const Message* prototype = factory.GetPrototype(descriptor);
+    Message* message = prototype->New();
     ret = resultbuf_.parse(stmt, binds, message);
     if (ret != 0)
     {
@@ -89,10 +90,10 @@ int sqlclient::sql_select(const google::protobuf::Descriptor* descriptor, const 
     return affected;
 }
 
-int sqlclient::sql_insert(google::protobuf::Message* message, const std::string& condition)
+int sqlclient::sql_insert(const Message* message)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
-    std::string query = sqlutil::make_insert(message->GetDescriptor(), condition);
+    std::string query = sqlutil::make_insert(message->GetDescriptor());
     int ret = mysql_stmt_prepare(stmt, query.c_str(), query.size());
     if (ret != 0)
     {
@@ -127,7 +128,7 @@ int sqlclient::sql_insert(google::protobuf::Message* message, const std::string&
     return affected;
 }
 
-int sqlclient::sql_update(google::protobuf::Message* message, const std::string& condition)
+int sqlclient::sql_update(const Message* message, const std::string& condition)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
     std::string query = sqlutil::make_update(message->GetDescriptor(), condition);
@@ -165,7 +166,7 @@ int sqlclient::sql_update(google::protobuf::Message* message, const std::string&
     return affected;
 }
 
-int sqlclient::sql_delete(const google::protobuf::Descriptor* descriptor, const std::string& condition)
+int sqlclient::sql_delete(const Descriptor* descriptor, const std::string& condition)
 {
     std::string query = sqlutil::make_delete(descriptor, condition);
     int ret = mysql_real_query(mysql_, query.c_str(), query.size());
