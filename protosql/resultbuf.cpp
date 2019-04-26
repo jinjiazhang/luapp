@@ -60,7 +60,7 @@ int resultbuf::parpare_bind(MYSQL_BIND& bind, enum enum_field_types field_type, 
     bind.buffer_type = field_type;
     bind.buffer = current_;
     bind.buffer_length = buffer_length;
-    bind.length = &bind.buffer_length;
+    bind.length = &bind.length_value;
     bind.is_null = &bind.is_null_value;
     current_ += buffer_length;
     return 0;
@@ -114,8 +114,15 @@ int resultbuf::parse(MYSQL_STMT* stmt, std::vector<MYSQL_BIND>& bind, Message* m
     for (int i = 0; i < field_count; i++)
     {
         const FieldDescriptor* field = descriptor->field(i);
+        ret = fetch_buffer(stmt, bind[i], i);
+        if (ret != 0)
+        {
+            log_error("resultbuf::parse fetch_buffer fail, name=%s", field->full_name().c_str());
+            break;
+        }
+
         ret = parse_field(stmt, bind[i], message, field);
-        if (ret != 0 || current_ > buffer_ + length_)
+        if (ret != 0)
         {
             log_error("resultbuf::parse parse_field fail, name=%s", field->full_name().c_str());
             break;
@@ -125,8 +132,28 @@ int resultbuf::parse(MYSQL_STMT* stmt, std::vector<MYSQL_BIND>& bind, Message* m
     return ret;
 }
 
-int resultbuf::fetch_buffer(MYSQL_STMT* stmt, MYSQL_BIND& bind)
+int resultbuf::fetch_buffer(MYSQL_STMT* stmt, MYSQL_BIND& bind, unsigned int column)
 {
+    if (bind.length_value <= bind.buffer_length)
+    {
+        return 0;
+    }
+
+    if (bind.length_value > templen_)
+    {
+        if (tempbuf_)
+            delete[] tempbuf_;
+        tempbuf_ = new char[bind.length_value + 1];
+        templen_ = bind.length_value + 1;
+    }
+
+    bind.buffer = tempbuf_;
+    bind.buffer_length = templen_;
+    int ret = mysql_stmt_fetch_column(stmt, &bind, column, 0);
+    if (ret != 0)
+    {
+        return -1;
+    }
     return 0;
 }
 
@@ -174,11 +201,9 @@ int resultbuf::parse_required(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* messa
         reflection->SetBool(message, field, *(uint8*)bind.buffer != 0);
         break;
     case FieldDescriptor::CPPTYPE_STRING:
-        fetch_buffer(stmt, bind);
         reflection->SetString(message, field, std::string((char*)bind.buffer, *bind.length));
         break;
     case FieldDescriptor::CPPTYPE_MESSAGE:
-        fetch_buffer(stmt, bind);
         submessage = reflection->MutableMessage(message, field);
         submessage->ParseFromArray(bind.buffer, *bind.length);
         break;

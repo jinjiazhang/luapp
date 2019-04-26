@@ -20,7 +20,7 @@ private:
     int parse_field(MYSQL_STMT* stmt, MYSQL_BIND& bind, google::protobuf::Message* message, const google::protobuf::FieldDescriptor* field);
     int parse_required(MYSQL_STMT* stmt, MYSQL_BIND& bind, google::protobuf::Message* message, const google::protobuf::FieldDescriptor* field);
     int parse_repeated(MYSQL_STMT* stmt, MYSQL_BIND& bind, google::protobuf::Message* message, const google::protobuf::FieldDescriptor* field);
-    int fetch_buffer(MYSQL_STMT* stmt, MYSQL_BIND& bind);
+    int fetch_buffer(MYSQL_STMT* stmt, MYSQL_BIND& bind, unsigned int column);
 
 private:
     int length_;

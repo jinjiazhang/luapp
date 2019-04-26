@@ -68,7 +68,7 @@ int sqlclient::sql_select(const google::protobuf::Descriptor* descriptor, const 
     }
 
     ret = mysql_stmt_fetch(stmt);
-    if (ret != 0)
+    if (ret != 0 && ret != MYSQL_DATA_TRUNCATED)
     {
         log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
         return -1;
