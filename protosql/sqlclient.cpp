@@ -3,6 +3,7 @@
 #include "protolog/protolog.h"
 #include "protolog/protolog.h"
 #include <vector>
+#include "google/protobuf/util/json_util.h"
 
 sqlclient::sqlclient() : resultbuf_(256*1024)
 {
@@ -82,6 +83,10 @@ int sqlclient::sql_select(const google::protobuf::Descriptor* descriptor, const 
         log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
         return -1;
     }
+    
+    std::string json;
+    google::protobuf::util::MessageToJsonString(*message, &json);
+    log_info("message: %s", json.c_str());
     return 0;
 }
 

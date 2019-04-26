@@ -2,7 +2,7 @@
 
 std::string sqlutil::make_select(const google::protobuf::Descriptor* descriptor, const std::string& condition)
 {
-    return std::string();
+    return "select * from user";
 }
 
 std::string sqlutil::make_insert(const google::protobuf::Descriptor* descriptor, const std::string& condition)
