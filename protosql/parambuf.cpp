@@ -90,8 +90,6 @@ int parambuf::parpare_bind(MYSQL_BIND& bind, enum enum_field_types field_type, c
     bind.buffer = current_;
     memcpy(current_, value.data(), value.size());
     bind.buffer_length = value.size();
-    bind.length = &bind.length_value;
-    bind.is_null = &bind.is_null_value;
     current_ += value.size();
     return 0;
 }
