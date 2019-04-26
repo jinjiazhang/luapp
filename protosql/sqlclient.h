@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_SQLCLIENT_H_
 
 #include "mysql.h"
+#include "parambuf.h"
 #include "resultbuf.h"
 #include "google/protobuf/message.h"
 
@@ -20,6 +21,7 @@ public:
 
 private:
     MYSQL* mysql_;
+    parambuf parambuf_;
     resultbuf resultbuf_;
 };
 
