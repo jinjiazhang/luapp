@@ -22,6 +22,7 @@ function init( ... )
 		}
 	}
 
+	pool.sql_execute("show tables")
 	pool.sql_insert("Person", player)
 	pool.sql_select("Person", "id = 10001")
 	

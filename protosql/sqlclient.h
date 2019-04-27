@@ -20,7 +20,7 @@ public:
     int sql_update(const google::protobuf::Message* message, const std::string& condition);
     int sql_delete(const google::protobuf::Descriptor* descriptor, const std::string& condition);
     int sql_create(const google::protobuf::Descriptor* descriptor);
-    int sql_execute(const std::string& statement);
+    int sql_execute(const std::string& statement, std::vector<std::vector<std::string>>& table);
 
 private:
     MYSQL* mysql_;

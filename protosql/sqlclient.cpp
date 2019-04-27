@@ -198,13 +198,55 @@ int sqlclient::sql_create(const google::protobuf::Descriptor* descriptor)
     return affected;
 }
 
-int sqlclient::sql_execute(const std::string& statement)
+int sqlclient::sql_execute(const std::string& statement, std::vector<std::vector<std::string>>& table)
 {
     int ret = mysql_real_query(mysql_, statement.c_str(), statement.size());
     if (ret != 0)
     {
         log_error("sqlclient::sql_execute, real_query fail, ret: %d", ret);
         return mysql_code(ret);
+    }
+
+    MYSQL_RES* result = mysql_store_result(mysql_);
+    if (result == nullptr)
+    {
+        log_error("sqlclient::sql_execute, result nullptr, ret: %d", ret);
+        return -1;
+    }
+    
+    int row_count = (int)mysql_num_rows(result);
+    int field_count = (int)mysql_num_fields(result);
+    if (row_count > 0 && field_count > 0)
+    {
+        MYSQL_FIELD* fields = mysql_fetch_field(result);
+        if (fields == nullptr)
+        {
+            log_error("sqlclient::sql_execute, fields nullptr, ret: %d", ret);
+            return -1;
+        }
+
+        table.resize(row_count + 1);
+        table[0].resize(field_count);
+        for (int i = 0; i < field_count; i++)
+        {
+            table[0][i] = fields[i].name;
+        }
+
+        for (int j = 0; j < row_count; j++)
+        {
+            MYSQL_ROW row = mysql_fetch_row(result);
+            if (row == nullptr)
+            {
+                log_error("sqlclient::sql_execute, rows nullptr, ret: %d", ret);
+                return -1;
+            }
+
+            table[j + 1].resize(field_count);
+            for (int i = 0; i < field_count; i++)
+            {
+                table[j + 1][i] = row[i];
+            }
+        }
     }
 
     int affected = (int)mysql_affected_rows(mysql_);

@@ -285,7 +285,7 @@ void sqlpool::do_request(sqlclient* client, std::shared_ptr<taskdata> task)
         task->ret_code = client->sql_create(task->descriptor);
         break;
     case SQL_METHOD_EXECUTE:
-        task->ret_code = client->sql_execute(task->content);
+        task->ret_code = client->sql_execute(task->content, task->table);
         break;
     default:
         break;
@@ -299,10 +299,12 @@ void sqlpool::on_respond(std::shared_ptr<taskdata> task)
     case SQL_METHOD_SELECT:
         on_selected(task);
         break;
+    case SQL_METHOD_EXECUTE:
+        on_executed(task);
+        break;
     case SQL_METHOD_INSERT:
     case SQL_METHOD_UPDATE:
     case SQL_METHOD_DELETE:
-    case SQL_METHOD_EXECUTE:
         luaL_callfunc(L, this, "on_respond", task->token, task->ret_code);
         break;
     default:
@@ -326,6 +328,34 @@ void sqlpool::on_selected(std::shared_ptr<taskdata> task)
     }
     int nargs = lua_gettop(L) - top - 1;
     luaL_safecall(L, nargs, 0);
+}
+
+void sqlpool::on_executed(std::shared_ptr<taskdata> task)
+{
+    if (task->table.size() == 0)
+    {
+        luaL_callfunc(L, this, "on_respond", task->token, task->ret_code);
+        return;
+    }
+
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_respond");
+    luaL_pushvalue(L, task->token);
+    luaL_pushvalue(L, task->ret_code);
+    lua_newtable(L);
+    for (int row = 1; row < task->table.size(); row++)
+    {
+        lua_newtable(L);
+        for (int col = 0; col < task->table[0].size(); col++)
+        {
+            luaL_pushvalue(L, task->table[0][col]);
+            luaL_pushvalue(L, task->table[row][col]);
+            lua_settable(L, -3);
+        }
+        lua_seti(L, -2, row);
+    }
+
+    luaL_safecall(L, 3, 0);
 }
 
 EXPORT_OFUNC(sqlpool, connect)

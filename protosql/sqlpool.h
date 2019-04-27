@@ -19,6 +19,7 @@ public:
         std::string content;
         const google::protobuf::Descriptor* descriptor = nullptr;
         std::shared_ptr<google::protobuf::Message> message;
+        std::vector<std::vector<std::string>> table;
         std::vector<std::shared_ptr<google::protobuf::Message>> results;
     };
 
@@ -43,6 +44,7 @@ private:
     void do_request(sqlclient* client, std::shared_ptr<taskdata> task);
     void on_respond(std::shared_ptr<taskdata> task);
     void on_selected(std::shared_ptr<taskdata> task);
+    void on_executed(std::shared_ptr<taskdata> task);
 
 private:
     mysqlmgr* sqlmgr_;
