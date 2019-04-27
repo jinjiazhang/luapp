@@ -10,7 +10,7 @@ rdsclient = import("scripts/rdsclient.lua")
 
 app.init = function ( ... )
 	log_info("app.time", app.time())
-	proto.parse("game.proto")
+	proto.parse("protos/cs.proto")
 	timeout.init()
 	listen.init()
 	connect.init()

@@ -11,6 +11,7 @@ public:
     static std::string make_update(const google::protobuf::Descriptor* descriptor, const std::string& condition);
     static std::string make_delete(const google::protobuf::Descriptor* descriptor, const std::string& condition);
     static std::string make_create(const google::protobuf::Descriptor* descriptor);
+    static std::string make_sql_type(const google::protobuf::FieldDescriptor* field);
 };
 
 #endif
