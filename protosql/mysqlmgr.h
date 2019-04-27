@@ -6,19 +6,24 @@
 #include "google/protobuf/compiler/importer.h"
 #include "google/protobuf/dynamic_message.h"
 
+class sqlpool;
 class mysqlmgr : public lobject
 {
 public:
     mysqlmgr(lua_State* L);
     ~mysqlmgr();
 
+    int update();
     int parse(lua_State* L);
     int create_pool(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
+    const google::protobuf::Descriptor* find_message(const char* proto);
+
 private:
+    std::vector<sqlpool*> sqlpools_;
     google::protobuf::compiler::Importer importer_;
-    google::protobuf::compiler::DiskSourceTree source_tree_;    
+    google::protobuf::compiler::DiskSourceTree source_tree_;
 };
 
 #endif

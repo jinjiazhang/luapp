@@ -11,7 +11,19 @@ mysqlmgr::mysqlmgr(lua_State* L) : lobject(L),
 
 mysqlmgr::~mysqlmgr()
 {
-    
+    for (sqlpool* pool : sqlpools_)
+    {
+        delete pool;
+    }
+}
+
+int mysqlmgr::update()
+{
+    for (sqlpool* pool : sqlpools_)
+    {
+        pool->update();
+    }
+    return 0;
 }
 
 int mysqlmgr::parse(lua_State* L)
@@ -39,8 +51,14 @@ int mysqlmgr::create_pool(lua_State* L)
         return 0;
     }
 
+    sqlpools_.push_back(pool);
     lua_pushlobject(L, pool);
     return 1;
+}
+
+const Descriptor* mysqlmgr::find_message(const char* proto)
+{
+    return importer_.pool()->FindMessageTypeByName(proto);
 }
 
 EXPORT_OFUNC(mysqlmgr, parse)
