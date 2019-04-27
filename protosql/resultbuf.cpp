@@ -304,6 +304,7 @@ int resultbuf::parse_repeated(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* messa
     ArrayInputStream buffer(bind.buffer, bind.length_value);
     CodedInputStream stream(&buffer);
 
+    CodedInputStream::Limit limit = stream.PushLimit(bind.length_value);
     while (stream.BytesUntilLimit() > 0)
     {
         int ret = decode_single(&stream, message, field);
@@ -313,5 +314,6 @@ int resultbuf::parse_repeated(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* messa
             return ret;
         }
     }
+    stream.PopLimit(limit);
     return 0;
 }
