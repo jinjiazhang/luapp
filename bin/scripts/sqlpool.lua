@@ -23,8 +23,9 @@ function init( ... )
 	}
 
 	pool.sql_insert("Person", player)
-
-	player.email = "jinjiazh@1163.com"
+	pool.sql_select("Person", "id = 10001")
+	
+	player.email = "jinjiazh@163.com"
 	pool.sql_update("Person", player, "id = 10001")
 	pool.sql_select("Person", "id = 10001")
 end
@@ -32,10 +33,6 @@ end
 function on_respond( token, ret_code, ... )
 	log_debug("sqlpool.on_respond", token, ret_code, ...)
 	for index, result in ipairs({...}) do
-		if type(result) == "table" then
-			for k,v in pairs(result) do
-				log_debug("sqlpool.on_respond result:", index, k, v)
-			end
-		end
+		log_debug("sqlpool.on_respond result:", index, proto.to_json(result))
 	end
 end

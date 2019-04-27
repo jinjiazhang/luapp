@@ -70,6 +70,7 @@ int parambuf::parpare_bind(MYSQL_BIND& bind, enum enum_field_types field_type, c
         return -1;
     }
 
+    *(T*)current_ = value;
     memset(&bind, 0, sizeof(bind));
     bind.buffer_type = field_type;
     bind.buffer = current_;
@@ -193,7 +194,11 @@ int encode_single(CodedOutputStream* output, const Message* message, const Field
         WireFormatLite::WriteString(field->number(), reflection->GetRepeatedString(*message, field, index), output);
         break;
     case FieldDescriptor::TYPE_MESSAGE:
-        WireFormatLite::WriteMessage(field->number(), reflection->GetRepeatedMessage(*message, field, index), output);
+        {
+            const Message& submessage = reflection->GetRepeatedMessage(*message, field, index);
+            int size = submessage.ByteSizeLong();
+            WireFormatLite::WriteMessage(field->number(), submessage, output);
+        }
         break;
     default:
         return -1;
