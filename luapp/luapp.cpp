@@ -151,6 +151,7 @@ int luapp::proc()
     app_mstime_ = sys_mstime();
     network_->update(ctx_->idle_sleep);
     http_->update();
+    mysqlmgr_->update();
     timer_->update(this->mstime());
     luaL_callfunc(L, this, "proc");
 

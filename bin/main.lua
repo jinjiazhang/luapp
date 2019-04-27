@@ -5,6 +5,7 @@ connect = import("scripts/connect.lua")
 httpreq = import("scripts/httpreq.lua")
 router = import("scripts/router.lua")
 airport = import("scripts/airport.lua")
+sqlpool = import("scripts/sqlpool.lua")
 rdsclient = import("scripts/rdsclient.lua")
 
 app.init = function ( ... )
@@ -16,6 +17,7 @@ app.init = function ( ... )
 	httpreq.init()
 	router.init()
 	airport.init()
+	sqlpool.init()
 	rdsclient.init()
 end
 

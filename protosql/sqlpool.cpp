@@ -35,7 +35,7 @@ bool sqlpool::init(mysqlmgr* sqlmgr)
 int sqlpool::update()
 {
     rsp_mutex_.lock();
-    auto rsp_queue = std::move(req_queue_);
+    auto rsp_queue = std::move(rsp_queue_);
     rsp_mutex_.unlock();
 
     for (auto task : rsp_queue)
@@ -93,7 +93,7 @@ int sqlpool::connect(lua_State* L)
     return 1;
 }
 
-// pool.select("user", "id = 'abc'")
+// pool.sql_select("tbPlayer", "role_id = 10001")
 int sqlpool::sql_select(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
@@ -119,24 +119,97 @@ int sqlpool::sql_select(lua_State* L)
     return 1;
 }
 
+// pool.sql_insert("tbPlayer", player)
 int sqlpool::sql_insert(lua_State* L)
 {
-    return 0;
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    const char* proto = luaL_getvalue<const char*>(L, 1);
+    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    if (descriptor == nullptr)
+    {
+        return 0;
+    }
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = SQL_METHOD_INSERT;
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
 }
 
+// pool.sql_update("tbPlayer", player, "role_id = 10001")
 int sqlpool::sql_update(lua_State* L)
 {
-    return 0;
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    luaL_checktype(L, 3, LUA_TSTRING);
+    const char* proto = luaL_getvalue<const char*>(L, 1);
+    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    if (descriptor == nullptr)
+    {
+        return 0;
+    }
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = SQL_METHOD_UPDATE;
+    task->content = luaL_getvalue<std::string>(L, 3);
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
 }
 
+// pool.sql_delete("tbPlayer", "role_id = 10001")
 int sqlpool::sql_delete(lua_State* L)
 {
-    return 0;
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    const char* proto = luaL_getvalue<const char*>(L, 1);
+    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    if (descriptor == nullptr)
+    {
+        return 0;
+    }
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = SQL_METHOD_DELETE;
+    task->content = luaL_getvalue<std::string>(L, 2);
+    task->descriptor = descriptor;
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
 }
 
+// pool.sql_execute("delete from tbPlayer where role_id = 10001")
 int sqlpool::sql_execute(lua_State* L)
 {
-    return 0;
+    luaL_checktype(L, 1, LUA_TSTRING);
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = SQL_METHOD_EXECUTE;
+    task->content = luaL_getvalue<std::string>(L, 1);
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
 }
 
 void sqlpool::do_request(sqlclient* client, std::shared_ptr<taskdata> task)
@@ -165,7 +238,25 @@ void sqlpool::do_request(sqlclient* client, std::shared_ptr<taskdata> task)
 
 void sqlpool::on_respond(std::shared_ptr<taskdata> task)
 {
-    luaL_callfunc(L, "respond", task->token, task->ret_code);
+    switch (task->method)
+    {
+    case SQL_METHOD_SELECT:
+        on_results(task);
+        break;
+    case SQL_METHOD_INSERT:
+    case SQL_METHOD_UPDATE:
+    case SQL_METHOD_DELETE:
+    case SQL_METHOD_EXECUTE:
+        luaL_callfunc(L, this, "on_respond", task->token, task->ret_code);
+        break;
+    default:
+        break;
+    }
+}
+
+void sqlpool::on_results(std::shared_ptr<taskdata> task)
+{
+    luaL_callfunc(L, this, "on_respond", task->token, task->ret_code, task->results.size());
 }
 
 EXPORT_OFUNC(sqlpool, connect)
@@ -177,12 +268,12 @@ EXPORT_OFUNC(sqlpool, sql_execute)
 const luaL_Reg* sqlpool::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { "respond", lua_emptyfunc },
+        { "on_respond", lua_emptyfunc },
+        { IMPORT_OFUNC(sqlpool, connect) },
         { IMPORT_OFUNC(sqlpool, sql_select) },
         { IMPORT_OFUNC(sqlpool, sql_insert) },
         { IMPORT_OFUNC(sqlpool, sql_update) },
         { IMPORT_OFUNC(sqlpool, sql_delete) },
-        { IMPORT_OFUNC(sqlpool, connect) },
         { IMPORT_OFUNC(sqlpool, sql_execute) },
         { NULL, NULL }
     };

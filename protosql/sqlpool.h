@@ -41,6 +41,7 @@ public:
 private:
     void do_request(sqlclient* client, std::shared_ptr<taskdata> task);
     void on_respond(std::shared_ptr<taskdata> task);
+    void on_results(std::shared_ptr<taskdata> task);
 
 private:
     mysqlmgr* sqlmgr_;
