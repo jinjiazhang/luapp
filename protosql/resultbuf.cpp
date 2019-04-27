@@ -288,13 +288,9 @@ int decode_single(CodedInputStream* input, Message* message, const FieldDescript
         break;
     case FieldDescriptor::TYPE_MESSAGE:
         {
-            int length;
             input->ReadTagNoLastTag();
-            input->ReadVarintSizeAsInt(&length);
-            CodedInputStream::Limit limit = input->PushLimit(length);
             Message* submessage = reflection->AddMessage(message, field);
-            submessage->ParsePartialFromCodedStream(input);
-            input->PopLimit(limit);
+            WireFormatLite::ReadMessage(input, submessage);
         }
         break;
     default:
