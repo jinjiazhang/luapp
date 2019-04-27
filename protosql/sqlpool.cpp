@@ -2,12 +2,17 @@
 #include "sqlclient.h"
 #include "mysqlmgr.h"
 
-using namespace google::protobuf;
 #define SQL_METHOD_SELECT   1
 #define SQL_METHOD_INSERT   2
 #define SQL_METHOD_UPDATE   3
 #define SQL_METHOD_DELETE   4
 #define SQL_METHOD_EXECUTE  5
+
+using namespace google::protobuf;
+
+// from protolua
+bool decode_message(const Message& message, const Descriptor* descriptor, lua_State* L);
+bool encode_message(Message* message, const Descriptor* descriptor, lua_State* L, int index);
 
 sqlpool::sqlpool(lua_State* L) : lobject(L)
 {
@@ -102,6 +107,7 @@ int sqlpool::sql_select(lua_State* L)
     const Descriptor* descriptor = sqlmgr_->find_message(proto);
     if (descriptor == nullptr)
     {
+        log_error("sqlpool::sql_select message not found, proto=%s", proto);
         return 0;
     }
 
@@ -128,12 +134,22 @@ int sqlpool::sql_insert(lua_State* L)
     const Descriptor* descriptor = sqlmgr_->find_message(proto);
     if (descriptor == nullptr)
     {
+        log_error("sqlpool::sql_insert message not found, proto=%s", proto);
+        return 0;
+    }
+
+    const Message* prototype = factory_.GetPrototype(descriptor);
+    std::shared_ptr<Message> message(prototype->New());
+    if (encode_message(message.get(), descriptor, L, 2))
+    {
+        log_error("sqlpool::sql_insert encode message fail, proto=%s", proto);
         return 0;
     }
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = SQL_METHOD_INSERT;
+    task->message = message;
 
     req_mutex_.lock();
     req_queue_.push_back(task);
@@ -153,6 +169,15 @@ int sqlpool::sql_update(lua_State* L)
     const Descriptor* descriptor = sqlmgr_->find_message(proto);
     if (descriptor == nullptr)
     {
+        log_error("sqlpool::sql_update message not found, proto=%s", proto);
+        return 0;
+    }
+
+    const Message* prototype = factory_.GetPrototype(descriptor);
+    std::shared_ptr<Message> message(prototype->New());
+    if (encode_message(message.get(), descriptor, L, 2))
+    {
+        log_error("sqlpool::sql_update encode message fail, proto=%s", proto);
         return 0;
     }
 
@@ -160,6 +185,7 @@ int sqlpool::sql_update(lua_State* L)
     task->token = ++last_token_;
     task->method = SQL_METHOD_UPDATE;
     task->content = luaL_getvalue<std::string>(L, 3);
+    task->message = message;
 
     req_mutex_.lock();
     req_queue_.push_back(task);
@@ -178,6 +204,7 @@ int sqlpool::sql_delete(lua_State* L)
     const Descriptor* descriptor = sqlmgr_->find_message(proto);
     if (descriptor == nullptr)
     {
+        log_error("sqlpool::sql_delete message not found, proto=%s", proto);
         return 0;
     }
 
@@ -241,7 +268,7 @@ void sqlpool::on_respond(std::shared_ptr<taskdata> task)
     switch (task->method)
     {
     case SQL_METHOD_SELECT:
-        on_results(task);
+        on_selected(task);
         break;
     case SQL_METHOD_INSERT:
     case SQL_METHOD_UPDATE:
@@ -254,9 +281,22 @@ void sqlpool::on_respond(std::shared_ptr<taskdata> task)
     }
 }
 
-void sqlpool::on_results(std::shared_ptr<taskdata> task)
+void sqlpool::on_selected(std::shared_ptr<taskdata> task)
 {
-    luaL_callfunc(L, this, "on_respond", task->token, task->ret_code, task->results.size());
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_respond");
+    luaL_pushvalue(L, task->token);
+    luaL_pushvalue(L, task->ret_code);
+    for (auto message : task->results)
+    {
+        if (!decode_message(*message, message->GetDescriptor(), L))
+        {
+            lua_settop(L, top);
+            return;
+        }
+    }
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 EXPORT_OFUNC(sqlpool, connect)
