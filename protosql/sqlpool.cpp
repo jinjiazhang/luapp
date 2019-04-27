@@ -140,7 +140,7 @@ int sqlpool::sql_insert(lua_State* L)
 
     const Message* prototype = factory_.GetPrototype(descriptor);
     std::shared_ptr<Message> message(prototype->New());
-    if (encode_message(message.get(), descriptor, L, 2))
+    if (!encode_message(message.get(), descriptor, L, 2))
     {
         log_error("sqlpool::sql_insert encode message fail, proto=%s", proto);
         return 0;
@@ -175,7 +175,7 @@ int sqlpool::sql_update(lua_State* L)
 
     const Message* prototype = factory_.GetPrototype(descriptor);
     std::shared_ptr<Message> message(prototype->New());
-    if (encode_message(message.get(), descriptor, L, 2))
+    if (!encode_message(message.get(), descriptor, L, 2))
     {
         log_error("sqlpool::sql_update encode message fail, proto=%s", proto);
         return 0;
