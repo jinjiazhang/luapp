@@ -3,8 +3,8 @@
 #include "protolog/protolog.h"
 #include <vector>
 
-#include "google/protobuf/util/json_util.h"
 using namespace google::protobuf;
+#define mysql_code(ret) (((ret) > 0) ? -(ret) : (ret))
 
 sqlclient::sqlclient() : parambuf_(256*1024), resultbuf_(256*1024)
 {
@@ -28,6 +28,19 @@ bool sqlclient::connect(const char* host, const char* user, const char* passwd, 
     return true;
 }
 
+int sqlclient::sql_execute(const std::string& statement)
+{
+    int ret = mysql_real_query(mysql_, statement.c_str(), statement.size());
+    if (ret != 0)
+    {
+        log_error("sqlclient::sql_execute, real_query fail, ret: %d", ret);
+        return mysql_code(ret);
+    }
+
+    int affected = (int)mysql_affected_rows(mysql_);
+    return affected;
+}
+
 int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
@@ -36,7 +49,7 @@ int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condi
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     std::vector<MYSQL_BIND> binds;
@@ -44,35 +57,35 @@ int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condi
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, result_parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_bind_result(stmt, binds.data());
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, bind_result fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_execute(stmt);
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, execute fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_store_result(stmt);
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, store_result fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_fetch(stmt);
     if (ret != 0 && ret != MYSQL_DATA_TRUNCATED)
     {
         log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     DynamicMessageFactory factory;
@@ -82,7 +95,7 @@ int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condi
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     int affected = (int)mysql_stmt_affected_rows(stmt);
@@ -98,7 +111,7 @@ int sqlclient::sql_insert(const Message* message)
     if (ret != 0)
     {
         log_error("sqlclient::sql_select, parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     std::vector<MYSQL_BIND> binds;
@@ -106,21 +119,21 @@ int sqlclient::sql_insert(const Message* message)
     if (ret != 0)
     {
         log_error("sqlclient::sql_insert, param_parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_bind_param(stmt, binds.data());
     if (ret != 0)
     {
         log_error("sqlclient::sql_insert, bind_param fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_execute(stmt);
     if (ret != 0)
     {
         log_error("sqlclient::sql_insert, execute fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     int affected = (int)mysql_stmt_affected_rows(stmt);
@@ -136,7 +149,7 @@ int sqlclient::sql_update(const Message* message, const std::string& condition)
     if (ret != 0)
     {
         log_error("sqlclient::sql_update, parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     std::vector<MYSQL_BIND> binds;
@@ -144,21 +157,21 @@ int sqlclient::sql_update(const Message* message, const std::string& condition)
     if (ret != 0)
     {
         log_error("sqlclient::sql_update, param_parpare fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_bind_param(stmt, binds.data());
     if (ret != 0)
     {
         log_error("sqlclient::sql_update, bind_param fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     ret = mysql_stmt_execute(stmt);
     if (ret != 0)
     {
         log_error("sqlclient::sql_update, execute fail, ret: %d", ret);
-        return -1;
+        return mysql_code(ret);
     }
 
     int affected = (int)mysql_stmt_affected_rows(stmt);
@@ -172,8 +185,8 @@ int sqlclient::sql_delete(const Descriptor* descriptor, const std::string& condi
     int ret = mysql_real_query(mysql_, query.c_str(), query.size());
     if (ret != 0)
     {
-        log_error("sqlclient::sql_delete, parpare fail, ret: %d", ret);
-        return -1;
+        log_error("sqlclient::sql_delete, real_query fail, ret: %d", ret);
+        return mysql_code(ret);
     }
 
     int affected = (int)mysql_affected_rows(mysql_);
