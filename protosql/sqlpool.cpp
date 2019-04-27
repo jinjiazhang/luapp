@@ -224,6 +224,30 @@ int sqlpool::sql_delete(lua_State* L)
     return 1;
 }
 
+int sqlpool::sql_create(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    const char* proto = luaL_getvalue<const char*>(L, 1);
+    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    if (descriptor == nullptr)
+    {
+        log_error("sqlpool::sql_create message not found, proto=%s", proto);
+        return 0;
+    }
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = SQL_METHOD_CREATE;
+    task->descriptor = descriptor;
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
 // pool.sql_execute("delete from tbPlayer where role_id = 10001")
 int sqlpool::sql_execute(lua_State* L)
 {
@@ -256,6 +280,9 @@ void sqlpool::do_request(sqlclient* client, std::shared_ptr<taskdata> task)
         break;
     case SQL_METHOD_DELETE:
         task->ret_code = client->sql_delete(task->descriptor, task->content);
+        break;
+    case SQL_METHOD_CREATE:
+        task->ret_code = client->sql_create(task->descriptor);
         break;
     case SQL_METHOD_EXECUTE:
         task->ret_code = client->sql_execute(task->content);
@@ -306,6 +333,7 @@ EXPORT_OFUNC(sqlpool, sql_select)
 EXPORT_OFUNC(sqlpool, sql_insert)
 EXPORT_OFUNC(sqlpool, sql_update)
 EXPORT_OFUNC(sqlpool, sql_delete)
+EXPORT_OFUNC(sqlpool, sql_create)
 EXPORT_OFUNC(sqlpool, sql_execute)
 const luaL_Reg* sqlpool::get_libs()
 {
@@ -316,6 +344,7 @@ const luaL_Reg* sqlpool::get_libs()
         { IMPORT_OFUNC(sqlpool, sql_insert) },
         { IMPORT_OFUNC(sqlpool, sql_update) },
         { IMPORT_OFUNC(sqlpool, sql_delete) },
+        { IMPORT_OFUNC(sqlpool, sql_create) },
         { IMPORT_OFUNC(sqlpool, sql_execute) },
         { NULL, NULL }
     };

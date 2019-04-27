@@ -28,19 +28,6 @@ bool sqlclient::connect(const char* host, const char* user, const char* passwd, 
     return true;
 }
 
-int sqlclient::sql_execute(const std::string& statement)
-{
-    int ret = mysql_real_query(mysql_, statement.c_str(), statement.size());
-    if (ret != 0)
-    {
-        log_error("sqlclient::sql_execute, real_query fail, ret: %d", ret);
-        return mysql_code(ret);
-    }
-
-    int affected = (int)mysql_affected_rows(mysql_);
-    return affected;
-}
-
 int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition, result_set& results)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
@@ -190,6 +177,33 @@ int sqlclient::sql_delete(const Descriptor* descriptor, const std::string& condi
     if (ret != 0)
     {
         log_error("sqlclient::sql_delete, real_query fail, ret: %d", ret);
+        return mysql_code(ret);
+    }
+
+    int affected = (int)mysql_affected_rows(mysql_);
+    return affected;
+}
+
+int sqlclient::sql_create(const google::protobuf::Descriptor* descriptor)
+{
+    std::string query = sqlutil::make_create(descriptor);
+    int ret = mysql_real_query(mysql_, query.c_str(), query.size());
+    if (ret != 0)
+    {
+        log_error("sqlclient::sql_create, real_query fail, ret: %d", ret);
+        return mysql_code(ret);
+    }
+
+    int affected = (int)mysql_affected_rows(mysql_);
+    return affected;
+}
+
+int sqlclient::sql_execute(const std::string& statement)
+{
+    int ret = mysql_real_query(mysql_, statement.c_str(), statement.size());
+    if (ret != 0)
+    {
+        log_error("sqlclient::sql_execute, real_query fail, ret: %d", ret);
         return mysql_code(ret);
     }
 

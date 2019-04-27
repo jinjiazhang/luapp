@@ -35,6 +35,7 @@ public:
     int sql_insert(lua_State* L);
     int sql_update(lua_State* L);
     int sql_delete(lua_State* L);
+    int sql_create(lua_State* L);
     int sql_execute(lua_State* L);
     virtual const luaL_Reg* get_libs();
 

@@ -19,6 +19,7 @@ public:
     int sql_insert(const google::protobuf::Message* message);
     int sql_update(const google::protobuf::Message* message, const std::string& condition);
     int sql_delete(const google::protobuf::Descriptor* descriptor, const std::string& condition);
+    int sql_create(const google::protobuf::Descriptor* descriptor);
     int sql_execute(const std::string& statement);
 
 private:

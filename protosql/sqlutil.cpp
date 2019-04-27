@@ -62,3 +62,10 @@ std::string sqlutil::make_delete(const Descriptor* descriptor, const std::string
     stream << " where " << condition;
     return stream.str();
 }
+
+std::string sqlutil::make_create(const google::protobuf::Descriptor* descriptor)
+{
+    std::stringstream stream;
+    stream << "delete from " << descriptor->name();
+    return stream.str();
+}
