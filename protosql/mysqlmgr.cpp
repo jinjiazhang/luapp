@@ -1,5 +1,5 @@
 #include "mysqlmgr.h"
-#include "sqlclient.h"
+#include "sqlpool.h"
 
 using namespace google::protobuf;
 
@@ -14,7 +14,7 @@ mysqlmgr::~mysqlmgr()
     
 }
 
-int mysqlmgr::parse(lua_State *L)
+int mysqlmgr::parse(lua_State* L)
 {
     assert(lua_gettop(L) == 1);
     luaL_checktype(L, 1, LUA_TSTRING);
@@ -30,46 +30,26 @@ int mysqlmgr::parse(lua_State *L)
     return 1;
 }
 
-int mysqlmgr::connect(lua_State* L)
+int mysqlmgr::create_pool(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TSTRING);
-    const char* host = luaL_getvalue<const char*>(L, 1);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    const char* user = luaL_getvalue<const char*>(L, 2);
-    luaL_checktype(L, 3, LUA_TSTRING);
-    const char* passwd = luaL_getvalue<const char*>(L, 3);
-    luaL_checktype(L, 4, LUA_TSTRING);
-    const char* db = luaL_getvalue<const char*>(L, 4);
-    luaL_checktype(L, 5, LUA_TNUMBER);
-    unsigned int port = luaL_getvalue<int>(L, 5);
+    sqlpool* pool = new sqlpool(L);
+    if (!pool->init(this))
+    {
+        delete pool;
+        return 0;
+    }
 
-    sqlclient* client = new sqlclient();
-    client->connect(host, user, passwd, db, port);
-
-    const Descriptor* descriptor = importer_.pool()->FindMessageTypeByName("user");
-    DynamicMessageFactory factory;
-    const Message* prototype = factory.GetPrototype(descriptor);
-    Message* message = prototype->New();
-    const FieldDescriptor* id_field = descriptor->FindFieldByName("id");
-    const FieldDescriptor* name_field = descriptor->FindFieldByName("name");
-    const Reflection* reflection = message->GetReflection();
-    reflection->SetString(message, id_field, "test004");
-    reflection->SetString(message, name_field, "123567");
-    client->sql_insert(message);
-
-    sqlclient::result_set results;
-    client->sql_select(descriptor, "true", results);
-    client->sql_delete(descriptor, "id = 'test003'");
-    return 0;
+    lua_pushlobject(L, pool);
+    return 1;
 }
 
 EXPORT_OFUNC(mysqlmgr, parse)
-EXPORT_OFUNC(mysqlmgr, connect)
+EXPORT_OFUNC(mysqlmgr, create_pool)
 const luaL_Reg* mysqlmgr::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(mysqlmgr, parse) },
-        { IMPORT_OFUNC(mysqlmgr, connect) },
+        { IMPORT_OFUNC(mysqlmgr, create_pool) },
         { NULL, NULL }
     };
     return libs;

@@ -12,8 +12,8 @@ public:
     mysqlmgr(lua_State* L);
     ~mysqlmgr();
 
-    int parse(lua_State *L);
-    int connect(lua_State* L);
+    int parse(lua_State* L);
+    int create_pool(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:
