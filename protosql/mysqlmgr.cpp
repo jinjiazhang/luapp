@@ -53,10 +53,12 @@ int mysqlmgr::connect(lua_State* L)
     const FieldDescriptor* id_field = descriptor->FindFieldByName("id");
     const FieldDescriptor* name_field = descriptor->FindFieldByName("name");
     const Reflection* reflection = message->GetReflection();
-    reflection->SetString(message, id_field, "test003");
-    reflection->SetString(message, name_field, "123321");
-    client->sql_update(message, "id = 'test003'");
-    client->sql_select(descriptor, "id = 'test003'");
+    reflection->SetString(message, id_field, "test004");
+    reflection->SetString(message, name_field, "123567");
+    client->sql_insert(message);
+
+    sqlclient::result_set results;
+    client->sql_select(descriptor, "true", results);
     client->sql_delete(descriptor, "id = 'test003'");
     return 0;
 }

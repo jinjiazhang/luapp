@@ -41,7 +41,7 @@ int sqlclient::sql_execute(const std::string& statement)
     return affected;
 }
 
-int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition)
+int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition, result_set& results)
 {
     MYSQL_STMT* stmt = mysql_stmt_init(mysql_);
     std::string query = sqlutil::make_select(descriptor, condition);
@@ -81,21 +81,25 @@ int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condi
         return mysql_code(ret);
     }
 
-    ret = mysql_stmt_fetch(stmt);
-    if (ret != 0 && ret != MYSQL_DATA_TRUNCATED)
+    int count = (int)mysql_stmt_num_rows(stmt);
+    results.resize(count);
+    for (int i = 0; i < count; i++)
     {
-        log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
-        return mysql_code(ret);
-    }
-
-    DynamicMessageFactory factory;
-    const Message* prototype = factory.GetPrototype(descriptor);
-    Message* message = prototype->New();
-    ret = resultbuf_.parse(stmt, binds, message);
-    if (ret != 0)
-    {
-        log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
-        return mysql_code(ret);
+        ret = mysql_stmt_fetch(stmt);
+        if (ret != 0 && ret != MYSQL_DATA_TRUNCATED)
+        {
+            log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
+            return mysql_code(ret);
+        }
+        const Message* prototype = factory_.GetPrototype(descriptor);
+        std::shared_ptr<Message> message(prototype->New());
+        ret = resultbuf_.parse(stmt, binds, message.get());
+        if (ret != 0)
+        {
+            log_error("sqlclient::sql_select, fetch fail, ret: %d", ret);
+            return mysql_code(ret);
+        }
+        results[i] = message;
     }
 
     int affected = (int)mysql_stmt_affected_rows(stmt);
