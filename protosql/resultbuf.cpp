@@ -1,7 +1,12 @@
 #include "resultbuf.h"
 #include "protolog/protolog.h"
+#include <google/protobuf/wire_format.h>
+#include <google/protobuf/wire_format_lite.h>
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 using namespace google::protobuf;
+using namespace google::protobuf::io;
+using namespace google::protobuf::internal;
 
 #define BLOB_PARPARE_LENGTH 2048
 #define STRING_PARPARE_LENGTH 256
@@ -217,7 +222,100 @@ int resultbuf::parse_required(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* messa
     return 0;
 }
 
+// TODO: check return value
+#define DECODE_SINGLE_FIELD(CType, WType, input, AddFunc) \
+    do { \
+        CType value; \
+        WireFormatLite::ReadPrimitive<CType, WType>(input, &value); \
+        reflection->##AddFunc##(message, field, value); \
+    } while (0)
+
+int decode_single(CodedInputStream* input, Message* message, const FieldDescriptor* field)
+{
+    const Reflection* reflection = message->GetReflection();
+    switch (field->type())
+    {
+    case FieldDescriptor::TYPE_DOUBLE:
+        DECODE_SINGLE_FIELD(double, WireFormatLite::TYPE_DOUBLE, input, AddDouble);
+        break;
+    case FieldDescriptor::TYPE_FLOAT:
+        DECODE_SINGLE_FIELD(float, WireFormatLite::TYPE_FLOAT, input, AddFloat);
+        break;
+    case FieldDescriptor::TYPE_INT64:
+        DECODE_SINGLE_FIELD(int64, WireFormatLite::TYPE_INT64, input, AddInt64);
+        break;
+    case FieldDescriptor::TYPE_UINT64:
+        DECODE_SINGLE_FIELD(uint64, WireFormatLite::TYPE_UINT64, input, AddUInt64);
+        break;
+    case FieldDescriptor::TYPE_INT32:
+        DECODE_SINGLE_FIELD(int32, WireFormatLite::TYPE_INT32, input, AddInt32);
+        break;
+    case FieldDescriptor::TYPE_UINT32:
+        DECODE_SINGLE_FIELD(uint32, WireFormatLite::TYPE_UINT32, input, AddUInt32);
+        break;
+    case FieldDescriptor::TYPE_FIXED64:
+        DECODE_SINGLE_FIELD(uint64, WireFormatLite::TYPE_FIXED64, input, AddUInt64);
+        break;
+    case FieldDescriptor::TYPE_FIXED32:
+        DECODE_SINGLE_FIELD(uint32, WireFormatLite::TYPE_FIXED32, input, AddUInt32);
+        break;
+    case FieldDescriptor::TYPE_SFIXED32:
+        DECODE_SINGLE_FIELD(int32, WireFormatLite::TYPE_SFIXED32, input, AddInt32);
+        break;
+    case FieldDescriptor::TYPE_SFIXED64:
+        DECODE_SINGLE_FIELD(int64, WireFormatLite::TYPE_SFIXED64, input, AddInt64);
+        break;
+    case FieldDescriptor::TYPE_SINT32:
+        DECODE_SINGLE_FIELD(int32, WireFormatLite::TYPE_SINT32, input, AddInt32);
+        break;
+    case FieldDescriptor::TYPE_SINT64:
+        DECODE_SINGLE_FIELD(int64, WireFormatLite::TYPE_SINT64, input, AddInt64);
+        break;
+    case FieldDescriptor::TYPE_ENUM:
+        DECODE_SINGLE_FIELD(int, WireFormatLite::TYPE_ENUM, input, AddEnumValue);
+        break;
+    case FieldDescriptor::TYPE_BOOL:
+        DECODE_SINGLE_FIELD(bool, WireFormatLite::TYPE_BOOL, input, AddBool);
+        break;
+    case FieldDescriptor::TYPE_STRING:
+    case FieldDescriptor::TYPE_BYTES:
+        {
+            std::string value;
+            input->ReadTagNoLastTag();
+            WireFormatLite::ReadString(input, &value);
+            reflection->AddString(message, field, value);
+        }
+        break;
+    case FieldDescriptor::TYPE_MESSAGE:
+        {
+            int length;
+            input->ReadTagNoLastTag();
+            input->ReadVarintSizeAsInt(&length);
+            CodedInputStream::Limit limit = input->PushLimit(length);
+            Message* submessage = reflection->AddMessage(message, field);
+            submessage->ParsePartialFromCodedStream(input);
+            input->PopLimit(limit);
+        }
+        break;
+    default:
+        return -1;
+    }
+    return 0;
+}
+
 int resultbuf::parse_repeated(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* message, const FieldDescriptor* field)
 {
-    return -1;
+    ArrayInputStream buffer(bind.buffer, bind.length_value);
+    CodedInputStream stream(&buffer);
+
+    while (stream.BytesUntilLimit() > 0)
+    {
+        int ret = decode_single(&stream, message, field);
+        if (ret != 0)
+        {
+            log_error("resultbuf::parse_repeated decode field fail, field=%s", field->full_name().c_str());
+            return ret;
+        }
+    }
+    return 0;
 }

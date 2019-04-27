@@ -1,8 +1,12 @@
 #include "parambuf.h"
 #include "protolog/protolog.h"
+#include <google/protobuf/wire_format.h>
+#include <google/protobuf/wire_format_lite.h>
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 using namespace google::protobuf;
-
+using namespace google::protobuf::io;
+using namespace google::protobuf::internal;
 
 parambuf::parambuf(int length)
 {
@@ -37,7 +41,7 @@ int parambuf::parpare(const Message* message, std::vector<MYSQL_BIND>& binds)
         if (ret != 0 || current_ > buffer_ + length_)
         {
             log_error("resultbuf::parpare parpare_field fail, name=%s", field->full_name().c_str());
-            break;
+            return ret;
         }
     }
 
@@ -136,7 +140,92 @@ int parambuf::parpare_required(const Message* message, const FieldDescriptor* fi
     return 0;
 }
 
+// TODO: check buffer capacity
+int encode_single(CodedOutputStream* output, const Message* message, const FieldDescriptor* field, int index)
+{
+    const Reflection* reflection = message->GetReflection();
+    switch (field->type())
+    {
+    case FieldDescriptor::TYPE_DOUBLE:
+        WireFormatLite::WriteDoubleNoTag(reflection->GetRepeatedDouble(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_FLOAT:
+        WireFormatLite::WriteFloatNoTag(reflection->GetRepeatedFloat(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_INT64:
+        WireFormatLite::WriteInt64NoTag(reflection->GetRepeatedInt64(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_UINT64:
+        WireFormatLite::WriteUInt64NoTag(reflection->GetRepeatedUInt64(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_INT32:
+        WireFormatLite::WriteInt32NoTag(reflection->GetRepeatedInt32(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_UINT32:
+        WireFormatLite::WriteUInt32NoTag(reflection->GetRepeatedUInt32(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_FIXED64:
+        WireFormatLite::WriteFixed64NoTag(reflection->GetRepeatedUInt64(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_FIXED32:
+        WireFormatLite::WriteFixed32NoTag(reflection->GetRepeatedUInt32(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_SFIXED32:
+        WireFormatLite::WriteSFixed32NoTag(reflection->GetRepeatedInt32(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_SFIXED64:
+        WireFormatLite::WriteSFixed64NoTag(reflection->GetRepeatedInt64(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_SINT32:
+        WireFormatLite::WriteSInt32NoTag(reflection->GetRepeatedInt32(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_SINT64:
+        WireFormatLite::WriteSInt64NoTag(reflection->GetRepeatedInt64(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_ENUM:
+        WireFormatLite::WriteEnumNoTag(reflection->GetRepeatedEnumValue(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_BOOL:
+        WireFormatLite::WriteBoolNoTag(reflection->GetRepeatedBool(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_STRING:
+    case FieldDescriptor::TYPE_BYTES:
+        WireFormatLite::WriteString(field->number(), reflection->GetRepeatedString(*message, field, index), output);
+        break;
+    case FieldDescriptor::TYPE_MESSAGE:
+        WireFormatLite::WriteMessage(field->number(), reflection->GetRepeatedMessage(*message, field, index), output);
+        break;
+    default:
+        return -1;
+    }
+    return 0;
+}
+
 int parambuf::parpare_repeated(const Message* message, const FieldDescriptor* field, MYSQL_BIND& bind)
 {
-    return -1;
+    int size = buffer_ + length_ - current_;
+    ArrayOutputStream buffer(current_, size);
+    CodedOutputStream stream(&buffer);
+
+    const Reflection* reflection = message->GetReflection();
+    int field_size = reflection->FieldSize(*message, field);
+    for (int index = 0; index < field_size; index++)
+    {
+        int ret = encode_single(&stream, message, field, index);
+        if (ret != 0)            
+        {
+            log_error("parambuf::parpare_repeated encode field fail, field=%s", field->full_name().c_str());
+            return ret;
+        }
+    }
+
+    char* position = NULL;
+    stream.GetDirectBufferPointer((void**)&position, &size);
+
+    memset(&bind, 0, sizeof(bind));
+    bind.buffer_type = MYSQL_TYPE_BLOB;
+    bind.buffer = current_;
+    bind.buffer_length = position - current_;
+    current_ = position;
+    return 0;
 }

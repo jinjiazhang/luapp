@@ -6,7 +6,9 @@
 #define SQL_METHOD_INSERT   2
 #define SQL_METHOD_UPDATE   3
 #define SQL_METHOD_DELETE   4
-#define SQL_METHOD_EXECUTE  5
+#define SQL_METHOD_CREATE   5
+#define SQL_METHOD_EXECUTE  6
+#define SQL_METHOD_INCREASE 7
 
 using namespace google::protobuf;
 
