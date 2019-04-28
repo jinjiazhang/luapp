@@ -1,4 +1,5 @@
 _G.import = app.import
+airport = import("roomsvr/airport.lua")
 
 app.init = function ( ... )
 

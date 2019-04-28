@@ -1,4 +1,5 @@
 _G.import = app.import
+airport = import("lobby/airport.lua")
 
 app.init = function ( ... )
 
