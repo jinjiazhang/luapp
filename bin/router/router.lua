@@ -41,7 +41,7 @@ end
 function on_closed( svrid, error )
 	log_info("router.on_closed", svrid_itos(svrid), error)
 	
-	router.set_group(svrid, func_id)
+	router.set_group(svrid, 0)
 end
 
 function on_message( svrid, proto, ... )

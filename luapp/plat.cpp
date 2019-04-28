@@ -112,7 +112,6 @@ void app_daemon()
 }
 
 EXPORT_CFUNC(sys_sleep)
-EXPORT_CFUNC(sys_sleep)
 EXPORT_CFUNC(sys_mstime)
 EXPORT_CFUNC(sys_filetime)
 EXPORT_CFUNC(sys_md5file)
