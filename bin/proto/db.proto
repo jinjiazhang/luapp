@@ -45,9 +45,8 @@ message tb_name {
 
 message tb_online {
     string openid = 1;
-    int64 roleid = 2;
-    int32 svrid = 3;
-    int32 online = 4;
+    int32 svrid = 2;
+    int32 online = 3;
 }
 
 message tb_room {
