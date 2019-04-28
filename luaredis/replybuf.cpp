@@ -1,6 +1,6 @@
 #include "replybuf.h"
 
-replybuf::replybuf()
+replybuf::replybuf(int length)
 {
 
 }

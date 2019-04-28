@@ -5,8 +5,12 @@
 
 using namespace google::protobuf;
 #define mysql_code(ret) (((ret) > 0) ? -(ret) : (ret))
+#define PARAM_BUFFER_LENGTH    256 * 1024
+#define RESULT_BUFFER_LENGTH   256 * 1024
 
-sqlclient::sqlclient() : parambuf_(256*1024), resultbuf_(256*1024)
+sqlclient::sqlclient()
+    : parambuf_(PARAM_BUFFER_LENGTH)
+    , resultbuf_(RESULT_BUFFER_LENGTH)
 {
     mysql_ = mysql_init(NULL);
 }

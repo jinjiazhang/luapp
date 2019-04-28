@@ -11,7 +11,12 @@
 #define REDIS_METHOD_COMMAND  5
 #define REDIS_METHOD_INCREASE 6
 
+#define ARGS_BUFFER_LENGTH    256 * 1024
+#define REPLY_BUFFER_LENGTH   256 * 1024
+
 rdsclient::rdsclient(lua_State* L, luaredis* rds) : lobject(L)
+    , argsbuf_(ARGS_BUFFER_LENGTH)
+    , replybuf_(REPLY_BUFFER_LENGTH)
 {
     last_token_ = 0;
     luaredis_ = rds;

@@ -7,7 +7,7 @@
 class replybuf
 {
 public:
-    replybuf();
+    replybuf(int length);
     ~replybuf();
 
 public:
