@@ -1,4 +1,5 @@
 _G.import = app.import
+proto.parse("protos/ss.proto")
 listen = import("dbagent/listen.lua")
 sqlpool = import("dbagent/sqlpool.lua")
 rdsclient = import("dbagent/rdsclient.lua")

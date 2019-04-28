@@ -2,13 +2,12 @@ syntax = "proto3";
 
 import "protos/comm.proto";
 
-message cs_login_req {
+message ss_login_req {
 	int64 flowid = 1;
     string openid = 2;
-    string token = 3;
 }
 
-message cs_login_rsp {
+message ss_login_rsp {
 	int64 flowid = 1;
     err_code result = 2;
 }

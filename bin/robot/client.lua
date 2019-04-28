@@ -1,4 +1,5 @@
 -- 网络客户端
+flowid = flowid or 1
 
 function init( ... )
 	client = net.connect("127.0.0.1", 8088)
@@ -17,4 +18,13 @@ end
 
 function on_message( number, proto, ... )
 	log_info("client.on_message", number, proto, ...)
+end
+
+function new_flowid(  )
+	flowid = flowid + 1
+	return flowid
+end
+
+function request_login( openid, token )
+	client.call("cs_login_req", flowid, openid, token)
 end

@@ -1,4 +1,5 @@
 _G.import = app.import
+proto.parse("protos/ss.proto")
 router = import("router/router.lua")
 
 app.init = function ( ... )
