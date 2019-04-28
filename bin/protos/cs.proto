@@ -1,16 +1,12 @@
 syntax = "proto3";
 
-enum LoginResult {
-	DEFAULT = 0;
-	SUCCESS = 1;
-	FAILURE = 2;
+import "comm.proto";
+
+message cs_login_req {
+    string openid = 1;
+    string token = 2;
 }
 
-message LoginReq {
-    string user = 1;
-    string password = 2;
-}
-
-message LoginRsp {
-    LoginResult result = 1;
+message cs_login_rsp {
+    err_code result = 1;
 }

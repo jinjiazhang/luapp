@@ -1,21 +1,56 @@
 syntax = "proto3";
 
-message Person {
+import "comm.proto";
+
+message tb_global {
+    int64 key = 1;
+    int64 value = 2;
+    string text = 3;
+}
+
+message tb_account {
+    string openid = 1;
+    int64 roleid = 2;
+    string name = 3;
+}
+
+message tb_role {
+    int64 roleid = 1;
+    string openid = 2;
+    string name = 3;
+    string icon = 4;
+    int32 gender = 5;
+    int64 money = 6;
+    int64 chips = 7;
+    int32 create = 8;
+    int32 online = 9;
+    int32 offline = 10;
+    int32 rsvrid = 11;
+    int64 roomid = 12;
+}
+
+message tb_profile {
+    int64 roleid = 1;
+    string openid = 2;
+    string name = 3;
+    string icon = 4;
+    int32 gender = 5;
+}
+
+message tb_name {
     string name = 1;
-    int32 id = 2;
-    string email = 3;
-    
-    enum PhoneType {
-        MOBILE = 0;
-        HOME = 1;
-        WORK = 2;
-    }
-    
-    message PhoneNumber {
-        string number = 1;
-        PhoneType type = 2;
-    }
-    
-    repeated PhoneNumber phones = 4;
-    map<int32, string> subjects = 5;
+    int64 roleid = 2;
+    string openid = 3;
+}
+
+message tb_online {
+    string openid = 1;
+    int64 roleid = 2;
+    int32 svrid = 3;
+    int32 online = 4;
+}
+
+message tb_room {
+    int64 roomid = 1;
+    string name = 2;
 }
