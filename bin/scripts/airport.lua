@@ -9,14 +9,14 @@ function init( ... )
 	airport.on_transmit = on_transmit
 end
 
-function on_accept( svrid, error )
-	log_info("airport.on_accept", svrid, error)
+function on_accept( svrid, errno )
+	log_info("airport.on_accept", svrid, errno)
 	airport.reg_role(1001)
 	airport.call_client(1001, "on_login_req", "jinjiazh", "10086")
 end
 
-function on_closed( svrid, error )
-	log_info("airport.on_closed", svrid, error)
+function on_closed( svrid, errno )
+	log_info("airport.on_closed", svrid, errno)
 end
 
 function on_message( svrid, proto, ... )

@@ -8,12 +8,12 @@ function init( ... )
 	client.on_message = on_message
 end
 
-function on_accept( number, error )
-	log_info("client.on_accept", number, error)
+function on_accept( number, errno )
+	log_info("client.on_accept", number, errno)
 end
 
-function on_closed( number, error )
-	log_info("client.on_closed", number, error)
+function on_closed( number, errno )
+	log_info("client.on_closed", number, errno)
 end
 
 function on_message( number, proto, ... )

@@ -7,14 +7,19 @@ function init( ... )
 	server.on_message = on_message
 end
 
-function on_accept( number, error )
-	log_info("server.on_accept", number, error)
+function on_accept( number, errno )
+	log_info("server.on_accept", number, errno)
+	if errno == 0 then
+		ssmgr.on_start(number)
+	end
 end
 
-function on_closed( number, error )
-	log_info("server.on_closed", number, error)
+function on_closed( number, errno )
+	log_info("server.on_closed", number, errno)
+	ssmgr.on_stop(number)
 end
 
 function on_message( number, proto, ... )
 	log_info("server.on_message", number, proto, ...)
+	ssmgr.on_call(number, proto, ...)
 end

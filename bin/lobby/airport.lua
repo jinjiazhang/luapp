@@ -32,12 +32,12 @@ function svrid_itos( svrid )
 		get_inst_id( svrid ))
 end
 
-function on_accept( svrid, error )
-	log_info("airport.on_accept", svrid_itos(svrid), error)
+function on_accept( svrid, errno )
+	log_info("airport.on_accept", svrid_itos(svrid), errno)
 end
 
-function on_closed( svrid, error )
-	log_info("airport.on_closed", svrid_itos(svrid), error)
+function on_closed( svrid, errno )
+	log_info("airport.on_closed", svrid_itos(svrid), errno)
 end
 
 function on_message( svrid, proto, ... )
@@ -45,5 +45,5 @@ function on_message( svrid, proto, ... )
 end
 
 function on_transmit( roleid, proto, ... )
-	log_error("airport.on_transmit", roleid, proto, ...)
+	log_info("airport.on_transmit", roleid, proto, ...)
 end
