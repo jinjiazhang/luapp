@@ -1,6 +1,6 @@
 pool = nil -- 连接实例
 function init( ... )
-	mysql.parse("protos/db.proto")
+	mysql.parse("proto/db.proto")
 	pool = mysql.create_pool()
 	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
 	-- pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)

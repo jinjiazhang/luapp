@@ -1,5 +1,5 @@
 _G.import = app.import
-proto.parse("protos/cs.proto")
+proto.parse("proto/cs.proto")
 client = import("robot/client.lua")
 robot = import("robot/robot.lua")
 

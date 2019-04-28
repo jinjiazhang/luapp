@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protos/comm.proto";
+import "proto/comm.proto";
 
 message cs_login_req {
 	int64 flowid = 1;
