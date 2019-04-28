@@ -5,9 +5,9 @@
 int main(int argc, char* argv[])
 {
     cmdline::parser cmd;
-    cmd.add<std::string>("id", 'i', "server identity like '1.1.1.1'.", false, "1.1.1.1");
-    cmd.add<std::string>("main-file", 'm', "lua file which process entry.", false, "main.lua");
-    cmd.add<std::string>("log-conf", 'l', "log4cplus properties file.", false, "luapp.properties");
+    cmd.add<std::string>("id", 'i', "server identity like '1.2.3.4'.", false, "id=1.1.9.1");
+    cmd.add<std::string>("main-file", 'm', "lua file which process entry.", false, "robot/main.lua");
+    cmd.add<std::string>("log-conf", 'l', "log4cplus properties file.", false, "robot/log.properties");
     cmd.add<int>("tick-freq", 't', "call tick function interval.", false, 20);
     cmd.add<int>("idle-sleep", 's', "sleep duration when idle.", false, 10);
     cmd.add("daemon", 'D', "start this process as a daemon.");

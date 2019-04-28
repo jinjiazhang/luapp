@@ -13,7 +13,9 @@ public:
 
     int number();
     bool init(lnetwork* network, int number);
-    void close();
+
+    int call(lua_State* L);
+    void close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);

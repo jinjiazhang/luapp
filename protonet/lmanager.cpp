@@ -25,7 +25,22 @@ bool lmanager::init(lnetwork* network, int number)
     return true;
 }
 
-void lmanager::close()
+static char buffer[PROTO_BUFFER_SIZE];
+int lmanager::call(lua_State* L)
+{
+    int top = lua_gettop(L);
+    size_t len = sizeof(buffer);
+    if (!stack_pack(L, 1, top, buffer, &len))
+    {
+        return 0;
+    }
+
+    network_->impl()->send(number_, buffer, (int)len);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+void lmanager::close(lua_State* L)
 {
     network_->impl()->close(number_);
     network_->del_manager(this);
@@ -61,11 +76,13 @@ void lmanager::on_package(int number, char* data, int len)
 }
 
 EXPORT_OFUNC(lmanager, number)
+EXPORT_OFUNC(lmanager, call)
 EXPORT_OFUNC(lmanager, close)
 const luaL_Reg* lmanager::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(lmanager, number) },
+        { IMPORT_OFUNC(lmanager, call) },
         { IMPORT_OFUNC(lmanager, close) },
         { NULL, NULL }
     };
