@@ -1,11 +1,13 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
-listen = import("dbagent/listen.lua")
+server = import("dbagent/server.lua")
 sqlpool = import("dbagent/sqlpool.lua")
 rdsclient = import("dbagent/rdsclient.lua")
+ssmgr = import("dbagent/ssmgr.lua")
+login = import("dbagent/login.lua")
 
 app.init = function ( ... )
-	listen.init()
+	server.init()
 	sqlpool.init()
 	rdsclient.init()
 end

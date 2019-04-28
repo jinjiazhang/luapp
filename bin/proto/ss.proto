@@ -6,6 +6,7 @@ message ss_login_req {
 	int64 flowid = 1;
 	int32 number = 2;
 	string openid = 3;
+	int32 svrid = 4;
 }
 
 message ss_login_rsp {
