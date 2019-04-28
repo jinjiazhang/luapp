@@ -240,7 +240,7 @@ int sqlclient::sql_execute(const std::string& statement, std::vector<std::vector
                 table[j + 1].resize(field_count);
                 for (int i = 0; i < field_count; i++)
                 {
-                    table[j + 1][i] = row[i];
+                    table[j + 1][i] = row[i] ? row[i] : "NULL";
                 }
             }
         }
