@@ -4,8 +4,6 @@ function init( ... )
 	pool = mysql.create_pool()
 	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
 	pool.on_respond = on_respond
-	
-	pool.sql_create("Person")
 
 	local player = {
 		name = "jinjiazh",
@@ -22,13 +20,14 @@ function init( ... )
 		}
 	}
 
-	pool.sql_execute("show tables")
-	pool.sql_insert("Person", player)
-	pool.sql_select("Person", "id = 10001")
-	
-	player.email = "jinjiazh@163.com"
-	pool.sql_update("Person", player, "id = 10001")
-	pool.sql_select("Person", "id = 10001")
+	-- pool.sql_create("Person")
+	pool.sql_execute("update Person set id = (@old := id) + 1;")
+	-- pool.sql_insert("Person", player)
+	-- pool.sql_select("Person", "id = 10001")
+	-- 
+	-- player.email = "jinjiazh@163.com"
+	-- pool.sql_update("Person", player, "id = 10001")
+	-- pool.sql_select("Person", "id = 10001")
 end
 
 function on_respond( token, ret_code, ... )
