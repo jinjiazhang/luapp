@@ -34,6 +34,10 @@ function on_call( number, proto, ... )
 		return
 	end
 
+	copool.fork(proc_call, ss, proto, ...)
+end
+
+function proc_call( ss, proto, ... )
 	local proc_func = net[proto]
 	if not proc_func then
 		log_error("ssmgr.on_call proc_func not found", proto)

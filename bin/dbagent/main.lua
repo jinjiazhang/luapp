@@ -1,5 +1,6 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
+copool = import("dbagent/copool.lua")
 server = import("dbagent/server.lua")
 sqlpool = import("dbagent/sqlpool.lua")
 rdsclient = import("dbagent/rdsclient.lua")
