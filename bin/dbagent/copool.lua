@@ -74,7 +74,11 @@ end
 function status()
     local coroutine_used_debug = {}
     for co, _ in pairs(coroutine_used) do
-        table.insert(coroutine_used_debug, { co = tostring(co), status = coroutine_status(co), traceback = debug.traceback(co), })
+        table.insert(coroutine_used_debug, { 
+            co = tostring(co), 
+            status = coroutine_status(co), 
+            traceback = debug.traceback(co), 
+        })
     end
 
     local status = {

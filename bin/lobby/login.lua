@@ -6,6 +6,7 @@ function net.cs_login_req( ss, flowid, openid, token )
 end
 
 function net.ss_login_rsp( flowid, number, openid, svrid )
+	log_info("ss_login_rsp", flowid, number, openid, svrid)
 	local ss = ssmgr.find_by_number(number)
 	if not ss then
 		return

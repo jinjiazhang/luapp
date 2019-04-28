@@ -7,18 +7,18 @@ function find_by_number( number )
 end
 
 function __index_ss( ss, key )
-	if __anon[key] then
-		return __anon[key]
+	if ss.__anon[key] then
+		return ss.__anon[key]
 	elseif proto.belong(key) then
-		__anon[key] = function ( ... )
+		ss.__anon[key] = function ( ... )
 			net.call(ss.number, key, ...)
 		end
-		return __anon[key]
+		return ss.__anon[key]
 	end
 end
 
 function on_start( number )
-	local ss = { number = number }
+	local ss = { number = number, __anon = {} }
 	setmetatable(ss, {__index = __index_ss})
 	number_session_table[number] = ss
 end
