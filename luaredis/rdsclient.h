@@ -3,6 +3,8 @@
 
 #include "lualib/lobject.h"
 #include "protonet/network.h"
+#include "argsbuf.h"
+#include "replybuf.h"
 
 class luaredis;
 struct inetwork;
@@ -10,6 +12,12 @@ struct redisReply;
 struct redisAsyncContext;
 class rdsclient : public lobject, public iobject
 {
+public:
+    struct taskdata
+    {
+        int token = 0;
+        int method = 0;
+    };
 public:
     rdsclient(lua_State* L, luaredis* rds);
 	~rdsclient();
@@ -29,6 +37,8 @@ public:
 
 private:
     int last_token_;
+    argsbuf argsbuf_;
+    replybuf replybuf_;
     luaredis* luaredis_;
     redisAsyncContext* context_;
 };

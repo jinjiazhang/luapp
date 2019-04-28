@@ -4,6 +4,13 @@
 #include "protonet/network.h"
 #include "protolog/protolog.h"
 
+#define REDIS_METHOD_SELECT   1
+#define REDIS_METHOD_INSERT   2
+#define REDIS_METHOD_UPDATE   3
+#define REDIS_METHOD_DELETE   4
+#define REDIS_METHOD_COMMAND  5
+#define REDIS_METHOD_INCREASE 6
+
 rdsclient::rdsclient(lua_State* L, luaredis* rds) : lobject(L)
 {
     last_token_ = 0;
@@ -71,53 +78,6 @@ static void redis_on_reply(redisAsyncContext *ac, void *reply, void *privdata)
     client->on_reply((redisReply*)reply, privdata);
 }
 
-static void luaL_pushstatus(lua_State* L, redisReply* reply)
-{
-    if (reply == nullptr)
-    {
-        lua_pushinteger(L, -1);
-    }
-    else if (reply->type == REDIS_REPLY_ERROR)
-    {
-        lua_pushinteger(L, -2);
-    }
-    else
-    {
-        lua_pushinteger(L, 0);
-    }
-}
-
-static void luaL_pushreply(lua_State* L, redisReply* reply)
-{
-    int reply_type = reply ? reply->type : 0;
-    switch (reply_type)
-    {
-    case REDIS_REPLY_STRING:
-    case REDIS_REPLY_STATUS:
-    case REDIS_REPLY_ERROR:
-        lua_pushlstring(L, reply->str, reply->len);
-        break;
-    case REDIS_REPLY_NIL:
-        lua_pushnil(L);
-        break;
-    case REDIS_REPLY_INTEGER:
-        lua_pushinteger(L, reply->integer);
-        break;
-    case REDIS_REPLY_ARRAY:
-        lua_newtable(L);
-        for (int i = 0; i < reply->elements; i++)
-        {
-            lua_pushinteger(L, i + 1);
-            luaL_pushreply(L, reply->element[i]);
-            lua_settable(L, -3);
-        }
-        break;
-    default:
-        lua_pushnil(L);
-        break;
-    }
-}
-
 bool rdsclient::init(redisAsyncContext* context)
 {
     context_ = context;
@@ -176,12 +136,23 @@ void rdsclient::on_disconnect(int status)
 
 void rdsclient::on_reply(redisReply* reply, void* privdata)
 {
-    int token = (long)privdata;
+    taskdata* task = (taskdata*)privdata;
+    int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_reply");
-    luaL_pushvalue(L, token);
-    luaL_pushstatus(L, reply);
-    luaL_pushreply(L, reply);
-    luaL_safecall(L, 3, 0);
+    luaL_pushvalue(L, task->token);
+
+    switch (task->method)
+    {
+    case REDIS_METHOD_COMMAND:
+        replybuf_.push_command(L, reply);
+        break;
+    default:
+        break;
+    }
+
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
+    delete task;
 }
 
 int rdsclient::command(lua_State* L)
@@ -189,25 +160,24 @@ int rdsclient::command(lua_State* L)
     std::vector<const char*> args;
     std::vector<size_t> lens;
 
-    int top = lua_gettop(L);
-    for (int i = 1; i <= top; i++)
+    int ret = argsbuf_.make_command(L, args, lens);
+    if (ret != 0)
     {
-        size_t len = 0;
-        const char* arg = lua_tolstring(L, i, &len);
-        if (arg == nullptr || len == 0)
-            return 0;
-        args.push_back(arg);
-        lens.push_back(len);
-    }
-
-    int token = ++last_token_;
-    int status = redisAsyncCommandArgv(context_, redis_on_reply, (void*)token, args.size(), args.data(), lens.data());
-    if (status != REDIS_OK)
-    {
+        log_error("rdsclient::command make command fail, ret=%d", ret);
         return 0;
     }
 
-    lua_pushinteger(L, token);
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_COMMAND;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::command async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
     return 1;
 }
 
