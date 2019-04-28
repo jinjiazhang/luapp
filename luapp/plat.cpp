@@ -5,6 +5,24 @@
 
 #include "plat.h"
 
+// svrid string to int
+unsigned int svrid_stoi(const std::string& text)
+{
+    unsigned int bytes[4] = {0};
+    sscanf_s(text.c_str(), "%d.%d.%d.%d", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
+    return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3] << 0);
+}
+
+// svrid int to string
+std::string svrid_itos(unsigned int svrid)
+{
+    std::stringstream stream;
+    stream << (unsigned char)(svrid >> 24) << '.';
+    stream << (unsigned char)(svrid >> 16) << '.';
+    stream << (unsigned char)(svrid >> 8) << '.';
+    stream << (unsigned char)(svrid >> 0);
+    return stream.str();
+}
 
 void sys_sleep(int time)
 {
@@ -93,6 +111,7 @@ void app_daemon()
 #endif
 }
 
+EXPORT_CFUNC(sys_sleep)
 EXPORT_CFUNC(sys_sleep)
 EXPORT_CFUNC(sys_mstime)
 EXPORT_CFUNC(sys_filetime)

@@ -27,6 +27,12 @@ using uint64_t = unsigned long long;
 #define luapp_fatal(fmt, ...)
 #endif
 
+// svrid string to int
+unsigned int svrid_stoi(const std::string& text);
+
+// svrid int to string
+std::string svrid_itos(unsigned int svrid);
+
 // sleep for millisecond time
 void sys_sleep(int time);
 
