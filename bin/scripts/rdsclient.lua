@@ -5,7 +5,7 @@ function init( ... )
 	client.on_disconnect = on_disconnect
 	client.on_reply = on_reply
 
-	client.command("get", "counter")
+	client.rds_command("get", "counter")
 end
 
 function on_connect( status, errmsg )

@@ -57,9 +57,34 @@ static void luaL_pushreply(lua_State* L, redisReply* reply)
     }
 }
 
+int replybuf::push_select(lua_State* L, redisReply* reply)
+{
+    return -1;
+}
+
+int replybuf::push_insert(lua_State* L, redisReply* reply)
+{
+    return -1;
+}
+
+int replybuf::push_update(lua_State* L, redisReply* reply)
+{
+    return -1;
+}
+
+int replybuf::push_delete(lua_State* L, redisReply* reply)
+{
+    return -1;
+}
+
 int replybuf::push_command(lua_State* L, redisReply* reply)
 {
     luaL_pushstatus(L, reply);
     luaL_pushreply(L, reply);
     return 0;
+}
+
+int replybuf::push_increase(lua_State* L, redisReply* reply)
+{
+    return -1;
 }

@@ -143,8 +143,23 @@ void rdsclient::on_reply(redisReply* reply, void* privdata)
 
     switch (task->method)
     {
+    case REDIS_METHOD_SELECT:
+        replybuf_.push_select(L, reply);
+        break;
+    case REDIS_METHOD_INSERT:
+        replybuf_.push_insert(L, reply);
+        break;
+    case REDIS_METHOD_UPDATE:
+        replybuf_.push_update(L, reply);
+        break;
+    case REDIS_METHOD_DELETE:
+        replybuf_.push_delete(L, reply);
+        break;
     case REDIS_METHOD_COMMAND:
         replybuf_.push_command(L, reply);
+        break;
+    case REDIS_METHOD_INCREASE:
+        replybuf_.push_increase(L, reply);
         break;
     default:
         break;
@@ -155,15 +170,114 @@ void rdsclient::on_reply(redisReply* reply, void* privdata)
     delete task;
 }
 
-int rdsclient::command(lua_State* L)
+int rdsclient::rds_select(lua_State* L)
 {
     std::vector<const char*> args;
     std::vector<size_t> lens;
+    int ret = argsbuf_.make_select(L, args, lens);
+    if (ret != 0)
+    {
+        log_error("rdsclient::rds_select make select fail, ret=%d", ret);
+        return 0;
+    }
 
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_SELECT;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::rds_select async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int rdsclient::rds_insert(lua_State* L)
+{
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
+    int ret = argsbuf_.make_insert(L, args, lens);
+    if (ret != 0)
+    {
+        log_error("rdsclient::rds_insert make insert fail, ret=%d", ret);
+        return 0;
+    }
+
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_INSERT;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::rds_insert async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int rdsclient::rds_update(lua_State* L)
+{
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
+    int ret = argsbuf_.make_update(L, args, lens);
+    if (ret != 0)
+    {
+        log_error("rdsclient::rds_update make update fail, ret=%d", ret);
+        return 0;
+    }
+
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_UPDATE;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::rds_update async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int rdsclient::rds_delete(lua_State* L)
+{
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
+    int ret = argsbuf_.make_delete(L, args, lens);
+    if (ret != 0)
+    {
+        log_error("rdsclient::rds_delete make delete fail, ret=%d", ret);
+        return 0;
+    }
+
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_DELETE;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::rds_delete async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int rdsclient::rds_command(lua_State* L)
+{
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
     int ret = argsbuf_.make_command(L, args, lens);
     if (ret != 0)
     {
-        log_error("rdsclient::command make command fail, ret=%d", ret);
+        log_error("rdsclient::rds_command make command fail, ret=%d", ret);
         return 0;
     }
 
@@ -173,7 +287,32 @@ int rdsclient::command(lua_State* L)
     int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
     if (status != REDIS_OK)
     {
-        log_error("rdsclient::command async command fail, status=%d", status);
+        log_error("rdsclient::rds_command async command fail, status=%d", status);
+        return 0;
+    }
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int rdsclient::rds_increase(lua_State* L)
+{
+    std::vector<const char*> args;
+    std::vector<size_t> lens;
+    int ret = argsbuf_.make_command(L, args, lens);
+    if (ret != 0)
+    {
+        log_error("rdsclient::rds_increase make increase fail, ret=%d", ret);
+        return 0;
+    }
+
+    taskdata* task = new taskdata();
+    task->token = ++last_token_;
+    task->method = REDIS_METHOD_INCREASE;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    if (status != REDIS_OK)
+    {
+        log_error("rdsclient::rds_increase async command fail, status=%d", status);
         return 0;
     }
 
@@ -186,7 +325,12 @@ int rdsclient::close(lua_State* L)
     return 0;
 }
 
-EXPORT_OFUNC(rdsclient, command)
+EXPORT_OFUNC(rdsclient, rds_select)
+EXPORT_OFUNC(rdsclient, rds_insert)
+EXPORT_OFUNC(rdsclient, rds_update)
+EXPORT_OFUNC(rdsclient, rds_delete)
+EXPORT_OFUNC(rdsclient, rds_command)
+EXPORT_OFUNC(rdsclient, rds_increase)
 EXPORT_OFUNC(rdsclient, close)
 const luaL_Reg* rdsclient::get_libs()
 {
@@ -194,7 +338,12 @@ const luaL_Reg* rdsclient::get_libs()
         { "on_connect", lua_emptyfunc },
         { "on_disconnect", lua_emptyfunc },
         { "on_reply", lua_emptyfunc },
-        { IMPORT_OFUNC(rdsclient, command) },
+        { IMPORT_OFUNC(rdsclient, rds_select) },
+        { IMPORT_OFUNC(rdsclient, rds_insert) },
+        { IMPORT_OFUNC(rdsclient, rds_update) },
+        { IMPORT_OFUNC(rdsclient, rds_delete) },
+        { IMPORT_OFUNC(rdsclient, rds_command) },
+        { IMPORT_OFUNC(rdsclient, rds_increase) },
         { IMPORT_OFUNC(rdsclient, close) },
         { NULL, NULL }
     };
