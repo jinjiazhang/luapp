@@ -18,9 +18,7 @@ public:
     int make_increase(lua_State* L, std::vector<const char*>& args, std::vector<size_t>& lens);
 
 private:
-    int length_;
-    char* buffer_;
-    char* current_;
+
 };
 
 #endif

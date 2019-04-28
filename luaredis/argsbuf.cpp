@@ -2,20 +2,12 @@
 
 argsbuf::argsbuf(int length)
 {
-    length_ = length;
-    buffer_ = new char[length];
-    current_ = buffer_;
+
 }
 
 argsbuf::~argsbuf()
 {
-    if (buffer_)
-    {
-        delete[] buffer_;
-        buffer_ = nullptr;
-        current_ = nullptr;
-        length_ = 0;
-    }
+
 }
 
 int argsbuf::make_select(lua_State* L, std::vector<const char*>& args, std::vector<size_t>& lens)
