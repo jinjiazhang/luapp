@@ -1,7 +1,9 @@
 _G.import = app.import
+dbagent = import("lobby/dbagent.lua")
 airport = import("lobby/airport.lua")
 
 app.init = function ( ... )
+	dbagent.init()
 	airport.init()
 end
 

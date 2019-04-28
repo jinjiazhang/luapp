@@ -1,7 +1,9 @@
 _G.import = app.import
+dbagent = import("roomsvr/dbagent.lua")
 airport = import("roomsvr/airport.lua")
 
 app.init = function ( ... )
+	dbagent.init()
 	airport.init()
 end
 
