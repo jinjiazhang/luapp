@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "comm.proto";
+import "protos/comm.proto";
 
 message cs_login_req {
     string openid = 1;

@@ -3,31 +3,20 @@ function init( ... )
 	mysql.parse("protos/db.proto")
 	pool = mysql.create_pool()
 	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
+	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
+	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
+	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
+	pool.connect("10.125.30.158", "jinjiazh", "10086", "game", 3306)
 	pool.on_respond = on_respond
 
-	local player = {
-		name = "jinjiazh",
-		id = 10001,
-		email = "jinjiazh@qq.com",
-		phones = {
-			{number = "1818864xxxx", type = 1},
-			{number = "1868200xxxx", type = 2},
-		},
-		subjects = {
-			[101] = "Chinese",
-			[102] = "English",
-			[103] = "Maths",
-		}
-	}
-
-	-- pool.sql_create("Person")
-	pool.sql_execute("update Person set id = (@old := id) + 1;")
-	-- pool.sql_insert("Person", player)
-	-- pool.sql_select("Person", "id = 10001")
-	-- 
-	-- player.email = "jinjiazh@163.com"
-	-- pool.sql_update("Person", player, "id = 10001")
-	-- pool.sql_select("Person", "id = 10001")
+	-- pool.sql_create("tb_global")
+	-- pool.sql_create("tb_account")
+	-- pool.sql_create("tb_role")
+	-- pool.sql_create("tb_profile")
+	-- pool.sql_create("tb_name")
+	-- pool.sql_create("tb_online")
+	-- pool.sql_create("tb_room")
+	pool.sql_execute("show tables")
 end
 
 function on_respond( token, ret_code, ... )

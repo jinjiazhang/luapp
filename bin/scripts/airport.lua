@@ -12,7 +12,7 @@ end
 function on_accept( svrid, error )
 	log_info("airport.on_accept", svrid, error)
 	airport.reg_role(1001)
-	airport.call_client(1001, "LoginReq", "jinjiazh", "10086")
+	airport.call_client(1001, "on_login_req", "jinjiazh", "10086")
 end
 
 function on_closed( svrid, error )

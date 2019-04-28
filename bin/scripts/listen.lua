@@ -18,5 +18,5 @@ end
 
 function on_message( number, proto, ... )
 	log_info("listen.on_message", number, proto, ...)
-	net.call(number, "LoginRsp", LoginResult.SUCCESS)
+	net.call(number, "cs_login_rsp", err_code.SUCCESS)
 end

@@ -10,7 +10,7 @@ end
 
 function on_accept( number, error )
 	log_info("connect.on_accept", number, error)
-	net.call(number, "LoginReq", "jinjiazh", "10086")
+	net.call(number, "cs_login_req", "jinjiazh", "10086")
 end
 
 function on_closed( number, error )
