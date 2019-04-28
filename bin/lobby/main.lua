@@ -11,6 +11,7 @@ app.init = function ( ... )
 	server.init()
 	dbagent.init()
 	airport.init()
+	dbagent.cs_login_req()
 end
 
 app.proc = function ( ... )

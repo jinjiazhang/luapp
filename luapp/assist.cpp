@@ -29,6 +29,10 @@ app.import = function ( name )
     end
 
     local env = {}
+    env._G = _G
+    env.env = env
+    env.__anon = {}
+    
     setmetatable(env, {__index = _G})
     app.files[name] = {
         env = env,

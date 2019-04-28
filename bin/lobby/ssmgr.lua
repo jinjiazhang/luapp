@@ -24,8 +24,20 @@ function bind_role( number, role )
 	
 end
 
+function __index_ss( ss, key )
+	if __anon[key] then
+		return __anon[key]
+	elseif proto.belong(key) then
+		__anon[key] = function ( ... )
+			net.call(ss.number, key, ...)
+		end
+		return __anon[key]
+	end
+end
+
 function on_start( number )
 	local ss = { number = number }
+	setmetatable(ss, {__index = __index_ss})
 	number_session_table[number] = ss
 end
 

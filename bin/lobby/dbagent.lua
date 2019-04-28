@@ -1,10 +1,26 @@
 -- dbagent客户端
+module = "dbagent"
+-- __anon = __anon or {}
 
 function init( ... )
+	setmetatable(env, {__index = __index})
 	client = net.connect("127.0.0.1", 8086)
 	client.on_accept = on_accept
 	client.on_closed = on_closed
 	client.on_message = on_message
+end
+
+function __index( dbagent, key )
+	if _G[key] then
+		return _G[key]
+	elseif __anon[key] then
+		return __anon[key]
+	elseif proto.belong(key) then
+		__anon[key] = function ( ... )
+			client.call(key, ...)
+		end
+		return __anon[key]
+	end
 end
 
 function on_accept( number, errno )
