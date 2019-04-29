@@ -28,6 +28,11 @@ function bind_role( ss, role )
 	roleid_session_table[ss.roleid] = ss
 end
 
+function kickout( ss, reason )
+	ss.cs_kickout_ntf(0, reason)
+	
+end
+
 function __index_ss( ss, key )
 	if proto.belong(key) then
 		ss[key] = function ( ... )

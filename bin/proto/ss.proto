@@ -25,6 +25,7 @@ message ss_login_rsp {
 message ss_kickout_ntf {
 	int64 flowid = 1;
 	string openid = 2;
+	errno reason = 3;
 }
 
 message ss_create_role_req {

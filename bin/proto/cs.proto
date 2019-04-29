@@ -37,6 +37,11 @@ message cs_login_rsp {
 	}
 }
 
+message cs_kickout_ntf {
+	int64 flowid = 1;
+	errno reason = 2;
+}
+
 message cs_create_role_req {
 	int64 flowid = 1;
 	string name = 2;
