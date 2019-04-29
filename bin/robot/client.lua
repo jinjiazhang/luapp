@@ -1,11 +1,44 @@
 -- 网络客户端
-flowid = flowid or 1
+module = "client"
+
+client_callbacks = client_callbacks or {}
 
 function init( ... )
-	client = net.connect("127.0.0.1", 8088)
-	client.on_accept = on_accept
-	client.on_closed = on_closed
-	client.on_message = on_message
+	setmetatable(env, {__index = __index})
+	conn = net.connect("127.0.0.1", 8088)
+	conn.on_accept = on_accept
+	conn.on_closed = on_closed
+	conn.on_message = on_message
+end
+
+function __index( env, key )
+	if _G[key] then
+		return _G[key]
+	elseif proto.belong(key) then
+		env[key] = create_co_func(key)
+		return env[key]
+	end
+end
+
+function new_flowid(  )
+	flowid = (flowid or 0) + 1
+	return flowid
+end
+
+function create_co_func( proto )
+	return function(...)
+		local flowid = new_flowid()
+		conn.call(proto, flowid, ...)
+
+		local co = coroutine.running()
+		client_callbacks[flowid] = function(...)
+			local status, errmsg = coroutine.resume(co, ...)
+			if not status then
+				log_error("client.co_func resume fail", name, errmsg)
+			end
+		end
+		return coroutine.yield("EXIT")
+	end
 end
 
 function on_accept( number, errno )
@@ -16,15 +49,23 @@ function on_closed( number, errno )
 	log_info("client.on_closed", number, errno)
 end
 
-function on_message( number, proto, ... )
-	log_info("client.on_message", number, proto, ...)
-end
+function on_message( number, proto, flowid, ... )
+	log_info("client.on_message", number, proto, flowid, ...)
+	local proc_func = client_callbacks[flowid]
+	if proc_func then
+		client_callbacks[flowid] = nil
+		local status, errmsg = xpcall(proc_func, debug.traceback, ...)
+		if not status then
+			log_error("client.on_message xpcall fail", errmsg)
+		end
+		return
+	end
 
-function new_flowid(  )
-	flowid = flowid + 1
-	return flowid
-end
+	local proc_func = net[proto]
+	if not proc_func then
+		log_error("client.on_message proc_func not found", proto)
+		return
+	end
 
-function request_login( openid, token )
-	client.call("cs_login_req", flowid, openid, token)
+	proc_func(...)
 end
