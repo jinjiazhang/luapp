@@ -80,4 +80,5 @@ message ss_save_role_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 	string openid = 3;
+	int64 roleid = 4;
 }

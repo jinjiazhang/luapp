@@ -22,6 +22,13 @@ function net.ss_login_rsp( flowid, result, number, openid, svrid, account )
 	ss.cs_login_rsp(flowid, result, account)
 end
 
+function net.ss_logout_rsp( flowid, result, openid )
+	log_info("ss_logout_rsp", flowid, result, openid)
+	if result ~= errno.SUCCESS then
+		log_error("ss_logout_rsp", result, openid)
+	end
+end
+
 function net.ss_kickout_ntf( svrid, flowid, openid, reason )
 	log_info("ss_kickout_ntf", svrid, flowid, openid)
 	local ss = ssmgr.find_by_openid(openid)
@@ -66,4 +73,11 @@ function net.ss_load_role_rsp( flowid, result, openid, role )
 		ssmgr.bind_role(ss, role)
 	end
 	ss.cs_select_role_rsp(flowid, result, role)
+end
+
+function net.ss_save_role_rsp( flowid, result, openid, roleid )
+	log_info("ss_save_role_rsp", flowid, result, openid, roleid)
+	if result ~= errno.SUCCESS then
+		log_error("ss_save_role_rsp", result, openid, roleid)
+	end
 end

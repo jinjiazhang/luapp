@@ -133,5 +133,5 @@ function net.ss_save_role_req( ss, flowid, openid, role )
 		return
 	end
 
-	ss.ss_save_role_rsp(flowid, errno.SUCCESS, openid)
+	ss.ss_save_role_rsp(flowid, errno.SUCCESS, openid, role.roleid)
 end
