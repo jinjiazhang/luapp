@@ -2,6 +2,27 @@ syntax = "proto3";
 
 import "proto/comm.proto";
 
+message cs_account {
+    string openid = 1;
+    int64 roleid = 2;
+    string name = 3;
+}
+
+message cs_role {
+    int64 roleid = 1;
+    string openid = 2;
+    string name = 3;
+    string icon = 4;
+    int32 gender = 5;
+    int64 money = 6;
+    int64 chips = 7;
+    int32 register = 8;
+    int32 online = 9;
+    int32 offline = 10;
+    int32 rsvrid = 11;
+    int64 roomid = 12;
+}
+
 message cs_login_req {
 	int64 flowid = 1;
 	string openid = 2;
@@ -11,6 +32,9 @@ message cs_login_req {
 message cs_login_rsp {
 	int64 flowid = 1;
 	errno result = 2;
+	oneof oneof_account {
+		cs_account account = 3;
+	}
 }
 
 message cs_create_role_req {
@@ -21,4 +45,7 @@ message cs_create_role_req {
 message cs_create_role_rsp {
 	int64 flowid = 1;
 	errno result = 2;
+	oneof oneof_role {
+		cs_role role = 3;
+	}
 }

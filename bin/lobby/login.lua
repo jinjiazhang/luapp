@@ -15,7 +15,7 @@ function net.ss_login_rsp( flowid, result, number, openid, svrid, account )
 	if result == errno.SUCCESS then
 		ssmgr.bind_account(ss, account)
 	end
-	ss.cs_login_rsp(flowid, result)
+	ss.cs_login_rsp(flowid, result, account)
 end
 
 function net.cs_create_role_req( ss, flowid, name )
@@ -33,5 +33,5 @@ function net.ss_create_role_rsp(flowid, result, openid, role)
 	if result == errno.SUCCESS then
 		ssmgr.bind_role(ss, role)
 	end
-	ss.cs_create_role_rsp(flowid, result)
+	ss.cs_create_role_rsp(flowid, result, role)
 end

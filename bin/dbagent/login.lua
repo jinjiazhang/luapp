@@ -64,7 +64,7 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 	account.roleid = roleid
 	account.name = name
 
-	if sqlpool.sql_update("tb_account", account) < 0 then
+	if sqlpool.sql_update("tb_account", account, limit) < 0 then
 		ss.ss_create_role_rsp(flowid, errno.DBERROR, openid)
 		return
 	end

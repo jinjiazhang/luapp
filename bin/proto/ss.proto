@@ -17,7 +17,7 @@ message ss_login_rsp {
 	int32 number = 3;
 	string openid = 4;
 	int32 svrid = 5;
-	oneof oneof_account{
+	oneof oneof_account {
 		tb_account account = 6;
 	}
 }
@@ -32,7 +32,7 @@ message ss_create_role_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 	string openid = 3;
-	oneof oneof_role{
+	oneof oneof_role {
 		tb_role role = 4;
 	}
 }
