@@ -37,7 +37,7 @@ function create_co_func( name, pool_func )
 		local token = pool_func(...)
 		if not token then
 			log_error("sqlpool.co_func call fail", name, ...)
-			return false
+			return -1
 		end
 
 		local co = coroutine.running()
