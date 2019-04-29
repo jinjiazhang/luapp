@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 import "proto/comm.proto";
+import "proto/db.proto";
+import "proto/cs.proto";
 
 message ss_login_req {
 	int64 flowid = 1;
@@ -14,4 +16,7 @@ message ss_login_rsp {
 	int32 number = 2;
 	string openid = 3;
 	int32 svrid = 4;
+	oneof oneof_account{
+		tb_account account = 5;
+	}
 }

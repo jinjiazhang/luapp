@@ -5,8 +5,8 @@ function net.cs_login_req( ss, flowid, openid, token )
 	dbagent.ss_login_req(flowid, ss.number, openid, app.svrid())
 end
 
-function net.ss_login_rsp( flowid, number, openid, svrid )
-	log_info("ss_login_rsp", flowid, number, openid, svrid)
+function net.ss_login_rsp( flowid, number, openid, svrid, account )
+	log_info("ss_login_rsp", flowid, number, openid, svrid, account)
 	local ss = ssmgr.find_by_number(number)
 	if not ss then
 		return

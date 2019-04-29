@@ -29,5 +29,19 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 		end
 	end
 
-	ss.ss_login_rsp(flowid, number, openid, svrid)
+	local code, account = sqlpool.sql_select("tb_account", limit)
+	if code < 0 then
+		ss.ss_login_rsp(flowid, number, openid, -1)
+		return
+	end
+
+	if not account then
+		account = { openid = openid, name = "", roleid = 0 }
+		if sqlpool.sql_insert("tb_account", account) < 0 then
+			ss.ss_login_rsp(flowid, number, openid, -1)
+			return
+		end
+	end
+
+	ss.ss_login_rsp(flowid, number, openid, svrid, account)
 end
