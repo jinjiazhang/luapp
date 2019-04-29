@@ -1,5 +1,4 @@
 _G.import = app.import
-proto.parse("proto/cs.proto")
 proto.parse("proto/ss.proto")
 dbagent = import("roomsvr/dbagent.lua")
 airport = import("roomsvr/airport.lua")

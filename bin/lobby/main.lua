@@ -1,5 +1,4 @@
 _G.import = app.import
-proto.parse("proto/cs.proto")
 proto.parse("proto/ss.proto")
 server = import("lobby/server.lua")
 dbagent = import("lobby/dbagent.lua")
