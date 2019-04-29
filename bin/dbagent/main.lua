@@ -4,6 +4,7 @@ copool = import("dbagent/copool.lua")
 server = import("dbagent/server.lua")
 sqlpool = import("dbagent/sqlpool.lua")
 rdsclient = import("dbagent/rdsclient.lua")
+unique = import("dbagent/unique.lua")
 ssmgr = import("dbagent/ssmgr.lua")
 login = import("dbagent/login.lua")
 

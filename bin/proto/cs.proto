@@ -4,11 +4,21 @@ import "proto/comm.proto";
 
 message cs_login_req {
 	int64 flowid = 1;
-    string openid = 2;
-    string token = 3;
+	string openid = 2;
+	string token = 3;
 }
 
 message cs_login_rsp {
 	int64 flowid = 1;
-    err_code result = 2;
+	errno result = 2;
+}
+
+message cs_create_role_req {
+	int64 flowid = 1;
+	string name = 2;
+}
+
+message cs_create_role_rsp {
+	int64 flowid = 1;
+	errno result = 2;
 }

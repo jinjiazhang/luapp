@@ -1,6 +1,9 @@
 syntax = "proto3";
 
-enum err_code {
+enum errno {
     SUCCESS = 0;
     FAILURE = 1;
+    DBERROR = 2;
+    DATAERROR = 3;
+    CONFLICT = 4;
 }

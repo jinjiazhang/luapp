@@ -5,16 +5,33 @@ function net.cs_login_req( ss, flowid, openid, token )
 	dbagent.ss_login_req(flowid, ss.number, openid, app.svrid())
 end
 
-function net.ss_login_rsp( flowid, number, openid, svrid, account )
-	log_info("ss_login_rsp", flowid, number, openid, svrid, account)
+function net.ss_login_rsp( flowid, result, number, openid, svrid, account )
+	log_info("ss_login_rsp", flowid, result, number, openid, svrid, account)
 	local ss = ssmgr.find_by_number(number)
 	if not ss then
 		return
 	end
 
-	if svrid == app.svrid() then
-		ss.cs_login_rsp(flowid, err_code.SUCCESS)
-	else
-		ss.cs_login_rsp(flowid, err_code.FAILURE)
+	if result == errno.SUCCESS then
+		ssmgr.bind_account(ss, account)
 	end
+	ss.cs_login_rsp(flowid, result)
+end
+
+function net.cs_create_role_req( ss, flowid, name )
+	log_info("cs_create_role_req", ss.number, flowid, name)
+	dbagent.ss_create_role_req(flowid, ss.openid, name)
+end
+
+function net.ss_create_role_rsp(flowid, result, openid, role)
+	log_info("ss_create_role_rsp", flowid, flowid, result, openid, role)
+	local ss = ssmgr.find_by_openid(openid)
+	if not ss then
+		return
+	end
+
+	if result == errno.SUCCESS then
+		ssmgr.bind_role(ss, role)
+	end
+	ss.cs_create_role_rsp(flowid, result)
 end
