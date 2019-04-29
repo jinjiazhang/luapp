@@ -18,6 +18,7 @@ end
 
 app.tick = function ( ... )
 	app.reload()
+	ssmgr.tick()
 end
 
 app.idle = function ( ... )

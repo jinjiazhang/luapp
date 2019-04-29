@@ -1,4 +1,5 @@
 -- 监听端口服务
+module = "server"
 
 function init( ... )
 	server = net.listen("127.0.0.1", 8088)
@@ -22,4 +23,10 @@ end
 function on_message( number, proto, ... )
 	log_info("server.on_message", number, proto, ...)
 	ssmgr.on_call(number, proto, ...)
+end
+
+function close_conn( number )
+	log_info("server.close_conn", number)
+	net.close(number)
+	ssmgr.on_stop(number)
 end

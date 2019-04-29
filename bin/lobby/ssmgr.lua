@@ -3,6 +3,7 @@ module = "ssmgr"
 number_session_table = number_session_table or {}
 openid_session_table = number_session_table or {}
 roleid_session_table = number_session_table or {}
+kickout_session_table = kickout_session_table or {}
 
 function find_by_number( number )
 	return number_session_table[number]
@@ -30,7 +31,7 @@ end
 
 function kickout( ss, reason )
 	ss.cs_kickout_ntf(0, reason)
-	
+	kickout_session_table[ss.number] = app.mstime()
 end
 
 function __index_ss( ss, key )
@@ -42,13 +43,29 @@ function __index_ss( ss, key )
 	end
 end
 
+function tick(  )
+	tick_kickout()
+end
+
+function tick_kickout(  )
+	local mstime = app.mstime()
+	for number, record in pairs(kickout_session_table) do
+		if mstime - record > 1000 then
+			log_info("tick_kickout", number, record)
+			server.close_conn(number)
+		end
+	end
+end
+
 function on_start( number )
+	log_info("ssmgr.on_start", number)
 	local ss = { number = number }
 	setmetatable(ss, {__index = __index_ss})
 	number_session_table[number] = ss
 end
 
 function on_stop( number )
+	log_info("ssmgr.on_stop", number)
 	local ss = find_by_number(number)
 	if not ss then
 		return
@@ -63,6 +80,7 @@ function on_stop( number )
 	end	
 
 	number_session_table[number] = nil
+	kickout_session_table[number] = nil
 end
 
 function on_call( number, proto, ... )
