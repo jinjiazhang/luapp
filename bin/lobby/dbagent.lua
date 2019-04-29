@@ -1,6 +1,5 @@
 -- dbagent客户端
 module = "dbagent"
--- __anon = __anon or {}
 
 function init( ... )
 	setmetatable(env, {__index = __index})
@@ -10,16 +9,14 @@ function init( ... )
 	client.on_message = on_message
 end
 
-function __index( dbagent, key )
+function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif __anon[key] then
-		return __anon[key]
 	elseif proto.belong(key) then
-		__anon[key] = function ( ... )
+		env[key] = function ( ... )
 			client.call(key, ...)
 		end
-		return __anon[key]
+		return env[key]
 	end
 end
 
