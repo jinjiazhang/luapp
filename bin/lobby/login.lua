@@ -37,7 +37,7 @@ function net.cs_create_role_req( ss, flowid, name )
 	dbagent.ss_create_role_req(flowid, ss.openid, name)
 end
 
-function net.ss_create_role_rsp(flowid, result, openid, role)
+function net.ss_create_role_rsp( flowid, result, openid, role )
 	log_info("ss_create_role_rsp", flowid, flowid, result, openid, role)
 	local ss = ssmgr.find_by_openid(openid)
 	if not ss then
@@ -52,4 +52,18 @@ end
 
 function net.cs_select_role_req( ss, flowid, roleid )
 	log_info("cs_select_role_req", ss.number, flowid, roleid)
+	dbagent.ss_load_role_req(flowid, ss.openid, roleid)
+end
+
+function net.ss_load_role_rsp( flowid, result, openid, role )
+	log_info("ss_load_role_rsp", flowid, result, openid, role.roleid)
+	local ss = ssmgr.find_by_openid(openid)
+	if not ss then
+		return
+	end
+
+	if result == errno.SUCCESS then
+		ssmgr.bind_role(ss, role)
+	end
+	ss.cs_select_role_rsp(flowid, result, role)
 end

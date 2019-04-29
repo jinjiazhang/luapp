@@ -9,7 +9,7 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 		return
 	end
 
-	if data and app.time() - data.online < 30 then
+	if data and app.time() - data.online < 28 then
 		ss.ss_login_rsp(flowid, errno.CONFLICT, number, openid, data.svrid)
 		return
 	end
@@ -44,6 +44,29 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 	end
 
 	ss.ss_login_rsp(flowid, errno.SUCCESS, number, openid, svrid, account)
+end
+
+function net.ss_logout_req( ss, flowid, openid, svrid )
+	log_info("ss_logout_req", ss.number, flowid, openid, svrid)
+	local limit = string.format("openid='%s'", openid)
+	local code, data = sqlpool.sql_select("tb_online", limit)
+	if code < 0 or not data then
+		ss.ss_logout_rsp(flowid, errno.SERVICE, openid)
+		return
+	end
+
+	if svrid ~= data.svrid and app.time() - data.online < 28 then
+		ss.ss_logout_rsp(flowid, errno.CONFLICT, openid)
+		return
+	end
+
+	data.online = 0
+	if sqlpool.sql_update("tb_online", data, limit) < 0 then
+		ss.ss_logout_rsp(flowid, errno.SERVICE, openid)
+		return
+	end
+
+	ss.ss_logout_rsp(flowid, errno.SUCCESS, openid)
 end
 
 function net.ss_create_role_req(ss, flowid, openid, name)
@@ -83,4 +106,32 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 	end
 
 	ss.ss_create_role_rsp(flowid, errno.SUCCESS, openid, role)
+end
+
+function net.ss_load_role_req( ss, flowid, openid, roleid )
+	log_info("ss_load_role_req", ss.number, flowid, openid, roleid)
+	local limit = string.format("roleid='%s'", role.roleid)
+	local code, role = sqlpool.sql_select("tb_role", limit)
+	if code < 0 then
+		ss.ss_load_role_rsp(flowid, errno.SERVICE, openid)
+		return
+	end
+
+	if openid ~= role.openid then
+		ss.ss_load_role_rsp(flowid, errno.DATA_ERROR, openid)
+		return
+	end
+
+	ss.ss_load_role_rsp(flowid, errno.SUCCESS, openid, role)
+end
+
+function net.ss_save_role_req( ss, flowid, openid, role )
+	log_info("ss_save_role_req", ss.number, flowid, openid, role.roleid)
+	local limit = string.format("roleid='%s'", role.roleid)
+	if sqlpool.sql_update("tb_role", role, limit) < 0 then
+		ss.ss_save_role_rsp(flowid, errno.SERVICE, openid)
+		return
+	end
+
+	ss.ss_save_role_rsp(flowid, errno.SUCCESS, openid)
 end
