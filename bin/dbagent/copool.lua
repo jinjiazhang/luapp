@@ -23,6 +23,8 @@ function create( f )
 end
 
 function fork( f, ... )
-    local status, magic = coroutine.resume(create(f), ...)
-    assert(status and magic == "EXIT")
+    local status, errmsg = coroutine.resume(create(f), ...)
+    if not status then
+        log_error("copool.fork", errmsg)
+    end
 end

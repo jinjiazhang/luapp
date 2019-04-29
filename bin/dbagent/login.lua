@@ -110,7 +110,7 @@ end
 
 function net.ss_load_role_req( ss, flowid, openid, roleid )
 	log_info("ss_load_role_req", ss.number, flowid, openid, roleid)
-	local limit = string.format("roleid='%s'", role.roleid)
+	local limit = string.format("roleid='%s'", roleid)
 	local code, role = sqlpool.sql_select("tb_role", limit)
 	if code < 0 then
 		ss.ss_load_role_rsp(flowid, errno.SERVICE, openid)
