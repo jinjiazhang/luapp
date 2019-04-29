@@ -27,6 +27,9 @@ using uint64_t = unsigned long long;
 #define luapp_fatal(fmt, ...)
 #endif
 
+// set window title
+void set_title(unsigned int svrid, const char* entry);
+
 // svrid string to int
 unsigned int svrid_stoi(const std::string& text);
 

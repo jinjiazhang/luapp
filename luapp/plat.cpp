@@ -2,8 +2,20 @@
 #include <chrono>
 #include <thread>
 #include <sstream>
-
 #include "plat.h"
+
+#ifndef __linux__
+#include <windows.h>
+#endif
+
+void set_title(unsigned int svrid, const char* entry)
+{
+#ifndef __linux__
+    std::stringstream stream;
+    stream << entry << " --id=" << svrid_itos(svrid);
+    SetConsoleTitle(stream.str().c_str());
+#endif
+}
 
 // svrid string to int
 unsigned int svrid_stoi(const std::string& text)
@@ -17,10 +29,10 @@ unsigned int svrid_stoi(const std::string& text)
 std::string svrid_itos(unsigned int svrid)
 {
     std::stringstream stream;
-    stream << (unsigned char)(svrid >> 24) << '.';
-    stream << (unsigned char)(svrid >> 16) << '.';
-    stream << (unsigned char)(svrid >> 8) << '.';
-    stream << (unsigned char)(svrid >> 0);
+    stream << ((svrid >> 24) & 0xFF) << '.';
+    stream << ((svrid >> 16) & 0xFF) << '.';
+    stream << ((svrid >>  8) & 0xFF) << '.';
+    stream << ((svrid >>  0) & 0xFF);
     return stream.str();
 }
 
