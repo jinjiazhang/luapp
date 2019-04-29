@@ -34,7 +34,7 @@ function create_co_func( proto )
 		client_callbacks[flowid] = function(...)
 			local status, errmsg = coroutine.resume(co, ...)
 			if not status then
-				log_error("client.co_func resume fail", name, errmsg)
+				log_error("client.co_func resume fail", proto, errmsg)
 			end
 		end
 		return coroutine.yield("EXIT")

@@ -35,3 +35,7 @@ function net.ss_create_role_rsp(flowid, result, openid, role)
 	end
 	ss.cs_create_role_rsp(flowid, result, role)
 end
+
+function net.cs_select_role_req( ss, flowid, roleid )
+	log_info("cs_select_role_req", ss.number, flowid, roleid)
+end

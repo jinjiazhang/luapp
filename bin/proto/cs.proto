@@ -49,3 +49,16 @@ message cs_create_role_rsp {
 		cs_role role = 3;
 	}
 }
+
+message cs_select_role_req {
+	int64 flowid = 1;
+	int64 roleid = 2;
+}
+
+message cs_select_role_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	oneof oneof_role {
+		cs_role role = 3;
+	}
+}
