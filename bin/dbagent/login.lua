@@ -5,7 +5,7 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 	local limit = string.format("openid='%s'", openid)
 	local code, data = sqlpool.sql_select("tb_online", limit)
 	if code < 0 then
-		ss.ss_login_rsp(flowid, errno.DBERROR, number, openid)
+		ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
 		return
 	end
 
@@ -17,28 +17,28 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 	if not data then
 		data = { openid = openid, svrid = svrid, online = app.time() }
 		if sqlpool.sql_insert("tb_online", data) < 0 then
-			ss.ss_login_rsp(flowid, errno.DBERROR, number, openid)
+			ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
 			return
 		end
 	else
 		-- TODO check magic
 		data.online = app.time()
 		if sqlpool.sql_update("tb_online", data, limit) < 0 then
-			ss.ss_login_rsp(flowid, errno.DBERROR, number, openid)
+			ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
 			return
 		end
 	end
 
 	local code, account = sqlpool.sql_select("tb_account", limit)
 	if code < 0 then
-		ss.ss_login_rsp(flowid, errno.DBERROR, number, openid)
+		ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
 		return
 	end
 
 	if not account then
 		account = { openid = openid, name = "", roleid = 0 }
 		if sqlpool.sql_insert("tb_account", account) < 0 then
-			ss.ss_login_rsp(flowid, errno.DBERROR, number, openid)
+			ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
 			return
 		end
 	end
@@ -51,12 +51,12 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 	local limit = string.format("openid='%s'", openid)
 	local code, account = sqlpool.sql_select("tb_account", limit)
 	if code < 0 then
-		ss.ss_create_role_rsp(flowid, errno.DBERROR, openid)
+		ss.ss_create_role_rsp(flowid, errno.SERVICE, openid)
 		return
 	end
 
 	if not account or account.roleid ~= 0 then
-		ss.ss_create_role_rsp(flowid, errno.DATAERROR, openid)
+		ss.ss_create_role_rsp(flowid, errno.DATA_ERROR, openid)
 		return
 	end
 
@@ -65,7 +65,7 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 	account.name = name
 
 	if sqlpool.sql_update("tb_account", account, limit) < 0 then
-		ss.ss_create_role_rsp(flowid, errno.DBERROR, openid)
+		ss.ss_create_role_rsp(flowid, errno.SERVICE, openid)
 		return
 	end
 
@@ -78,7 +78,7 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 	role.offline = role.register
 
 	if sqlpool.sql_insert("tb_role", role) < 0 then
-		ss.ss_create_role_rsp(flowid, errno.DBERROR, openid)
+		ss.ss_create_role_rsp(flowid, errno.SERVICE, openid)
 		return
 	end
 

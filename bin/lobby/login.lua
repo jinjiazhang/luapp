@@ -13,9 +13,17 @@ function net.ss_login_rsp( flowid, result, number, openid, svrid, account )
 	end
 
 	if result == errno.SUCCESS then
-		ssmgr.bind_account(ss, account)
+		ssmgr.bind_account(ss, account)	
+	elseif result == errno.CONFLICT then
+		result = errno.NEED_RETRY
+		airport.call_target(svrid, "ss_kickout_ntf", flowid, openid)
+		log_info("notify kickout", svrid, flowid, openid)
 	end
 	ss.cs_login_rsp(flowid, result, account)
+end
+
+function net.ss_kickout_ntf( svrid, flowid, openid )
+	log_info("ss_kickout_ntf", svrid, flowid, openid)
 end
 
 function net.cs_create_role_req( ss, flowid, name )
