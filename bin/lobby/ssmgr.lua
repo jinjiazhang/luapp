@@ -5,6 +5,9 @@ openid_session_table = number_session_table or {}
 roleid_session_table = number_session_table or {}
 kickout_session_table = kickout_session_table or {}
 
+KICKOUT_DELAY_CLOSE = 1000    	-- 踢号延迟关闭连接时间
+KICKOUT_TICK_MAX_NUM = 10		-- 每次tick最多踢多少个连接
+
 function find_by_number( number )
 	return number_session_table[number]
 end
@@ -52,12 +55,12 @@ function tick_kickout(  )
 	local count = 0
 	local mstime = app.mstime()
 	for number, record in pairs(kickout_session_table) do
-		if mstime - record > 1000 then
-			log_info("real_kickout", number, record)
+		if mstime - record >= KICKOUT_DELAY_CLOSE then
+			log_info("ssmgr.real_kickout", number, record)
 			server.close_conn(number)
 
 			count = count + 1
-			if count >= 10 then
+			if count >= KICKOUT_TICK_MAX_NUM then
 				break
 			end
 		end

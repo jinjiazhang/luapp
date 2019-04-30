@@ -29,6 +29,19 @@ function net.ss_logout_rsp( flowid, result, openid )
 	end
 end
 
+function net.ss_online_rsp( flowid, result, openid )
+	log_info("ss_online_rsp", flowid, result, openid)
+	if result ~= errno.SUCCESS then
+		local ss = ssmgr.find_by_openid(openid)
+		if not ss then
+			return
+		end
+		
+		log_error("ss_online_rsp", result, openid)
+		ssmgr.kickout(ss, result)
+	end
+end
+
 function net.ss_kickout_ntf( svrid, flowid, openid, reason )
 	log_info("ss_kickout_ntf", svrid, flowid, openid)
 	local ss = ssmgr.find_by_openid(openid)

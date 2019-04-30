@@ -21,6 +21,7 @@ end
 app.tick = function ( ... )
 	app.reload()
 	ssmgr.tick()
+	rolemgr.tick()
 end
 
 app.idle = function ( ... )

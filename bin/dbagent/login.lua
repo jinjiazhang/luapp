@@ -1,5 +1,7 @@
 -- 登录逻辑
 
+ONLINE_VALID_DURATION = 28		-- 在线状态有效期
+
 function net.ss_login_req(ss, flowid, number, openid, svrid)
 	log_info("ss_login_req", ss.number, flowid, number, openid, svrid)
 	local limit = string.format("openid='%s'", openid)
@@ -9,7 +11,7 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 		return
 	end
 
-	if data and app.time() - data.online < 28 then
+	if data and app.time() - data.online < ONLINE_VALID_DURATION then
 		ss.ss_login_rsp(flowid, errno.CONFLICT, number, openid, data.svrid)
 		return
 	end
@@ -55,7 +57,7 @@ function net.ss_logout_req( ss, flowid, openid, svrid )
 		return
 	end
 
-	if svrid ~= data.svrid and app.time() - data.online < 28 then
+	if svrid ~= data.svrid and app.time() - data.online < ONLINE_VALID_DURATION then
 		ss.ss_logout_rsp(flowid, errno.CONFLICT, openid)
 		return
 	end
@@ -67,6 +69,18 @@ function net.ss_logout_req( ss, flowid, openid, svrid )
 	end
 
 	ss.ss_logout_rsp(flowid, errno.SUCCESS, openid)
+end
+
+function net.ss_online_req( ss, flowid, openid, svrid )
+	log_info("ss_online_req", ss.number, flowid, openid, svrid)
+	local limit = string.format("openid='%s' and svrid=%d", openid, svrid)
+	local data = { openid = openid, svrid = svrid, online = app.time() }
+	if sqlpool.sql_update("tb_online", data, limit) < 0 then
+		ss.ss_online_rsp(flowid, errno.SERVICE, openid)
+		return
+	end
+
+	ss.ss_online_rsp(flowid, errno.SUCCESS, openid)
 end
 
 function net.ss_create_role_req(ss, flowid, openid, name)
