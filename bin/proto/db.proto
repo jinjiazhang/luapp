@@ -9,6 +9,18 @@ message tb_global {
     int64 magic = 4;
 }
 
+message tb_online {
+    string openid = 1;
+    int32 svrid = 2;
+    int32 online = 3;
+}
+
+message tb_name {
+    string name = 1;
+    int64 roleid = 2;
+    string openid = 3;
+}
+
 message tb_account {
     string openid = 1;
     int64 roleid = 2;
@@ -36,18 +48,6 @@ message tb_profile {
     string name = 3;
     string icon = 4;
     int32 gender = 5;
-}
-
-message tb_name {
-    string name = 1;
-    int64 roleid = 2;
-    string openid = 3;
-}
-
-message tb_online {
-    string openid = 1;
-    int32 svrid = 2;
-    int32 online = 3;
 }
 
 message tb_room {

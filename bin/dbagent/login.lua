@@ -51,24 +51,23 @@ function net.ss_login_req(ss, flowid, number, openid, svrid)
 		return
 	end
 
-	if data and app.time() - data.online < ONLINE_VALID_DURATION then
-		ss.ss_login_rsp(flowid, errno.CONFLICT, number, openid, data.svrid)
-		return
+	if data and data.svrid > 0 then 
+		if app.time() - data.online < ONLINE_VALID_DURATION then
+			ss.ss_login_rsp(flowid, errno.CONFLICT, number, openid, data.svrid)
+			return
+		end
+
+		-- invalid online recode
+		if sqlpool.sql_delete("tb_online", limit) < 0 then
+			ss.ss_logout_rsp(flowid, errno.SERVICE, number, openid)
+			return
+		end
 	end
 
-	if not data then
-		data = { openid = openid, svrid = svrid, online = app.time() }
-		if sqlpool.sql_insert("tb_online", data) < 0 then
-			ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
-			return
-		end
-	else
-		-- TODO check magic
-		data.online = app.time()
-		if sqlpool.sql_update("tb_online", data, limit) < 0 then
-			ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
-			return
-		end
+	data = { openid = openid, svrid = svrid, online = app.time() }
+	if sqlpool.sql_insert("tb_online", data) < 0 then
+		ss.ss_login_rsp(flowid, errno.SERVICE, number, openid)
+		return
 	end
 
 	local code, account = sqlpool.sql_select("tb_account", limit)
