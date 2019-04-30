@@ -4,7 +4,7 @@ module = "rdsclient"
 rdsclient_callbacks = rdsclient_callbacks or {}
 
 function init( ... )
-	setmetatable(env, {__index = __index})
+	setmetatable(_ENV, {__index = __index})
 	client = redis.connect("10.125.30.158", 6379)
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect

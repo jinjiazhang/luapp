@@ -4,7 +4,7 @@ module = "sqlpool"
 sqlpool_callbacks = sqlpool_callbacks or {}
 
 function init( ... )
-	setmetatable(env, {__index = __index})
+	setmetatable(_ENV, {__index = __index})
 	mysql.parse("proto/db.proto")
 	pool = mysql.create_pool()
 	pool.on_respond = on_respond
