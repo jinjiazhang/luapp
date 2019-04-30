@@ -14,18 +14,16 @@ function find_by_roleid( roleid )
 	return roleid_role_table[roleid]
 end
 
-function on_login( ss, role )
+function on_login( role )
 	log_info("rolemgr.on_login", role.roleid, role.name)
-	role.ss = ss
 	role.online = app.time()
 	role.save_online = app.time()
 	roleid_role_table[role.roleid] = role
 	openid_role_table[role.openid] = role
 end
 
-function on_logout( ss, role )
+function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
-	role.ss = nil
 	role.offline = app.time()
 	role.save_online = nil
 	roleid_role_table[role.roleid] = nil
