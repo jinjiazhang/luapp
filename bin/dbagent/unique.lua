@@ -24,7 +24,3 @@ end
 function gen_roomid(  )
 	return gen_stamp() * 65536 + gen_seq() * 256 + instance
 end
-
-function gen_roleid(  )
-	return gen_stamp() * 65536 + gen_seq() * 256 + instance
-end

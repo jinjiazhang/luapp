@@ -76,7 +76,7 @@ function net.cs_select_role_req( ss, flowid, roleid )
 end
 
 function net.ss_load_role_rsp( flowid, result, openid, role )
-	log_info("ss_load_role_rsp", flowid, result, openid, role.roleid)
+	log_info("ss_load_role_rsp", flowid, result, openid, role)
 	local ss = ssmgr.find_by_openid(openid)
 	if not ss then
 		return

@@ -6,6 +6,7 @@ message tb_global {
     string name = 1;
     int64 value = 2;
     string text = 3;
+    int64 magic = 4;
 }
 
 message tb_account {

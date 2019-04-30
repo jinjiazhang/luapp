@@ -1,7 +1,7 @@
 -- 机器人脚本
 
 function run( ... )
-	run_test(login_flow, "test002", "ABCDEFG")
+	run_test(login_flow, "test001", "ABCDEFG")
 end
 
 function run_test( f, ... )

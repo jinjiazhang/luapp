@@ -3,8 +3,9 @@ syntax = "proto3";
 enum errno {
     SUCCESS = 0;
     FAILURE = 1;
-    SERVICE = 2;
-    CONFLICT = 3;
-    DATA_ERROR = 4;
-    NEED_RETRY = 5;
+    UNKNOWN = 2;
+    SERVICE = 3;
+    CONFLICT = 4;
+    DATA_ERROR = 5;
+    NEED_RETRY = 6;
 }
