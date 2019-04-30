@@ -67,3 +67,52 @@ message cs_select_role_rsp {
 		cs_role role = 3;
 	}
 }
+
+message cs_create_room_req {
+	int64 flowid = 1;
+	string name = 2;
+	game_mode mode = 3;
+	game_opt option = 4;
+}
+
+message cs_create_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	oneof oneof_room {
+		room_data room = 3;
+	}
+}
+
+message cs_fetch_room_req {
+	int64 flowid = 1;
+	game_mode mode = 2;
+}
+
+message cs_fetch_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	repeated room_info room_list = 3;
+}
+
+message cs_enter_room_req {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int32 cipher = 3;
+}
+
+message cs_enter_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	oneof oneof_room {
+		room_data room = 3;
+	}
+}
+
+message cs_leave_room_req {
+	int64 flowid = 1;
+}
+
+message cs_leave_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}

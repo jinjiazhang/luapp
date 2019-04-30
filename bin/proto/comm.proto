@@ -9,3 +9,64 @@ enum errno {
     DATA_ERROR = 5;
     NEED_RETRY = 6;
 }
+
+enum game_mode {
+	DEFAULT = 0;
+	TEXAS = 1;
+}
+
+enum room_status {
+	INITING = 0;
+	WAITING = 1;
+	PLAYING = 2;
+	CLOSED = 3;
+}
+
+message texas_opt {
+	int32 ante = 1;
+	int32 small_blind = 2;
+	int32 big_blind = 3;
+	int32 max_player = 4;
+	int32 bring_limit = 5;
+	int32 raise_limit = 6;
+}
+
+message game_opt {
+	oneof oneof_option {
+		texas_opt texas = 1;
+	}
+}
+
+message room_info {
+	int64 roomid = 1;
+	int32 cipher = 2;
+	string name = 3;
+	room_status status = 4;
+	int32 create_time = 5;
+	int32 begin_time = 6;
+	int32 close_time = 7;
+	game_mode mode = 8;
+	game_opt option = 9;
+}
+
+message room_viewer {
+	int64 roleid = 1;
+	string openid = 2;
+	string name = 3;
+	string icon = 4;
+	int32 gender = 5;
+}
+
+message game_player {
+	int64 roleid = 1;
+	string openid = 2;
+	string name = 3;
+	string icon = 4;
+	int32 gender = 5;
+}
+
+message room_data {
+	room_info info = 1;
+	repeated room_viewer viewers = 2;
+	repeated game_player players = 3;
+}
