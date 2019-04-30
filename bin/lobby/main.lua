@@ -4,6 +4,7 @@ server = import("lobby/server.lua")
 dbagent = import("lobby/dbagent.lua")
 airport = import("lobby/airport.lua")
 login = import("lobby/login.lua")
+room = import("lobby/room.lua")
 ssmgr = import("lobby/ssmgr.lua")
 rolemgr = import("lobby/rolemgr.lua")
 
