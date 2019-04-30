@@ -11,9 +11,7 @@ end
 
 function check_result( proto, result )
 	if result ~= errno.SUCCESS then
-		local errmsg = string.format("proto: %s, result: %d", proto, result)
-		error(errmsg, 2)
-		return
+		error(string.format("proto: %s, result: %d", proto, result), 2)
 	end
 end
 
