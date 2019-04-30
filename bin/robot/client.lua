@@ -5,7 +5,7 @@ client_callbacks = client_callbacks or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	conn = net.connect("127.0.0.1", 8088)
+	conn = net.connect(config.lobby_ip, config.lobby_port)
 	conn.on_accept = on_accept
 	conn.on_closed = on_closed
 	conn.on_message = on_message

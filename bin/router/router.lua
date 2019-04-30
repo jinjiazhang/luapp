@@ -1,7 +1,7 @@
 -- 消息路由服务器
 
 function init( ... )
-	router = route.listen("127.0.0.1", 8087)
+	router = route.listen(config.router_ip, config.router_port)
 	router.on_accept = on_accept
 	router.on_closed = on_closed
 	router.on_message = on_message

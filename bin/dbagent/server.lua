@@ -1,7 +1,7 @@
 -- 监听端口服务
 
 function init( ... )
-	server = net.listen("127.0.0.1", 8086)
+	server = net.listen(config.dbagent_ip, config.dbagent_port)
 	server.on_accept = on_accept
 	server.on_closed = on_closed
 	server.on_message = on_message

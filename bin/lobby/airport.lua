@@ -3,7 +3,7 @@ module = "airport"
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	port = route.connect("127.0.0.1", 8087)
+	port = route.connect(config.router_ip, config.router_port)
 	port.on_accept = on_accept
 	port.on_closed = on_closed
 	port.on_message = on_message

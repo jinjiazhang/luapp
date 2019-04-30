@@ -5,7 +5,7 @@ rdsclient_callbacks = rdsclient_callbacks or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	client = redis.connect("10.125.30.158", 6379)
+	client = redis.connect(config.redis_ip, config.redis_port)
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect
 	client.on_reply = on_reply

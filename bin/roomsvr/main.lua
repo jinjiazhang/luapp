@@ -1,9 +1,11 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
+config = import("config/config.lua")
 dbagent = import("roomsvr/dbagent.lua")
 airport = import("roomsvr/airport.lua")
 
 app.init = function ( ... )
+	config.init()
 	dbagent.init()
 	airport.init()
 end

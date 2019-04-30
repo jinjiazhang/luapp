@@ -1,5 +1,6 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
+config = import("config/config.lua")
 server = import("lobby/server.lua")
 dbagent = import("lobby/dbagent.lua")
 airport = import("lobby/airport.lua")
@@ -10,6 +11,7 @@ rolemgr = import("lobby/rolemgr.lua")
 
 
 app.init = function ( ... )
+	config.init()
 	server.init()
 	dbagent.init()
 	airport.init()

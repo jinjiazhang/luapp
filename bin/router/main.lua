@@ -1,8 +1,10 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
+config = import("config/config.lua")
 router = import("router/router.lua")
 
 app.init = function ( ... )
+	config.init()
 	router.init()
 end
 

@@ -3,7 +3,7 @@ module = "dbagent"
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	client = net.connect("127.0.0.1", 8086)
+	client = net.connect(config.dbagent_ip, config.dbagent_port)
 	client.on_accept = on_accept
 	client.on_closed = on_closed
 	client.on_message = on_message
