@@ -28,11 +28,7 @@ app.import = function ( name )
         return node.env
     end
 
-    local env = {}
-    env._G = _G
-    env.env = env
-    env.__anon = {}
-    
+    local env = {_G = _G}
     setmetatable(env, {__index = _G})
     app.files[name] = {
         env = env,
@@ -74,6 +70,45 @@ app.reload = function (  )
 
         ::continue::
     end
+end
+
+app.tostring = function(value, layer)
+    if type(value) ~= 'table' then
+        return tostring(value)
+    end
+    layer = layer or 1
+    if layer >= 10 then
+    	return '{...}'
+    end
+    local s = '{\n'
+    for k, v in pairs(value) do
+        s = s..string.rep('    ', layer)
+        if type(k) == 'string' then
+            s = s..k
+        else
+            s = s..'['
+            s = s..tostring(k)
+            s = s..']'
+        end
+        s = s..' = '
+        if v == _G then
+            s = s..'_G'
+        elseif v == value then
+            s = s..'this'
+        elseif v == package then
+            s = s..'package'
+        elseif type(v) == 'table' then
+            s = s..app.tostring(v, layer+1)
+        elseif type(v) == 'string' then
+            s = s..string.format("%q",v)
+        else
+            s = s..tostring(v)
+        end
+        s = s..',\n'
+    end
+    s = s..string.rep('    ', layer-1)
+    s = s..'}'
+    return s
 end
 
 timer.setups = {}

@@ -19,7 +19,7 @@ end
 
 function login_flow( openid, token )
 	local result, account = client.cs_login_req(openid, token)
-	log_info("cs_login_req", result, proto.to_json(account))
+	log_info("cs_login_req", result, app.tostring(account))
 	check_result("cs_login_req", result)
 
 	if account.roleid == 0 then
@@ -29,7 +29,7 @@ function login_flow( openid, token )
 		check_result("cs_create_role_req", result)
 	else
 		local result, role = client.cs_select_role_req(account.roleid)
-		log_info("cs_select_role_req", result, proto.to_json(role))
+		log_info("cs_select_role_req", result, app.tostring(role))
 		check_result("cs_select_role_req", result)
 	end
 end
