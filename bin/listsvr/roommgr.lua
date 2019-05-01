@@ -17,11 +17,40 @@ function select_roomsvr( mode )
 	return 0
 end
 
+function update_room( rsvrid, room )
+	room.rsvrid = rsvrid
+	roomid_room_table[room.roomid] = room
+	cipher_room_table[room.cipher] = room
+	return errno.SUCCESS
+end
+
 function net.ss_create_room_req( svrid, flowid, lobbyid, role, roomid, cipher, name, mode, option )
 	log_info("ss_create_room_req", svrid, flowid, lobbyid, role, roomid, cipher, name, mode, option)
 	assert(roomid == 0 and cipher == 0)
-	roomid = unique.gen_roomid()
-	cipher = gen_cipher(mode)
 	local rsvrid = select_roomsvr(mode)
-	airport.call_roomsvr(rsvrid, "ss_create_room_req", flowid, lobbyid, role, roomid, cipher, name, mode, option)
+	local room = proto.build("room_basic")
+	room.roomid = unique.gen_roomid()
+	room.cipher = gen_cipher(mode)
+	room.status = room_status.INITING
+	update_room(rsvrid, room)
+	airport.call_roomsvr(rsvrid, "ss_create_room_req", flowid, lobbyid, role, room.roomid, room.cipher, name, mode, option)
+end
+
+function net.ss_update_room_req( svrid, flowid, room )
+	log_info("ss_update_room_req", svrid, flowid, room)
+	local result = update_room(svrid, room)
+	airport.call_target(svrid, "ss_update_room_rsp", flowid, result)
+end
+
+function net.ss_fetch_room_req( svrid, flowid, roleid, mode )
+	log_info("ss_fetch_room_req", svrid, flowid, roleid, mode)
+	local room_list = {}
+	for roomid, room in pairs(roomid_room_table) do
+		if room.mode == mode then
+			table.insert(room_list, room)
+		end
+	end
+
+	-- log_info("ss_fetch_room_rsp", app.tostring(room_list))
+	airport.call_target(svrid, "ss_fetch_room_rsp", flowid, errno.SUCCESS, roleid, room_list)
 end

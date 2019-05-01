@@ -20,7 +20,17 @@ end
 
 function net.cs_fetch_room_req( ss, flowid, mode )
 	log_info("cs_fetch_room_req", ss.roleid, flowid, mode)
-	ss.cs_fetch_room_rsp(flowid, errno.SUCCESS, {})
+	airport.call_listsvr(mode, "ss_fetch_room_req", flowid, ss.roleid, mode)
+end
+
+function net.ss_fetch_room_rsp( svrid, flowid, result, roleid, room_list )
+	log_info("ss_fetch_room_rsp", svrid, flowid, result, roleid, #room_list)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		return
+	end
+
+	ss.cs_fetch_room_rsp(flowid, result, room_list)
 end
 
 function net.cs_enter_room_req( ss, flowid, roomid, cipher )
