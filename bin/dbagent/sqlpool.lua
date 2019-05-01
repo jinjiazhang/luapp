@@ -9,7 +9,7 @@ function init( ... )
 	pool = mysql.create_pool()
 	pool.on_respond = on_respond
 	pool.connect(config.mysql_ip, config.mysql_user, config.mysql_pass, config.mysql_db, config.mysql_port)
-	copool.fork(init_database)
+	copool.fork(init_schema)
 end
 
 function on_respond( token, ret_code, ... )
@@ -52,10 +52,10 @@ function create_co_func( name, pool_func )
 	end
 end
 
-function init_database(  )
+function init_schema(  )
 	local code, results = sqlpool.sql_execute("show tables")
 	if code < 0 then
-		log_error("sqlpool.init_database show tables fail")
+		log_error("sqlpool.init_schema show tables fail")
 		return
 	end
 
@@ -70,17 +70,18 @@ function init_database(  )
 	}
 
 	for _, record in pairs(results) do
-		local name = record["Tables_in_game"]
-		if need_tabls[name] then
-			need_tabls[name].exist =  true
+		for _, name in pairs(record) do
+			if need_tabls[name] then
+				need_tabls[name].exist =  true
+			end
 		end
 	end
 
 	for name, info in pairs(need_tabls) do
 		if not info.exist then
-			log_info("sqlpool.init_database create table", name)
+			log_info("sqlpool.init_schema create table", name)
 			if sqlpool.sql_create(name, table.unpack(info.primarys)) < 0 then
-				log_error("sqlpool.init_database create table fail")
+				log_error("sqlpool.init_schema create table fail")
 				return
 			end
 		end
