@@ -19,6 +19,7 @@ public:
         std::string content;
         const google::protobuf::Descriptor* descriptor = nullptr;
         std::shared_ptr<google::protobuf::Message> message;
+        std::vector<std::string> primarys;
         std::vector<std::vector<std::string>> table;
         std::vector<std::shared_ptr<google::protobuf::Message>> results;
     };

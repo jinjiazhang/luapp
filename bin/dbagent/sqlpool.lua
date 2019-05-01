@@ -9,6 +9,7 @@ function init( ... )
 	pool = mysql.create_pool()
 	pool.on_respond = on_respond
 	pool.connect(config.mysql_ip, config.mysql_user, config.mysql_pass, config.mysql_db, config.mysql_port)
+	copool.fork(init_database)
 end
 
 function on_respond( token, ret_code, ... )
@@ -48,5 +49,40 @@ function create_co_func( name, pool_func )
 			end
 		end
 		return coroutine.yield("EXIT")
+	end
+end
+
+function init_database(  )
+	local code, results = sqlpool.sql_execute("show tables")
+	if code < 0 then
+		log_error("sqlpool.init_database show tables fail")
+		return
+	end
+
+	local need_tabls = {
+		["tb_global"] = {primarys = {"name"}},
+		["tb_online"] = {primarys = {"openid"}},
+		["tb_name"] = {primarys = {"name"}},
+		["tb_account"] = {primarys = {"openid"}},
+		["tb_role"] = {primarys = {"roleid"}},
+		["tb_profile"] = {primarys = {"roleid"}},
+		["tb_room"] = {primarys = {"roomid"}},
+	}
+
+	for _, record in pairs(results) do
+		local name = record["Tables_in_game"]
+		if need_tabls[name] then
+			need_tabls[name].exist =  true
+		end
+	end
+
+	for name, info in pairs(need_tabls) do
+		if not info.exist then
+			log_info("sqlpool.init_database create table", name)
+			if sqlpool.sql_create(name, table.unpack(info.primarys)) < 0 then
+				log_error("sqlpool.init_database create table fail")
+				return
+			end
+		end
 	end
 end

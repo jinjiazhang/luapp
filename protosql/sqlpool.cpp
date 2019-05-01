@@ -240,6 +240,12 @@ int sqlpool::sql_create(lua_State* L)
     task->method = SQL_METHOD_CREATE;
     task->descriptor = descriptor;
 
+    int top = lua_gettop(L);
+    for (int idx = 2; idx <= top; idx++)
+    {
+        task->primarys.push_back(lua_tostring(L, idx));
+    }
+
     req_mutex_.lock();
     req_queue_.push_back(task);
     req_mutex_.unlock();
@@ -282,7 +288,7 @@ void sqlpool::do_request(sqlclient* client, std::shared_ptr<taskdata> task)
         task->ret_code = client->sql_delete(task->descriptor, task->content);
         break;
     case SQL_METHOD_CREATE:
-        task->ret_code = client->sql_create(task->descriptor);
+        task->ret_code = client->sql_create(task->descriptor, task->primarys);
         break;
     case SQL_METHOD_EXECUTE:
         task->ret_code = client->sql_execute(task->content, task->table);

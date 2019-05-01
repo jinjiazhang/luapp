@@ -188,9 +188,9 @@ int sqlclient::sql_delete(const Descriptor* descriptor, const std::string& condi
     return affected;
 }
 
-int sqlclient::sql_create(const google::protobuf::Descriptor* descriptor)
+int sqlclient::sql_create(const google::protobuf::Descriptor* descriptor, const std::vector<std::string>& primarys)
 {
-    std::string query = sqlutil::make_create(descriptor);
+    std::string query = sqlutil::make_create(descriptor, primarys);
     int ret = mysql_real_query(mysql_, query.c_str(), query.size());
     if (ret != 0)
     {

@@ -3,6 +3,18 @@
 
 using namespace google::protobuf;
 
+static bool is_primary(const FieldDescriptor* field, const std::vector<std::string>& primarys)
+{
+    for (auto& primary : primarys)
+    {
+        if (field->name() == primary)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string sqlutil::make_select(const Descriptor* descriptor, const std::string& condition)
 {
     std::stringstream stream;
@@ -63,7 +75,7 @@ std::string sqlutil::make_delete(const Descriptor* descriptor, const std::string
     return stream.str();
 }
 
-std::string sqlutil::make_create(const google::protobuf::Descriptor* descriptor)
+std::string sqlutil::make_create(const google::protobuf::Descriptor* descriptor, const std::vector<std::string>& primarys)
 {
     std::stringstream stream;
     stream << "create table " << descriptor->name() << "(";
@@ -72,6 +84,8 @@ std::string sqlutil::make_create(const google::protobuf::Descriptor* descriptor)
     {
         const FieldDescriptor* field = descriptor->field(i);
         stream << field->name() << " " << make_sql_type(field);
+        if (is_primary(field, primarys))
+            stream << " NOT NULL PRIMARY KEY";
         if (i + 1 < field_count) stream << ", ";
     }
     stream << ")";
