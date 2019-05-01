@@ -6,7 +6,10 @@ end
 
 function run_test( f, ... )
 	local co = coroutine.create(f)
-	coroutine.resume(co, ...)
+	local status, errmsg = coroutine.resume(co, ...)
+	if not status then
+		log_error("run_test fail", errmsg)
+	end
 end
 
 function check_result( proto, result )
@@ -23,11 +26,28 @@ function login_flow( openid, token )
 	if account.roleid == 0 then
 		local name = string.format("name_%d", app.time())
 		local result, role = client.cs_create_role_req(name)
-		log_info("cs_create_role_req", result, proto.to_json(role))
+		log_info("cs_create_role_req", result, app.tostring(role))
 		check_result("cs_create_role_req", result)
 	else
 		local result, role = client.cs_select_role_req(account.roleid)
 		log_info("cs_select_role_req", result, app.tostring(role))
 		check_result("cs_select_role_req", result)
+	end
+
+	local result, room_list = client.cs_fetch_room_req(game_mode.TEXAS)
+	log_info("cs_fetch_room_req", result, app.tostring(room_list))
+	check_result("cs_fetch_room_req", result)
+
+	if #room_list == 0 then
+		local option = {}
+		local room_name = tostring(math.random(100000, 999999))
+		local result, room = client.cs_create_room_req(room_name, game_mode.TEXAS, option)
+		log_info("cs_create_room_req", result, app.tostring(room))
+		check_result("cs_create_room_req", result)
+	else
+		local info = room_list[1]
+		local result, room = client.cs_enter_room_req(info.roomid, info.cipher)
+		log_info("cs_enter_room_req", result, app.tostring(room))
+		check_result("cs_enter_room_req", result)
 	end
 end
