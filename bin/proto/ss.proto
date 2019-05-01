@@ -94,3 +94,23 @@ message ss_save_role_rsp {
 	string openid = 3;
 	int64 roleid = 4;
 }
+
+message ss_create_room_req {
+	int64 flowid = 1;
+	int32 lobbyid = 2;
+	room_role role = 3;
+	int64 roomid = 4;
+	int32 cipher = 5;
+	string name = 6;
+	game_mode mode = 7;
+	game_opt option = 8;
+}
+
+message ss_create_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+	oneof oneof_room {
+		room_detail room = 4;
+	}
+}

@@ -3,7 +3,7 @@ module = "rolemgr"
 openid_role_table = number_role_table or {}
 roleid_role_table = number_role_table or {}
 
-SAVE_ONLINE_INTERVAL = 5    	-- 保存在线状态的时间间隔
+SAVE_ONLINE_INTERVAL = 25    	-- 保存在线状态的时间间隔
 ONLINE_TICK_MAX_NUM = 10		-- 每次tick最多保存多少个在线状态
 
 function find_by_openid( openid )
@@ -28,6 +28,14 @@ function on_logout( role )
 	role.save_online = nil
 	roleid_role_table[role.roleid] = nil
 	openid_role_table[role.openid] = nil
+end
+
+function on_enter_room( role, room )
+	-- body
+end
+
+function on_leave_room( role )
+	-- body
 end
 
 function tick(  )

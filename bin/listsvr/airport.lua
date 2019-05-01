@@ -64,3 +64,11 @@ end
 function on_transmit( roleid, proto, ... )
 	log_info("airport.on_transmit", roleid, proto, ...)
 end
+
+function call_roomsvr( rsvrid, ... )
+	if rsvrid == 0 then
+		port.call_random(process.ROOMSVR, ...)
+	else
+		port.call_target(rsvrid, ...)
+	end
+end

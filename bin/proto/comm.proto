@@ -10,6 +10,15 @@ enum errno {
     NEED_RETRY = 6;
 }
 
+enum process {
+	LUAPP = 0;
+	ROUTER = 1;
+	DBAGENT = 2;
+	LISTSVR = 3;
+	ROOMSVR = 4;
+	LOBBY = 5;
+}
+
 enum game_mode {
 	DEFAULT = 0;
 	TEXAS = 1;
@@ -37,7 +46,7 @@ message game_opt {
 	}
 }
 
-message room_info {
+message room_basic {
 	int64 roomid = 1;
 	int32 cipher = 2;
 	string name = 3;
@@ -49,7 +58,7 @@ message room_info {
 	game_opt option = 9;
 }
 
-message room_viewer {
+message room_role {
 	int64 roleid = 1;
 	string openid = 2;
 	string name = 3;
@@ -65,8 +74,7 @@ message game_player {
 	int32 gender = 5;
 }
 
-message room_data {
-	room_info info = 1;
-	repeated room_viewer viewers = 2;
-	repeated game_player players = 3;
+message room_detail {
+	room_basic basic = 1;
+	repeated room_role viewers = 2;
 }

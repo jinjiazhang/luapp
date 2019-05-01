@@ -3,6 +3,8 @@ proto.parse("proto/ss.proto")
 config = import("config/config.lua")
 dbagent = import("listsvr/dbagent.lua")
 airport = import("listsvr/airport.lua")
+roommgr = import("listsvr/roommgr.lua")
+unique = import("listsvr/unique.lua")
 
 app.init = function ( ... )
 	config.init()

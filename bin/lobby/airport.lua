@@ -64,3 +64,7 @@ end
 function on_transmit( roleid, proto, ... )
 	log_info("airport.on_transmit", roleid, proto, ...)
 end
+
+function call_listsvr( mode, ... )
+	port.call_random(process.LISTSVR, ...)
+end
