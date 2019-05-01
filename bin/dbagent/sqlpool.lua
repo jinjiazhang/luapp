@@ -69,6 +69,7 @@ function init_schema(  )
 		["tb_room"] = {primarys = {"roomid"}},
 	}
 
+	results = results or {}
 	for _, record in pairs(results) do
 		for _, name in pairs(record) do
 			if need_tabls[name] then
