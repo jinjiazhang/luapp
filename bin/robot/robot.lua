@@ -39,8 +39,8 @@ function login_flow( openid, token )
 	check_result("cs_fetch_room_req", result)
 
 	if #room_list == 0 then
-		local option = proto.build("game_opt")
-		option.texas = proto.build("texas_opt")
+		local option = proto.create("game_opt")
+		option.texas = proto.create("texas_opt")
 		option.texas.small_blind = 5
 		option.texas.big_blind = 10
 		local room_name = string.format("room_%d", app.time())

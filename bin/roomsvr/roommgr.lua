@@ -4,7 +4,7 @@ module = "roommgr"
 roomid_room_table = roomid_room_table or {}
 
 function create_room( lsvrid, roomid, cipher, name, mode, option )
-	local room = proto.build("room_detail")
+	local room = proto.create("room_detail")
 	room.viewer_table = {}
 	room.lsvrid = lsvrid
 

@@ -28,7 +28,7 @@ function net.ss_create_room_req( svrid, flowid, lobbyid, role, roomid, cipher, n
 	log_info("ss_create_room_req", svrid, flowid, lobbyid, role, roomid, cipher, name, mode, option)
 	assert(roomid == 0 and cipher == 0)
 	local rsvrid = select_roomsvr(mode)
-	local room = proto.build("room_basic")
+	local room = proto.create("room_basic")
 	room.roomid = unique.gen_roomid()
 	room.cipher = gen_cipher(mode)
 	room.status = room_status.INITING

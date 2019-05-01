@@ -149,7 +149,7 @@ function net.ss_create_role_req(ss, flowid, openid, name)
 		return
 	end
 
-	local role = proto.build("tb_role")
+	local role = proto.create("tb_role")
 	role.roleid = roleid
 	role.openid = openid
 	role.name = name

@@ -20,15 +20,15 @@ static int parse(lua_State *L)
     return 1;
 }
 
-// person = proto.build("Person")
-static int build(lua_State *L)
+// person = proto.create("Person")
+static int create(lua_State *L)
 {
     assert(lua_gettop(L) == 1);
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* proto = lua_tostring(L, 1);
     if (!proto_decode(proto, L, 0, 0))
     {
-        proto_error("proto.build fail, proto=%s", proto);
+        proto_error("proto.create fail, proto=%s", proto);
         return 0;
     }
 
@@ -153,7 +153,7 @@ static int from_json(lua_State *L)
 
 static const struct luaL_Reg protoLib[]={
     {"parse", parse},
-    {"build", build},
+    {"create", create},
     {"belong", belong},
     {"encode", encode},
     {"decode", decode},
