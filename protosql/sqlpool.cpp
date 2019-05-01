@@ -311,6 +311,7 @@ void sqlpool::on_respond(std::shared_ptr<taskdata> task)
     case SQL_METHOD_INSERT:
     case SQL_METHOD_UPDATE:
     case SQL_METHOD_DELETE:
+    case SQL_METHOD_CREATE:
         luaL_callfunc(L, this, "on_respond", task->token, task->ret_code);
         break;
     default:
