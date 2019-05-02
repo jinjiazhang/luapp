@@ -27,6 +27,12 @@ message tb_account {
     string name = 3;
 }
 
+message role_gaming {
+    int64 roomid = 1;
+    int32 rsvrid = 2;
+    game_mode mode = 3;
+}
+
 message tb_role {
     int64 roleid = 1;
     string openid = 2;
@@ -38,8 +44,7 @@ message tb_role {
     int32 register = 8;
     int32 online = 9;
     int32 offline = 10;
-    int32 rsvrid = 11;
-    int64 roomid = 12;
+    role_gaming gaming = 11;
 }
 
 message tb_profile {

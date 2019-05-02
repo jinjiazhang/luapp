@@ -30,7 +30,7 @@ function on_logout( role )
 	openid_role_table[role.openid] = nil
 end
 
-function on_enter_room( role, room )
+function on_enter_room( role, rsvrid, room )
 	-- body
 end
 

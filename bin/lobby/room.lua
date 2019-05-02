@@ -28,7 +28,7 @@ function net.ss_create_room_rsp( svrid, flowid, result, roleid, room )
 	end
 
 	if result == errno.SUCCESS then
-		rolemgr.on_enter_room(ss.role, room)
+		rolemgr.on_enter_room(ss.role, svrid, room)
 	end
 	ss.cs_create_room_rsp(flowid, result, room)
 end
@@ -47,7 +47,7 @@ function net.ss_enter_room_rsp( svrid, flowid, result, roleid, room )
 	end
 
 	if result == errno.SUCCESS then
-		rolemgr.on_enter_room(ss.role, room)
+		rolemgr.on_enter_room(ss.role, svrid, room)
 	end
 	ss.cs_enter_room_rsp(flowid, result, room)
 end

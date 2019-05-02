@@ -56,7 +56,7 @@ function net.ss_create_room_req( svrid, flowid, lobbyid, role, roomid, cipher, n
 		return
 	end
 
-	local room = proto.create("room_basic")
+	local room = proto.create("room_brief")
 	room.roomid = unique.gen_roomid()
 	room.cipher = gen_cipher(mode)
 	room.status = room_status.INITING

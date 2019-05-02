@@ -105,7 +105,7 @@ message ss_fetch_room_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 	int64 roleid = 3;
-	repeated room_basic room_list = 4;
+	repeated room_brief room_list = 4;
 }
 
 message ss_create_room_req {
@@ -147,7 +147,7 @@ message ss_enter_room_rsp {
 
 message ss_update_room_req {
 	int64 flowid = 1;
-	room_basic room = 2;
+	room_brief room = 2;
 }
 
 message ss_update_room_rsp {

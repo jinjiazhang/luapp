@@ -76,7 +76,7 @@ message cs_fetch_room_req {
 message cs_fetch_room_rsp {
 	int64 flowid = 1;
 	errno result = 2;
-	repeated room_basic room_list = 3;
+	repeated room_brief room_list = 3;
 }
 
 message cs_create_room_req {

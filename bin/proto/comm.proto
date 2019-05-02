@@ -48,18 +48,6 @@ message game_opt {
 	}
 }
 
-message room_basic {
-	int64 roomid = 1;
-	int32 cipher = 2;
-	string name = 3;
-	room_status status = 4;
-	int32 create_time = 5;
-	int32 begin_time = 6;
-	int32 close_time = 7;
-	game_mode mode = 8;
-	game_opt option = 9;
-}
-
 message room_role {
 	int64 roleid = 1;
 	string openid = 2;
@@ -76,7 +64,27 @@ message game_player {
 	int32 gender = 5;
 }
 
+message room_brief {
+	int64 roomid = 1;
+	int32 cipher = 2;
+	string name = 3;
+	room_status status = 4;
+	int32 create_time = 5;
+	int32 begin_time = 6;
+	int32 close_time = 7;
+	game_mode mode = 8;
+	game_opt option = 9;
+}
+
 message room_detail {
-	room_basic basic = 1;
-	repeated room_role viewers = 2;
+	int64 roomid = 1;
+	int32 cipher = 2;
+	string name = 3;
+	room_status status = 4;
+	int32 create_time = 5;
+	int32 begin_time = 6;
+	int32 close_time = 7;
+	game_mode mode = 8;
+	game_opt option = 9;
+	repeated room_role viewers = 15;
 }

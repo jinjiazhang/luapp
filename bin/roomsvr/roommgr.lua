@@ -16,14 +16,13 @@ function create_room( lsvrid, roomid, cipher, name, mode, option )
 	room.viewer_table = {}
 	room.lsvrid = lsvrid
 
-	local basic = room.basic
-	basic.roomid = roomid
-	basic.cipher = cipher
-	basic.name = name
-	basic.status = room_status.WAITING
-	basic.create_time = app.time()
-	basic.mode = mode
-	basic.option = option
+	room.roomid = roomid
+	room.cipher = cipher
+	room.name = name
+	room.status = room_status.WAITING
+	room.create_time = app.time()
+	room.mode = mode
+	room.option = option
 
 	roomid_room_table[roomid] = room
 	return room
@@ -63,7 +62,7 @@ function search_room( roomid, cipher )
 end
 
 function update_listsvr( room )
-	airport.call_listsvr(room.lsvrid, "ss_update_room_req", 0, room.basic)
+	airport.call_listsvr(room.lsvrid, "ss_update_room_req", 0, room)
 end
 
 function report_payload(  )
