@@ -205,5 +205,6 @@ int luaopen_protolua(lua_State* L)
     lua_setglobal(L, "proto");
     
     g_sourceTree.MapPath("", "./");
+    g_sourceTree.MapPath("", "./proto/");
     return 1;
 }

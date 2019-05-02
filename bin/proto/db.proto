@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "proto/comm.proto";
+import "comm.proto";
 
 message tb_global {
     string name = 1;

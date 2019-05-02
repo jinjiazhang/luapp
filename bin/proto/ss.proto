@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "proto/comm.proto";
-import "proto/db.proto";
-import "proto/cs.proto";
+import "comm.proto";
+import "db.proto";
+import "cs.proto";
 
 message ss_login_req {
 	int64 flowid = 1;

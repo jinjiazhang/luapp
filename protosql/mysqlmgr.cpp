@@ -7,6 +7,7 @@ mysqlmgr::mysqlmgr(lua_State* L) : lobject(L),
     importer_(&source_tree_, nullptr)
 {
     source_tree_.MapPath("", "./");
+    source_tree_.MapPath("", "./proto/");
 }
 
 mysqlmgr::~mysqlmgr()
