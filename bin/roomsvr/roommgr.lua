@@ -50,6 +50,10 @@ function leave_room( room, roleid )
 	return errno.SUCCESS
 end
 
+function search_room( roomid, cipher )
+	return roomid_room_table[roomid]
+end
+
 function update_listsvr( room )
 	airport.call_target(room.lsvrid, "ss_update_room_req", 0, room.basic)
 end
@@ -78,4 +82,22 @@ function net.ss_create_room_req( svrid, flowid, lobbyid, role, roomid, cipher, n
 
 	update_listsvr(room)
 	airport.call_target(lobbyid, "ss_create_room_rsp", flowid, errno.SUCCESS, role.roleid, room)
+end
+
+function net.ss_enter_room_req( svrid, flowid, lobbyid, role, roomid, cipher )
+	log_info("ss_enter_room_req", svrid, flowid, lobbyid, role, roomid, cipher)
+	local room = search_room(roomid, cipher)
+	if not room then
+		airport.call_target(lobbyid, "ss_enter_room_rsp", flowid, errno.NOT_FOUND, role.roleid)
+		return
+	end
+
+	local result = enter_room(room, lobbyid, role)
+	if result ~= errno.SUCCESS then
+		airport.call_target(lobbyid, "ss_enter_room_rsp", flowid, result, role.roleid)
+		return
+	end
+
+	local rsvrid = room.rsvrid
+	airport.call_target(lobbyid, "ss_enter_room_rsp", flowid, errno.SUCCESS, role.roleid, room)
 end

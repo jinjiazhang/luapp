@@ -95,6 +95,19 @@ message ss_save_role_rsp {
 	int64 roleid = 4;
 }
 
+message ss_fetch_room_req {
+	int64 flowid = 1;
+	int64 roleid = 2;
+	game_mode mode = 3;
+}
+
+message ss_fetch_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+	repeated room_basic room_list = 4;
+}
+
 message ss_create_room_req {
 	int64 flowid = 1;
 	int32 lobbyid = 2;
@@ -115,6 +128,23 @@ message ss_create_room_rsp {
 	}
 }
 
+message ss_enter_room_req {
+	int64 flowid = 1;
+	int32 lobbyid = 2;
+	room_role role = 3;
+	int64 roomid = 4;
+	int32 cipher = 5;
+}
+
+message ss_enter_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+	oneof oneof_room {
+		room_detail room = 4;
+	}
+}
+
 message ss_update_room_req {
 	int64 flowid = 1;
 	room_basic room = 2;
@@ -123,17 +153,4 @@ message ss_update_room_req {
 message ss_update_room_rsp {
 	int64 flowid = 1;
 	errno result = 2;
-}
-
-message ss_fetch_room_req {
-	int64 flowid = 1;
-	int64 roleid = 2;
-	game_mode mode = 3;
-}
-
-message ss_fetch_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
-	repeated room_basic room_list = 4;
 }

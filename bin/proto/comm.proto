@@ -8,6 +8,7 @@ enum errno {
     CONFLICT = 4;
     DATA_ERROR = 5;
     NEED_RETRY = 6;
+    NOT_FOUND = 7;
 }
 
 enum process {

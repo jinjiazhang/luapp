@@ -1,7 +1,8 @@
 -- 机器人脚本
 
 function run( ... )
-	run_test(login_flow, "test001", "ABCDEFG")
+	local openid = string.format("openid_%d", app.time())
+	run_test(login_flow, openid, "ABCDEFG")
 end
 
 function run_test( f, ... )
