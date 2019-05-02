@@ -53,7 +53,7 @@ function net.ss_kickout_ntf( svrid, flowid, openid, reason )
 end
 
 function net.cs_create_role_req( ss, flowid, name )
-	log_info("cs_create_role_req", ss.number, flowid, name)
+	log_info("cs_create_role_req", ss.openid, flowid, name)
 	dbagent.ss_create_role_req(flowid, ss.openid, name)
 end
 
@@ -71,7 +71,7 @@ function net.ss_create_role_rsp( flowid, result, openid, role )
 end
 
 function net.cs_select_role_req( ss, flowid, roleid )
-	log_info("cs_select_role_req", ss.number, flowid, roleid)
+	log_info("cs_select_role_req", ss.openid, flowid, roleid)
 	dbagent.ss_load_role_req(flowid, ss.openid, roleid)
 end
 

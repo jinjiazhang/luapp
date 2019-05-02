@@ -21,7 +21,7 @@ function on_closed( number, errno )
 end
 
 function on_message( number, proto, ... )
-	log_info("server.on_message", number, proto, ...)
+	-- log_info("server.on_message", number, proto, ...)
 	ssmgr.on_call(number, proto, ...)
 end
 

@@ -82,7 +82,7 @@ function net.ss_update_room_rsp( svrid, flowid, result )
 end
 
 function net.ss_report_payload_rsp( svrid, flowid, result )
-	log_info("ss_report_payload_req", svrid, flowid, result)
+	-- log_info("ss_report_payload_req", svrid, flowid, result)
 	if result ~= errno.SUCCESS then
 		log_error("ss_report_payload_req result", result)
 	end

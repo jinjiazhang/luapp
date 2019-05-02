@@ -6,7 +6,7 @@ function net.cs_fetch_room_req( ss, flowid, mode )
 end
 
 function net.ss_fetch_room_rsp( svrid, flowid, result, roleid, room_list )
-	log_info("ss_fetch_room_rsp", svrid, flowid, result, roleid, #room_list)
+	log_info("ss_fetch_room_rsp", svrid, flowid, result, roleid, room_list)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
 		return

@@ -13,7 +13,7 @@ function init( ... )
 end
 
 function on_respond( token, ret_code, ... )
-	log_info("sqlpool.on_respond", token, ret_code, ...)
+	-- log_info("sqlpool.on_respond", token, ret_code, ...)
 	local proc_func = sqlpool_callbacks[token]
 	if proc_func then
 		sqlpool_callbacks[token] = nil

@@ -12,7 +12,6 @@ function assign_room( mode )
 	return 0
 end
 
-
 function update_payload( svrid, support_mode, role_count, room_count )
 	roomsvr_payload_table[svrid] = {
 		support_mode = support_mode,
@@ -23,7 +22,7 @@ function update_payload( svrid, support_mode, role_count, room_count )
 end
 
 function net.ss_report_payload_req( svrid, flowid, support_mode, role_count, room_count )
-	log_info("ss_report_payload_req", svrid, flowid, support_mode, role_count, room_count)
+	-- log_info("ss_report_payload_req", svrid, flowid, support_mode, role_count, room_count)
 	local result = update_payload(svrid, support_mode, role_count, room_count)
 	airport.call_roomsvr(svrid, "ss_report_payload_rsp", flowid, result)
 end

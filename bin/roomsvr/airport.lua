@@ -51,7 +51,7 @@ function on_closed( svrid, errno )
 end
 
 function on_message( svrid, proto, ... )
-	log_info("airport.on_message", svrid_itos(svrid), proto, ...)
+	-- log_info("airport.on_message", svrid_itos(svrid), proto, ...)
 	local proc_func = net[proto]
 	if not proc_func then
 		log_error("airport.on_message proc_func not found", proto)
