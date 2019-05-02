@@ -5,6 +5,7 @@ dbagent = import("listsvr/dbagent.lua")
 airport = import("listsvr/airport.lua")
 roommgr = import("listsvr/roommgr.lua")
 unique = import("listsvr/unique.lua")
+assign = import("listsvr/assign.lua")
 
 app.init = function ( ... )
 	config.init()

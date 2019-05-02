@@ -5,10 +5,11 @@ enum errno {
     FAILURE = 1;
     UNKNOWN = 2;
     SERVICE = 3;
-    CONFLICT = 4;
-    DATA_ERROR = 5;
-    NEED_RETRY = 6;
-    NOT_FOUND = 7;
+    OVERLOAD = 4;
+    CONFLICT = 5;
+    DATA_ERROR = 6;
+    NEED_RETRY = 7;
+    NOT_FOUND = 8;
 }
 
 enum process {

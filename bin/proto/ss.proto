@@ -154,3 +154,15 @@ message ss_update_room_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 }
+
+message ss_report_payload_req {
+	int64 flowid = 1;
+	int32 support_mode = 2;
+	int32 role_count = 3;
+	int32 room_count = 4;
+}
+
+message ss_report_payload_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}

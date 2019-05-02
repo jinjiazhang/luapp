@@ -19,6 +19,7 @@ router_port = 8087
 lobby_ip = "127.0.0.1"
 lobby_port = 8088
 
+support_mode = 1
 
 function init( ... )
 	

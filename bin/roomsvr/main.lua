@@ -17,6 +17,7 @@ end
 
 app.tick = function ( ... )
 	app.reload()
+	roommgr.tick()
 end
 
 app.idle = function ( ... )

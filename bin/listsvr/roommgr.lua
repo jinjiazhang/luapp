@@ -38,19 +38,24 @@ function net.ss_fetch_room_req( svrid, flowid, roleid, mode )
 	end
 
 	-- log_info("ss_fetch_room_rsp", app.tostring(room_list))
-	airport.call_target(svrid, "ss_fetch_room_rsp", flowid, errno.SUCCESS, roleid, room_list)
+	airport.call_lobby(svrid, "ss_fetch_room_rsp", flowid, errno.SUCCESS, roleid, room_list)
 end
 
 function net.ss_update_room_req( svrid, flowid, room )
 	log_info("ss_update_room_req", svrid, flowid, room)
 	local result = update_room(svrid, room)
-	airport.call_target(svrid, "ss_update_room_rsp", flowid, result)
+	airport.call_roomsvr(svrid, "ss_update_room_rsp", flowid, result)
 end
 
 function net.ss_create_room_req( svrid, flowid, lobbyid, role, roomid, cipher, name, mode, option )
 	log_info("ss_create_room_req", svrid, flowid, lobbyid, role, roomid, cipher, name, mode, option)
 	assert(roomid == 0 and cipher == 0)
-	local rsvrid = select_roomsvr(mode)
+	local rsvrid = assign.assign_room(mode)
+	if rsvrid == 0 then
+		airport.call_lobby(svrid, "ss_create_room_rsp", flowid, errno.OVERLOAD, role.roleid)
+		return
+	end
+
 	local room = proto.create("room_basic")
 	room.roomid = unique.gen_roomid()
 	room.cipher = gen_cipher(mode)
@@ -63,7 +68,7 @@ function net.ss_enter_room_req( svrid, flowid, lobbyid, role, roomid, cipher )
 	log_info("ss_enter_room_req", svrid, flowid, lobbyid, role, roomid, cipher)
 	local room = search_room(roomid, cipher)
 	if not room then
-		airport.call_target(svrid, "ss_enter_room_rsp", flowid, errno.NOT_FOUND, role.roleid)
+		airport.call_lobby(svrid, "ss_enter_room_rsp", flowid, errno.NOT_FOUND, role.roleid)
 		return
 	end
 
