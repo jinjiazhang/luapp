@@ -9,8 +9,8 @@ bool pack_message(lua_State* L, Message* message, char* output, size_t* size)
     int proto_len = (int)proto.size();
     int data_len = message->ByteSize();
     
-    int head_len = length_varint(proto_len);
-    int var_len = length_varint(data_len);
+    int head_len = count_varint(proto_len);
+    int var_len = count_varint(data_len);
     int left_size = *size;
 
     if (left_size < head_len + proto_len + var_len + data_len)
