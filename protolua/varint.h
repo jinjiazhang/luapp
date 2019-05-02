@@ -29,6 +29,11 @@ inline int encode_varint(char* data, int len, int value)
     if (count <= 0 || len < count)
         return -1;
 
+    if (count == 1) {
+        data[0] = (char)value;
+        return count;
+    }
+
     unsigned char c = 0x80;
     for (int idx = 0; idx < count; idx++) {
         data[count - idx - 1] = (value & 0x3F) | 0x80;
