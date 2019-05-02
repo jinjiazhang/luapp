@@ -30,7 +30,7 @@ end
 
 function enter_room( room, lobbyid, role )
 	if room.viewer_table[role.roleid] then
-		log_error("roommgr.enter_room exist role", role.roleid)
+		log_error("roommgr.enter_room role already exist", role.roleid)
 		return errno.CONFLICT
 	end
 
@@ -41,8 +41,8 @@ function enter_room( room, lobbyid, role )
 end
 
 function leave_room( room, roleid )
-	if not room.viewer_table[role.roleid] then
-		log_error("roommgr.enter_room exist role", role.roleid)
+	if not room.viewer_table[roleid] then
+		log_error("roommgr.leave_room role not exist", roleid)
 		return errno.DATA_ERROR
 	end
 
@@ -57,7 +57,7 @@ function leave_room( room, roleid )
 	return errno.SUCCESS
 end
 
-function search_room( roomid, cipher )
+function find_by_roomid( roomid, cipher )
 	return roomid_room_table[roomid]
 end
 
@@ -108,7 +108,7 @@ end
 
 function net.ss_enter_room_req( svrid, flowid, lobbyid, role, roomid, cipher )
 	log_info("ss_enter_room_req", svrid, flowid, lobbyid, role, roomid, cipher)
-	local room = search_room(roomid, cipher)
+	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(lobbyid, "ss_enter_room_rsp", flowid, errno.NOT_FOUND, role.roleid)
 		return
@@ -122,4 +122,21 @@ function net.ss_enter_room_req( svrid, flowid, lobbyid, role, roomid, cipher )
 
 	local rsvrid = room.rsvrid
 	airport.call_lobby(lobbyid, "ss_enter_room_rsp", flowid, errno.SUCCESS, role.roleid, room)
+end
+
+function net.ss_leave_room_req( svrid, flowid, roleid, roomid, reason )
+	log_info("ss_leave_room_req", svrid, flowid, roleid, roomid, reason)
+	local room = find_by_roomid(roomid)
+	if not room then
+		airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, errno.NOT_FOUND, roleid, roomid, reason)
+		return
+	end
+
+	local result = leave_room(room, roleid)
+	if result ~= errno.SUCCESS then
+		airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, result, roleid, roomid, reason)
+		return
+	end
+
+	airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, errno.SUCCESS, roleid, roomid, reason)
 end

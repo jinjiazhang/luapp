@@ -110,6 +110,7 @@ message cs_enter_room_rsp {
 
 message cs_leave_room_req {
 	int64 flowid = 1;
+	int64 roomid = 2;
 }
 
 message cs_leave_room_rsp {

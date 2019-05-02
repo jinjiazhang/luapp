@@ -52,7 +52,25 @@ function net.ss_enter_room_rsp( svrid, flowid, result, roleid, room )
 	ss.cs_enter_room_rsp(flowid, result, room)
 end
 
-function net.cs_leave_room_req( ss, flowid )
+function net.cs_leave_room_req( ss, flowid, roomid )
 	log_info("cs_leave_room_req", ss.roleid, flowid)
-	
+	local gaming = ss.role.gaming
+	if gaming.roomid == 0 then
+		ss.cs_leave_room_req(flowid, errno.SUCCESS)
+		return
+	end
+
+	assert(roomid == gaming.roomid)
+	airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, ss.role.roleid, gaming.roomid, leave_reason.LEAVE_ROOM)
+end
+
+function net.ss_leave_room_rsp( svrid, flowid, result, roleid, roomid, reason )
+	log_info("ss_leave_room_rsp", svrid, flowid, result, roleid, roomid, reason)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		return
+	end
+
+	rolemgr.on_leave_room(ss.role, roomid, reason, result)
+	ss.cs_leave_room_rsp(flowid, result)
 end

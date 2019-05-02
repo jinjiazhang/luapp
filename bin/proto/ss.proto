@@ -145,6 +145,28 @@ message ss_enter_room_rsp {
 	}
 }
 
+enum leave_reason {
+	LEAVE_ROOM = 0;
+	CREATE_ROOM = 1;
+	ENTER_ROOM = 2;
+	ROLE_OFFLINE = 3;
+}
+
+message ss_leave_room_req {
+	int64 flowid = 1;
+	int64 roleid = 2;
+	int64 roomid = 3;
+	leave_reason reason = 4;
+}
+
+message ss_leave_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+	int64 roomid = 4;
+	leave_reason reason = 5;
+}
+
 message ss_update_room_req {
 	int64 flowid = 1;
 	room_brief room = 2;

@@ -31,11 +31,15 @@ function on_logout( role )
 end
 
 function on_enter_room( role, rsvrid, room )
-	-- body
+	role.gaming.roomid = room.roomid
+	role.gaming.rsvrid = rsvrid
+	role.gaming.mode = room.mode
 end
 
-function on_leave_room( role )
-	-- body
+function on_leave_room( role, roomid, reason, result )
+	role.gaming.roomid = 0
+	role.gaming.rsvrid = 0
+	role.gaming.mode = 0
 end
 
 function tick(  )
