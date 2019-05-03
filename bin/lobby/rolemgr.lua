@@ -16,6 +16,7 @@ end
 
 function on_login( role )
 	log_info("rolemgr.on_login", role.roleid, role.name)
+	
 	role.online = app.time()
 	role.save_online = app.time()
 	roleid_role_table[role.roleid] = role
@@ -24,10 +25,24 @@ end
 
 function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
+	leave_room(role, 0, leave_reason.ROLE_OFFLINE)
+
 	role.offline = app.time()
 	role.save_online = nil
 	roleid_role_table[role.roleid] = nil
 	openid_role_table[role.openid] = nil
+end
+
+function is_gaming( role )
+	local gaming = role.gaming
+	return gaming.rsvrid > 0 and gaming.roomid > 0
+end
+
+function leave_room( role, flowid, reason )
+	local gaming = role.gaming
+	if gaming.rsvrid > 0 and gaming.roomid > 0 then
+		airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, role.roleid, gaming.roomid, reason)
+	end
 end
 
 function on_enter_room( role, rsvrid, room )
