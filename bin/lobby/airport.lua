@@ -63,6 +63,12 @@ end
 
 function on_transmit( roleid, proto, ... )
 	log_info("airport.on_transmit", roleid, proto, ...)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		return
+	end
+
+	ss[proto](...)
 end
 
 function call_lobby( lobbyid, ... )

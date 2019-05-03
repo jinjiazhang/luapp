@@ -108,6 +108,12 @@ message cs_enter_room_rsp {
 	}
 }
 
+message cs_enter_room_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	room_role viewer = 3;
+}
+
 message cs_leave_room_req {
 	int64 flowid = 1;
 	int64 roomid = 2;
@@ -116,4 +122,11 @@ message cs_leave_room_req {
 message cs_leave_room_rsp {
 	int64 flowid = 1;
 	errno result = 2;
+}
+
+message cs_leave_room_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int64 roleid = 3;
+	leave_reason reason = 4;
 }

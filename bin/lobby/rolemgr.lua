@@ -16,6 +16,7 @@ end
 
 function on_login( role )
 	log_info("rolemgr.on_login", role.roleid, role.name)
+	airport.reg_role(role.roleid)
 	
 	role.online = app.time()
 	role.save_online = app.time()
@@ -26,6 +27,7 @@ end
 function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
 	leave_room(role, 0, leave_reason.ROLE_OFFLINE)
+	airport.unreg_role(role.roleid)
 
 	role.offline = app.time()
 	role.save_online = nil

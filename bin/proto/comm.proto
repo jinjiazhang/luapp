@@ -33,6 +33,13 @@ enum room_status {
 	CLOSED = 3;
 }
 
+enum leave_reason {
+	LEAVE_ROOM = 0;
+	CREATE_ROOM = 1;
+	ENTER_ROOM = 2;
+	ROLE_OFFLINE = 3;
+}
+
 message texas_opt {
 	int32 ante = 1;
 	int32 small_blind = 2;

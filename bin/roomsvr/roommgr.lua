@@ -15,6 +15,9 @@ function create_room( lsvrid, roomid, cipher, name, mode, option )
 	local room = proto.create("room_detail")
 	room.viewer_table = {}
 	room.lsvrid = lsvrid
+	room.broadcast = function ( exceptid, proto, ... )
+		roommgr.broadcast(room, exceptid, proto, ...)
+	end
 
 	room.roomid = roomid
 	room.cipher = cipher
@@ -73,6 +76,15 @@ function report_payload(  )
 	end
 end
 
+function broadcast( room, exceptid, proto, ... )
+	for _, viewer in ipairs(room.viewers) do
+		if viewer.roleid ~= exceptid then
+			log_info(proto, viewer.roleid, ...)
+			airport.call_client(viewer.roleid, proto, ...)
+		end
+	end
+end
+
 function net.ss_update_room_rsp( svrid, flowid, result )
 	log_info("ss_update_room_rsp", svrid, flowid, result)
 	if result ~= errno.SUCCESS then
@@ -120,7 +132,8 @@ function net.ss_enter_room_req( svrid, flowid, lobbyid, role, roomid, cipher )
 		return
 	end
 
-	local rsvrid = room.rsvrid
+	local viewer = room.viewer_table[role.roleid]
+	room.broadcast(role.roleid, "cs_enter_room_ntf", 0, room.roomid, viewer)
 	airport.call_lobby(lobbyid, "ss_enter_room_rsp", flowid, errno.SUCCESS, role.roleid, room)
 end
 
@@ -138,5 +151,6 @@ function net.ss_leave_room_req( svrid, flowid, roleid, roomid, reason )
 		return
 	end
 
+	room.broadcast(roleid, "cs_leave_room_ntf", 0, room.roomid, roleid, reason)
 	airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, errno.SUCCESS, roleid, roomid, reason)
 end

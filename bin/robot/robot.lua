@@ -49,9 +49,9 @@ function login_flow( openid, token )
 		log_info("cs_create_room_req", result, app.tostring(room))
 		check_result("cs_create_room_req", result)
 
-		local result = client.cs_leave_room_req(room.roomid)
-		log_info("cs_leave_room_req", result)
-		check_result("cs_leave_room_req", result)
+		-- local result = client.cs_leave_room_req(room.roomid)
+		-- log_info("cs_leave_room_req", result)
+		-- check_result("cs_leave_room_req", result)
 	else
 		local info = room_list[1]
 		local result, room = client.cs_enter_room_req(info.roomid, info.cipher)
