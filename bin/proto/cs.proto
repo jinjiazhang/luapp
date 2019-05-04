@@ -130,3 +130,37 @@ message cs_leave_room_ntf {
 	int64 roleid = 3;
 	leave_reason reason = 4;
 }
+
+message cs_dismiss_room_req {
+	int64 flowid = 1;
+	int64 roomid = 2;
+}
+
+message cs_dismiss_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}
+
+message cs_dismiss_room_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	dismiss_reason reason = 3;
+}
+
+message cs_room_chat_req {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	string content = 3;
+}
+
+message cs_room_chat_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}
+
+message cs_room_chat_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int64 roleid = 3;
+	string content = 4;
+}

@@ -160,6 +160,34 @@ message ss_leave_room_rsp {
 	leave_reason reason = 5;
 }
 
+message ss_dismiss_room_req {
+	int64 flowid = 1;
+	int64 roleid = 2;
+	int64 roomid = 3;
+	leave_reason reason = 4;
+}
+
+message ss_dismiss_room_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+	int64 roomid = 4;
+	leave_reason reason = 5;
+}
+
+message ss_room_chat_req {
+	int64 flowid = 1;
+	int64 roleid = 2;
+	int64 roomid = 3;
+	string content = 4;
+}
+
+message ss_room_chat_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int64 roleid = 3;
+}
+
 message ss_update_room_req {
 	int64 flowid = 1;
 	room_brief room = 2;
