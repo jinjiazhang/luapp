@@ -42,7 +42,8 @@ enum leave_reason {
 
 enum dismiss_reason {
 	DISMISS_ROOM = 0;
-	TIMEOUT = 1;
+	ROOM_TIMEOUT = 1;
+	ROOM_GAMEOVER = 2;
 }
 
 message texas_opt {
