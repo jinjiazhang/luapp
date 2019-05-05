@@ -65,7 +65,7 @@ function leave_room( room, roleid )
 end
 
 function dismiss_room( room, roleid )
-	return errno.SUCCESS
+	return errno.PRIVILEGE
 end
 
 function room_chat( room, roleid, content )

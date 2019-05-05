@@ -7,9 +7,10 @@ enum errno {
     SERVICE = 3;
     OVERLOAD = 4;
     CONFLICT = 5;
-    DATA_ERROR = 6;
-    NEED_RETRY = 7;
-    NOT_FOUND = 8;
+    PRIVILEGE = 6
+    DATA_ERROR = 7;
+    NEED_RETRY = 8;
+    NOT_FOUND = 9;
 }
 
 enum process {
