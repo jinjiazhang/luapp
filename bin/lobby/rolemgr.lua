@@ -53,7 +53,13 @@ function on_enter_room( role, rsvrid, room )
 	role.gaming.mode = room.mode
 end
 
-function on_leave_room( role, roomid, reason, result )
+function on_leave_room( role, roomid, reason )
+	role.gaming.roomid = 0
+	role.gaming.rsvrid = 0
+	role.gaming.mode = 0
+end
+
+function on_room_dismiss( role, roomid, reason )
 	role.gaming.roomid = 0
 	role.gaming.rsvrid = 0
 	role.gaming.mode = 0

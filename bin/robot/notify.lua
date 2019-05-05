@@ -12,3 +12,11 @@ end
 function net.cs_leave_room_ntf( roomid, roleid, reason )
 	log_info("cs_leave_room_ntf", roomid, roleid, reason)
 end
+
+function net.cs_dismiss_room_ntf( roomid, reason )
+	log_info("cs_dismiss_room_ntf", roomid, reason)
+end
+
+function net.cs_room_chat_ntf( roomid, roleid, content )
+	log_info("cs_room_chat_ntf", roomid, roleid, content)
+end

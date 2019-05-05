@@ -68,6 +68,12 @@ function on_transmit( roleid, proto, ... )
 		return
 	end
 
+	local proc_func = net[proto]
+	if proc_func then
+		proc_func(ss, ...)
+		return
+	end
+
 	ss[proto](...)
 end
 

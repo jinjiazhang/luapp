@@ -64,14 +64,16 @@ function net.ss_enter_room_rsp( svrid, flowid, result, roleid, room )
 end
 
 function net.cs_leave_room_req( ss, flowid, roomid )
-	log_info("cs_leave_room_req", ss.roleid, flowid)
+	log_info("cs_leave_room_req", ss.roleid, flowid, roomid)
 	if not rolemgr.is_gaming(ss.role) then
 		ss.cs_leave_room_req(flowid, errno.SUCCESS)
 		return
 	end
 
-	assert(roomid == ss.role.gaming.roomid)
-	rolemgr.leave_room(ss.role, flowid, leave_reason.LEAVE_ROOM)
+	local roleid = ss.role.roleid
+	local gaming = ss.role.gaming
+	assert(roomid == gaming.roomid)
+	airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, roleid, gaming.roomid, leave_reason.LEAVE_ROOM)
 end
 
 function net.ss_leave_room_rsp( svrid, flowid, result, roleid, roomid, reason )
@@ -81,6 +83,66 @@ function net.ss_leave_room_rsp( svrid, flowid, result, roleid, roomid, reason )
 		return
 	end
 
-	rolemgr.on_leave_room(ss.role, roomid, reason, result)
-	ss.cs_leave_room_rsp(flowid, result)
+	if result == errno.SUCCESS then
+		rolemgr.on_leave_room(ss.role, roomid, reason)
+	end
+	ss.cs_leave_room_rsp(flowid, result, roomid)
+end
+
+function net.cs_dismiss_room_req( ss, flowid, roomid )
+	log_info("cs_dismiss_room_req", ss.roleid, flowid, roomid)
+	if not rolemgr.is_gaming(ss.role) then
+		ss.cs_dismiss_room_req(flowid, errno.SUCCESS)
+		return
+	end
+
+	local roleid = ss.role.roleid
+	local gaming = ss.role.gaming
+	assert(roomid == gaming.roomid)
+	airport.call_roomsvr(gaming.rsvrid, "ss_dismiss_room_req", flowid, roleid, gaming.roomid, dismiss_reason.DISMISS_ROOM)
+end
+
+function net.ss_dismiss_room_rsp( svrid, flowid, result, roleid, roomid, reason )
+	log_info("ss_dismiss_room_rsp", svrid, flowid, result, roleid, roomid, reason)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		return
+	end
+
+	if result == errno.SUCCESS then
+		rolemgr.on_room_dismiss(ss.role, roomid, reason)
+	end
+	ss.cs_dismiss_room_rsp(flowid, result, roomid)
+end
+
+function net.cs_dismiss_room_ntf( ss, flowid, roomid, reason )
+	log_info("cs_dismiss_room_ntf", ss.roleid, flowid, roomid, reason)
+	rolemgr.on_room_dismiss(ss.role, roomid, reason)
+	ss.cs_dismiss_room_ntf(flowid, roomid, reason)
+end
+
+function net.cs_room_chat_req( ss, flowid, roomid, content )
+	log_info("cs_room_chat_req", ss.roleid, flowid, roomid, content)
+	if not rolemgr.is_gaming(ss.role) then
+		ss.cs_dismiss_room_req(flowid, errno.DATA_ERROR)
+		return
+	end
+
+	local roleid = ss.role.roleid
+	local gaming = ss.role.gaming
+	assert(roomid == gaming.roomid)
+	airport.call_roomsvr(gaming.rsvrid, "ss_room_chat_req", flowid, roleid, gaming.roomid, content)
+end
+
+function net.ss_room_chat_rsp( svrid, flowid, result, roleid, roomid )
+	log_info("ss_room_chat_rsp", svrid, flowid, result, roleid, roomid)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		return
+	end
+
+	if result == errno.SUCCESS then
+		-- TODO record chat time
+	end
+	ss.cs_room_chat_rsp(flowid, result)
 end

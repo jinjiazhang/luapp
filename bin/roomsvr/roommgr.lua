@@ -11,6 +11,10 @@ function tick(  )
 	report_payload()
 end
 
+function find_by_roomid( roomid, cipher )
+	return roomid_room_table[roomid]
+end
+
 function create_room( lsvrid, roomid, cipher, name, mode, option )
 	local room = proto.create("room_detail")
 	room.viewer_table = {}
@@ -60,8 +64,18 @@ function leave_room( room, roleid )
 	return errno.SUCCESS
 end
 
-function find_by_roomid( roomid, cipher )
-	return roomid_room_table[roomid]
+function dismiss_room( room, roleid )
+	return errno.SUCCESS
+end
+
+function room_chat( room, roleid, content )
+	if not room.viewer_table[roleid] then
+		log_error("roommgr.room_chat role not exist", roleid)
+		return errno.DATA_ERROR
+	end
+	
+	room.broadcast(0, "cs_room_chat_ntf", 0, room.roomid, roleid, content)
+	return errno.SUCCESS
 end
 
 function update_listsvr( room )
@@ -153,4 +167,39 @@ function net.ss_leave_room_req( svrid, flowid, roleid, roomid, reason )
 
 	room.broadcast(roleid, "cs_leave_room_ntf", 0, room.roomid, roleid, reason)
 	airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, errno.SUCCESS, roleid, roomid, reason)
+end
+
+function net.ss_dismiss_room_req( svrid, flowid, roleid, roomid, reason )
+	log_info("ss_dismiss_room_req", svrid, flowid, roleid, roomid, reason)
+	local room = find_by_roomid(roomid)
+	if not room then
+		airport.call_lobby(svrid, "ss_dismiss_room_rsp", flowid, errno.NOT_FOUND, roleid, roomid, reason)
+		return
+	end
+
+	local result = dismiss_room(room, roleid)
+	if result ~= errno.SUCCESS then
+		airport.call_lobby(svrid, "ss_dismiss_room_rsp", flowid, result, roleid, roomid, reason)
+		return
+	end
+
+	room.broadcast(roleid, "cs_dismiss_room_ntf", 0, room.roomid, reason)
+	airport.call_lobby(svrid, "ss_dismiss_room_rsp", flowid, errno.SUCCESS, roleid, roomid, reason)
+end
+
+function net.ss_room_chat_req( svrid, flowid, roleid, roomid, content )
+	log_info("ss_room_chat_req", svrid, flowid, roleid, roomid, content)
+	local room = find_by_roomid(roomid)
+	if not room then
+		airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, errno.NOT_FOUND, roleid)
+		return
+	end
+
+	local result = room_chat(room, roleid, content)
+	if result ~= errno.SUCCESS then
+		airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, result, roleid)
+		return
+	end
+
+	airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, errno.SUCCESS, roleid)
 end
