@@ -7,7 +7,7 @@ enum errno {
     SERVICE = 3;
     OVERLOAD = 4;
     CONFLICT = 5;
-    PRIVILEGE = 6
+    PRIVILEGE = 6;
     DATA_ERROR = 7;
     NEED_RETRY = 8;
     NOT_FOUND = 9;
