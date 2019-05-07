@@ -117,7 +117,7 @@ bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size)
         PROTO_ASSERT(prototype);
 
         start += 1;
-        int limit = std::min(end, start + descriptor->field_count());
+        int limit = std::min(end, start + descriptor->field_count() - 1);
         std::unique_ptr<Message> message(prototype->New());
         std::vector<const FieldDescriptor*> fields = SortFieldsByNumber(descriptor);
         for (int i = 0; i < (int)fields.size() && start + i <= limit; i++)
