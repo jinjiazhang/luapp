@@ -149,17 +149,17 @@ message cs_dismiss_room_ntf {
 	dismiss_reason reason = 3;
 }
 
-message cs_room_chat_req {
+message cs_texas_chat_req {
 	int64 flowid = 1;
 	string content = 2;
 }
 
-message cs_room_chat_rsp {
+message cs_texas_chat_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 }
 
-message cs_room_chat_ntf {
+message cs_texas_chat_ntf {
 	int64 flowid = 1;
 	int64 roomid = 2;
 	int64 roleid = 3;

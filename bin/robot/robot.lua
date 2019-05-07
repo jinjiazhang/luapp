@@ -71,8 +71,8 @@ function login_flow( openid, token )
 		check_result("cs_enter_room_req", result)
 		my_room = room
 
-		local result = client.cs_room_chat_req("I am "..my_role.name)
-		log_info("cs_room_chat_req", result)
-		check_result("cs_room_chat_req", result)
+		local result = client.cs_texas_chat_req("I am "..my_role.name)
+		log_info("cs_texas_chat_req", result)
+		check_result("cs_texas_chat_req", result)
 	end
 end

@@ -121,8 +121,8 @@ function net.cs_dismiss_room_ntf( ss, flowid, roomid, reason )
 	ss.cs_dismiss_room_ntf(flowid, roomid, reason)
 end
 
-function net.cs_room_operate_req( ss, req_proto, flowid, ... )
-	log_info("cs_room_operate_req", ss.roleid, req_proto, flowid, ...)
+function net.cs_game_operate_req( ss, req_proto, flowid, ... )
+	log_info("cs_game_operate_req", ss.roleid, req_proto, flowid, ...)
 	local rsp_proto = string.gsub(req_proto, "_req", "_rsp")
 	if not rolemgr.is_gaming(ss.role) then
 		ss[rsp_proto](flowid, errno.DATA_ERROR)
@@ -131,11 +131,11 @@ function net.cs_room_operate_req( ss, req_proto, flowid, ... )
 
 	local roleid = ss.role.roleid
 	local gaming = ss.role.gaming
-	airport.call_roomsvr(gaming.rsvrid, "ss_room_operate_req", flowid, roleid, gaming.roomid, req_proto, flowid, ...)
+	airport.call_roomsvr(gaming.rsvrid, "ss_game_operate_req", flowid, roleid, gaming.roomid, req_proto, flowid, ...)
 end
 
-function net.ss_room_operate_rsp( svrid, flowid, result, roleid, rsp_proto, ... )
-	log_info("ss_room_operate_rsp", svrid, flowid, result, roleid, rsp_proto, ...)
+function net.ss_game_operate_rsp( svrid, flowid, result, roleid, rsp_proto, ... )
+	log_info("ss_game_operate_rsp", svrid, flowid, result, roleid, rsp_proto, ...)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
 		return

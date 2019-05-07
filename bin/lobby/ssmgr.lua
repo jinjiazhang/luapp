@@ -101,8 +101,8 @@ function on_stop( number )
 end
 
 proto_handle_table = {
-	cs_room_chat_req = "cs_room_operate_req",
-	cs_texas_sitdown_req = "cs_room_operate_req",
+	cs_texas_chat_req = "cs_game_operate_req",
+	cs_texas_sitdown_req = "cs_game_operate_req",
 }
 
 function on_call( number, proto, ... )

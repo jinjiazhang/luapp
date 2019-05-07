@@ -175,13 +175,13 @@ message ss_dismiss_room_rsp {
 	leave_reason reason = 5;
 }
 
-message ss_room_operate_req {
+message ss_game_operate_req {
 	int64 flowid = 1;
 	int64 roleid = 2;
 	int64 roomid = 3;
 }
 
-message ss_room_operate_rsp {
+message ss_game_operate_rsp {
 	int64 flowid = 1;
 	errno result = 2;
 	int64 roleid = 3;
