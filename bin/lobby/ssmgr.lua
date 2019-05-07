@@ -100,10 +100,21 @@ function on_stop( number )
 	kickout_session_table[number] = nil
 end
 
+proto_handle_table = {
+	cs_room_chat_req = "cs_room_operate_req",
+	cs_texas_sitdown_req = "cs_room_operate_req",
+}
+
 function on_call( number, proto, ... )
 	local ss = find_by_number(number)
 	if not ss then
 		log_error("ssmgr.on_call session not found", number)
+		return
+	end
+
+	if proto_handle_table[proto] then
+		local handle = proto_handle_table[proto]
+		net[handle](ss, proto, ...)
 		return
 	end
 

@@ -151,8 +151,7 @@ message cs_dismiss_room_ntf {
 
 message cs_room_chat_req {
 	int64 flowid = 1;
-	int64 roomid = 2;
-	string content = 3;
+	string content = 2;
 }
 
 message cs_room_chat_rsp {
@@ -165,4 +164,22 @@ message cs_room_chat_ntf {
 	int64 roomid = 2;
 	int64 roleid = 3;
 	string content = 4;
+}
+
+message cs_texas_sitdown_req {
+	int64 flowid = 1;
+	int32 seatid = 2;
+}
+
+message cs_texas_sitdown_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+	int32 seatid = 3;
+}
+
+message cs_texas_sitdown_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int64 roleid = 3;
+	int32 seatid = 4;
 }

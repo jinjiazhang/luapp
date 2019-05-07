@@ -19,6 +19,7 @@ function create_room( lsvrid, roomid, cipher, name, mode, option )
 	local room = proto.create("room_detail")
 	room.viewer_table = {}
 	room.lsvrid = lsvrid
+	room.cs_room_chat_req = room_chat
 	room.broadcast = function ( exceptid, proto, ... )
 		roommgr.broadcast(room, exceptid, proto, ...)
 	end
@@ -68,7 +69,7 @@ function dismiss_room( room, roleid )
 	return errno.PRIVILEGE
 end
 
-function room_chat( room, roleid, content )
+function room_chat( room, roleid, flowid, content )
 	if not room.viewer_table[roleid] then
 		log_error("roommgr.room_chat role not exist", roleid)
 		return errno.DATA_ERROR
@@ -187,19 +188,21 @@ function net.ss_dismiss_room_req( svrid, flowid, roleid, roomid, reason )
 	airport.call_lobby(svrid, "ss_dismiss_room_rsp", flowid, errno.SUCCESS, roleid, roomid, reason)
 end
 
-function net.ss_room_chat_req( svrid, flowid, roleid, roomid, content )
-	log_info("ss_room_chat_req", svrid, flowid, roleid, roomid, content)
+function net.ss_room_operate_req( svrid, flowid, roleid, roomid, req_proto, ... )
+	log_info("ss_room_operate_req", svrid, flowid, roleid, roomid, req_proto, ...)
+	local rsp_proto = string.gsub(req_proto, "_req", "_rsp")
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, errno.NOT_FOUND, roleid)
+		airport.call_lobby(svrid, "ss_room_operate_rsp", flowid, errno.NOT_FOUND, roleid, rsp_proto, flowid, errno.NOT_FOUND)
 		return
 	end
 
-	local result = room_chat(room, roleid, content)
-	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, result, roleid)
+	if not room[req_proto] then
+		airport.call_lobby(svrid, "ss_room_operate_rsp", flowid, errno.UNKNOWN, roleid, rsp_proto, flowid, errno.UNKNOWN)
 		return
 	end
 
-	airport.call_lobby(svrid, "ss_room_chat_rsp", flowid, errno.SUCCESS, roleid)
+	local rets = { room[req_proto](room, roleid, ...) }
+	local result = rets[1] or errno.FAILURE
+	airport.call_lobby(svrid, "ss_room_operate_rsp", flowid, result, roleid, rsp_proto, flowid, table.unpack(rets))
 end
