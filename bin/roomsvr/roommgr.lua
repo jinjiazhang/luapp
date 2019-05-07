@@ -9,6 +9,7 @@ last_report_payload = last_report_payload or 0
 roomid_room_table = roomid_room_table or {}
 
 function tick(  )
+	tick_room_list()
 	report_payload()
 end
 
@@ -47,6 +48,7 @@ function create_room( lsvrid, roomid, cipher, name, mode, option )
 	room.option = option
 
 	roomid_room_table[roomid] = room
+	room:on_create_room()
 	return room
 end
 
@@ -59,6 +61,7 @@ function enter_room( room, lobbyid, role )
 	role.lobbyid = lobbyid
 	table.insert(room.viewers, role)
 	room.viewer_table[role.roleid] = role
+	room:on_enter_room(role.roleid)
 	return errno.SUCCESS
 end
 
@@ -75,6 +78,7 @@ function leave_room( room, roleid )
 		end
 	end
 
+	room:on_leave_room(roleid)
 	room.viewer_table[roleid] = nil
 	return errno.SUCCESS
 end
@@ -83,8 +87,10 @@ function dismiss_room( room, roleid )
 	return errno.PRIVILEGE
 end
 
-function update_listsvr( room )
-	airport.call_listsvr(room.lsvrid, "ss_update_room_req", 0, room)
+function tick_room_list(  )
+	for _, room in pairs(roomid_room_table) do
+		room:on_tick_room()
+	end
 end
 
 function report_payload(  )
@@ -93,6 +99,10 @@ function report_payload(  )
 		airport.call_listsvr_all("ss_report_payload_req", 0, support_mode, total_role_count, total_room_count)
 		last_report_payload = mstime
 	end
+end
+
+function update_listsvr( room )
+	airport.call_listsvr(room.lsvrid, "ss_update_room_req", 0, room)
 end
 
 function broadcast( room, exceptid, proto, ... )
