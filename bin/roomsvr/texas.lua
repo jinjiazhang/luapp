@@ -1,7 +1,7 @@
--- 房间管理器
+-- 德州玩法
 module = "texas"
 
-function cs_texas_chat_req( room, roleid, flowid, content )
+function env.cs_texas_chat_req( room, roleid, flowid, content )
 	if not room.get_viewer(roleid) then
 		log_error("cs_texas_chat_req role not exist", roleid)
 		return errno.DATA_ERROR
