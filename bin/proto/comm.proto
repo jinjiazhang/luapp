@@ -9,8 +9,13 @@ enum errno {
     CONFLICT = 5;
     PRIVILEGE = 6;
     DATA_ERROR = 7;
-    NEED_RETRY = 8;
-    NOT_FOUND = 9;
+    PARAM_ERROR = 8;
+    NEED_RETRY = 9;
+    NOT_FOUND = 10;
+
+    TEXAS_HAS_SEAT = 101;
+    TEXAS_SEAT_USED = 102;
+    TEXAS_PLAYER_NUM = 103;
 }
 
 enum process {
@@ -62,15 +67,13 @@ message game_opt {
 	}
 }
 
-message room_role {
-	int64 roleid = 1;
-	string openid = 2;
-	string name = 3;
-	string icon = 4;
-	int32 gender = 5;
+message game_detail {
+	oneof oneof_game {
+		texas_detail texas = 1;
+	}
 }
 
-message game_player {
+message room_role {
 	int64 roleid = 1;
 	string openid = 2;
 	string name = 3;
@@ -96,9 +99,69 @@ message room_detail {
 	string name = 3;
 	room_status status = 4;
 	int32 create_time = 5;
-	int32 begin_time = 6;
+	int32 start_time = 6;
 	int32 close_time = 7;
 	game_mode mode = 8;
 	game_opt option = 9;
 	repeated room_role viewers = 15;
+	game_detail game = 16;
+}
+
+message texas_player {
+	int64 roleid = 1;
+	string openid = 2;
+	string name = 3;
+	string icon = 4;
+	int32 gender = 5;
+	int32 seatid = 6;
+	int64 chips = 7;
+	bool online = 8;
+	bool invalid = 9;
+}
+
+message texas_hole {
+	int32 seatid = 1;
+	int32 hand_card1 = 2;
+	int32 hand_card2 = 3;
+	int32 show_flag = 4;
+}
+
+message texas_public {
+	repeated int32 cards = 1;
+}
+
+enum tact_type {
+	TIMEOUT = 0;
+}
+
+message texas_act {
+	int32 seatid = 1;
+	int32 act_time = 2;
+	tact_type act_type = 3;
+	int64 act_chips = 4;
+}
+
+message texas_turn {
+	int32 start_time = 1;
+	repeated texas_act acts = 2;
+}
+
+message texas_round {
+	int32 button = 1;
+	int32 start_time = 2;
+	repeated texas_hole hole_cards = 3;
+	repeated texas_public public_cards = 4;
+	repeated texas_turn card_turns = 5;
+}
+
+message texas_detail {
+	repeated texas_player players = 1;
+	oneof oneof_round {
+		texas_round current = 2;	
+	}
+}
+
+message texas_record {
+	texas_round round = 1;
+	repeated texas_player players = 2;
 }

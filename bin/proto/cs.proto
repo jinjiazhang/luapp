@@ -174,12 +174,48 @@ message cs_texas_sitdown_req {
 message cs_texas_sitdown_rsp {
 	int64 flowid = 1;
 	errno result = 2;
-	int32 seatid = 3;
+	oneof oneof_player {
+		texas_player player = 3;	
+	}
 }
 
 message cs_texas_sitdown_ntf {
 	int64 flowid = 1;
 	int64 roomid = 2;
-	int64 roleid = 3;
-	int32 seatid = 4;
+	texas_player player = 3;
+}
+
+message cs_texas_standup_req {
+	int64 flowid = 1;
+}
+
+message cs_texas_standup_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}
+
+message cs_texas_standup_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int32 seatid = 3;
+}
+
+message cs_texas_start_req {
+	int64 flowid = 1;
+}
+
+message cs_texas_start_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}
+
+message cs_texas_start_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+}
+
+message cs_texas_round_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	texas_round current = 3;
 }
