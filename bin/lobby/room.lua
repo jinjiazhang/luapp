@@ -19,7 +19,7 @@ function net.cs_create_room_req( ss, flowid, name, mode, option )
 	log_info("cs_create_room_req", ss.roleid, flowid, name, mode, option)
 	if rolemgr.is_gaming(ss.role) then
 		ss.cs_create_room_rsp(flowid, errno.NEED_RETRY)
-		rolemgr.leave_room(ss.role, flowid, leave_reason.CREATE_ROOM)
+		rolemgr.leave_room(ss.role, flowid, reason_type.CREATE_ROOM)
 		return
 	end
 	
@@ -43,7 +43,7 @@ function net.cs_enter_room_req( ss, flowid, roomid, cipher )
 	log_info("cs_enter_room_req", ss.roleid, flowid, roomid, cipher)
 	if rolemgr.is_gaming(ss.role) then
 		ss.cs_enter_room_rsp(flowid, errno.NEED_RETRY)
-		rolemgr.leave_room(ss.role, flowid, leave_reason.ENTER_ROOM)
+		rolemgr.leave_room(ss.role, flowid, reason_type.ENTER_ROOM)
 		return
 	end
 	
@@ -74,7 +74,7 @@ function net.cs_leave_room_req( ss, flowid, roomid )
 	local roleid = ss.role.roleid
 	local gaming = ss.role.gaming
 	assert(roomid == gaming.roomid)
-	airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, roleid, gaming.roomid, leave_reason.LEAVE_ROOM)
+	airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, roleid, gaming.roomid, reason_type.LEAVE_ROOM)
 end
 
 function net.ss_leave_room_rsp( svrid, flowid, result, roleid, roomid, reason )

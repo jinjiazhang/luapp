@@ -26,7 +26,7 @@ end
 
 function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
-	leave_room(role, 0, leave_reason.ROLE_OFFLINE)
+	leave_room(role, 0, reason_type.ROLE_OFFLINE)
 	airport.unreg_role(role.roleid)
 
 	role.offline = app.time()

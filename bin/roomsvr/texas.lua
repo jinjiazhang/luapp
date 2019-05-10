@@ -40,7 +40,7 @@ function next_seat( room, seatid )
 	for i = 1, MAX_PLAYER_NUM do
 		local index = (seatid + i - 1) % MAX_PLAYER_NUM + 1
 		local player = game.players[index]
-		if player and not player.invalid then
+		if player and player.playing then
 			return player.seatid
 		end
 	end
@@ -96,7 +96,7 @@ function env.cs_texas_sitdown_req( room, roleid, flowid, seatid )
 		seatid = seatid,
 		chips = 0,
 		online = true,
-		invalid = false,
+		playing = true,
 	}
 
 	table.insert(game.players, player)

@@ -66,7 +66,7 @@ function on_transmit( roleid, proto, ... )
 end
 
 function call_lobby( lobbyid, ... )
-	if get_func_id(lobbyid) ~= process.LOBBY then
+	if get_func_id(lobbyid) ~= func_type.LOBBY then
 		log_error("airport.call_lobby funcid error", lobbyid)
 		return
 	end
@@ -74,7 +74,7 @@ function call_lobby( lobbyid, ... )
 end
 
 function call_roomsvr( rsvrid, ... )
-	if get_func_id(rsvrid) ~= process.ROOMSVR then
+	if get_func_id(rsvrid) ~= func_type.ROOMSVR then
 		log_error("airport.call_roomsvr funcid error", rsvrid)
 		return
 	end
@@ -82,7 +82,7 @@ function call_roomsvr( rsvrid, ... )
 end
 
 function call_listsvr( lsvrid, ... )
-	if get_func_id(lsvrid) ~= process.LISTSVR then
+	if get_func_id(lsvrid) ~= func_type.LISTSVR then
 		log_error("airport.call_listsvr funcid error", lsvrid)
 		return
 	end
@@ -90,9 +90,9 @@ function call_listsvr( lsvrid, ... )
 end
 
 function call_listsvr_mode( mode, ... )
-	port.call_random(process.LISTSVR, ...)
+	port.call_random(func_type.LISTSVR, ...)
 end
 
 function call_listsvr_all( ... )
-	port.call_group(process.LISTSVR, ...)
+	port.call_group(func_type.LISTSVR, ...)
 end

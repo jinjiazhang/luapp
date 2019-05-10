@@ -129,7 +129,7 @@ message cs_leave_room_ntf {
 	int64 flowid = 1;
 	int64 roomid = 2;
 	int64 roleid = 3;
-	leave_reason reason = 4;
+	reason_type reason = 4;
 }
 
 message cs_dismiss_room_req {
@@ -146,7 +146,7 @@ message cs_dismiss_room_rsp {
 message cs_dismiss_room_ntf {
 	int64 flowid = 1;
 	int64 roomid = 2;
-	dismiss_reason reason = 3;
+	reason_type reason = 3;
 }
 
 message cs_texas_chat_req {

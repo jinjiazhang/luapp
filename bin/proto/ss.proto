@@ -149,7 +149,7 @@ message ss_leave_room_req {
 	int64 flowid = 1;
 	int64 roleid = 2;
 	int64 roomid = 3;
-	leave_reason reason = 4;
+	reason_type reason = 4;
 }
 
 message ss_leave_room_rsp {
@@ -157,14 +157,14 @@ message ss_leave_room_rsp {
 	errno result = 2;
 	int64 roleid = 3;
 	int64 roomid = 4;
-	leave_reason reason = 5;
+	reason_type reason = 5;
 }
 
 message ss_dismiss_room_req {
 	int64 flowid = 1;
 	int64 roleid = 2;
 	int64 roomid = 3;
-	leave_reason reason = 4;
+	reason_type reason = 4;
 }
 
 message ss_dismiss_room_rsp {
@@ -172,7 +172,7 @@ message ss_dismiss_room_rsp {
 	errno result = 2;
 	int64 roleid = 3;
 	int64 roomid = 4;
-	leave_reason reason = 5;
+	reason_type reason = 5;
 }
 
 message ss_game_operate_req {

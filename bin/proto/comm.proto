@@ -18,7 +18,7 @@ enum errno {
     TEXAS_PLAYER_NUM = 103;
 }
 
-enum process {
+enum func_type {
 	LUAPP = 0;
 	ROUTER = 1;
 	DBAGENT = 2;
@@ -39,17 +39,14 @@ enum room_status {
 	CLOSED = 3;
 }
 
-enum leave_reason {
-	LEAVE_ROOM = 0;
+enum reason_type {
+	NOTHING = 0;
 	CREATE_ROOM = 1;
 	ENTER_ROOM = 2;
-	ROLE_OFFLINE = 3;
-}
-
-enum dismiss_reason {
-	DISMISS_ROOM = 0;
-	ROOM_TIMEOUT = 1;
-	ROOM_GAMEOVER = 2;
+	LEAVE_ROOM = 3;
+	DISMISS_ROOM = 4;
+	ROOM_TIMEOUT = 5;
+	ROLE_OFFLINE = 6;
 }
 
 message texas_opt {
@@ -116,13 +113,13 @@ message texas_player {
 	int32 seatid = 6;
 	int64 chips = 7;
 	bool online = 8;
-	bool invalid = 9;
+	bool playing = 9;
 }
 
 message texas_hole {
 	int32 seatid = 1;
-	int32 hand_card1 = 2;
-	int32 hand_card2 = 3;
+	int32 hole_card1 = 2;
+	int32 hole_card2 = 3;
 	int32 show_flag = 4;
 }
 
@@ -130,27 +127,26 @@ message texas_public {
 	repeated int32 cards = 1;
 }
 
-enum tact_type {
+enum action_type {
 	TIMEOUT = 0;
 }
 
-message texas_act {
+message texas_action {
 	int32 seatid = 1;
 	int32 act_time = 2;
-	tact_type act_type = 3;
+	action_type act_type = 3;
 	int64 act_chips = 4;
 }
 
 message texas_turn {
 	int32 start_time = 1;
-	repeated texas_act acts = 2;
+	repeated texas_action actions = 2;
 }
 
 message texas_round {
 	int32 button = 1;
 	int32 start_time = 2;
-	repeated texas_hole hole_cards = 3;
-	repeated texas_public public_cards = 4;
+	texas_public public_cards = 4;
 	repeated texas_turn card_turns = 5;
 }
 
@@ -163,5 +159,6 @@ message texas_detail {
 
 message texas_record {
 	texas_round round = 1;
+	repeated texas_hole hole_cards = 3;
 	repeated texas_player players = 2;
 }
