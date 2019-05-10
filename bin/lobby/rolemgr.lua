@@ -1,7 +1,7 @@
 -- 会话管理器
 module = "rolemgr"
-openid_role_table = number_role_table or {}
-roleid_role_table = number_role_table or {}
+openid_role_table = openid_role_table or {}
+roleid_role_table = roleid_role_table or {}
 
 SAVE_ONLINE_INTERVAL = 25    	-- 保存在线状态的时间间隔
 ONLINE_TICK_MAX_NUM = 10		-- 每次tick最多保存多少个在线状态

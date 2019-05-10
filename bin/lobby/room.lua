@@ -47,7 +47,8 @@ function net.cs_enter_room_req( ss, flowid, roomid, cipher )
 		return
 	end
 	
-	airport.call_listsvr_mode(mode, "ss_enter_room_req", flowid, app.svrid(), ss.role, roomid, cipher)
+	-- TODO calc mode
+	airport.call_listsvr_mode(0, "ss_enter_room_req", flowid, app.svrid(), ss.role, roomid, cipher)
 end
 
 function net.ss_enter_room_rsp( svrid, flowid, result, roleid, room )

@@ -175,7 +175,7 @@ function net.ss_leave_room_req( svrid, flowid, roleid, roomid, reason )
 		return
 	end
 
-	local result = leave_room(room, roleid)
+	local result = leave_room(room, roleid, reason)
 	if result ~= errno.SUCCESS then
 		airport.call_lobby(svrid, "ss_leave_room_rsp", flowid, result, roleid, roomid, reason)
 		return
