@@ -100,7 +100,7 @@ function net.cs_dismiss_room_req( ss, flowid, roomid )
 	local roleid = ss.role.roleid
 	local gaming = ss.role.gaming
 	assert(roomid == gaming.roomid)
-	airport.call_roomsvr(gaming.rsvrid, "ss_dismiss_room_req", flowid, roleid, gaming.roomid, dismiss_reason.DISMISS_ROOM)
+	airport.call_roomsvr(gaming.rsvrid, "ss_dismiss_room_req", flowid, roleid, gaming.roomid, reason_type.DISMISS_ROOM)
 end
 
 function net.ss_dismiss_room_rsp( svrid, flowid, result, roleid, roomid, reason )
