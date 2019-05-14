@@ -25,7 +25,7 @@ function deal_card( game, hand, round_idx )
 	elseif round_idx == 1 then
 		deal_flop_card(game, hand)
 	elseif round_idx == 2 then
-		deal_trun_card(game, hand)
+		deal_turn_card(game, hand)
 	elseif round_idx == 3 then
 		deal_river_card(game, hand)
 	else
@@ -41,7 +41,7 @@ function deal_flop_card( game, hand )
 
 end
 
-function deal_trun_card( game, hand )
+function deal_turn_card( game, hand )
 
 end
 
