@@ -123,10 +123,6 @@ message texas_seat {
 	int32 show_flag = 4;
 }
 
-message texas_public {
-	repeated int32 cards = 1;
-}
-
 enum action_type {
 	TIMEOUT = 0;
 }
@@ -146,8 +142,8 @@ message texas_round {
 message texas_hand {
 	int32 button = 1;
 	int32 start_time = 2;
-	texas_public public_cards = 3;
-	repeated texas_round card_rounds = 4;
+	repeated int32 community = 3;
+	repeated texas_round rounds = 4;
 }
 
 message texas_detail {

@@ -30,9 +30,8 @@ function on_tick_room( room )
 	-- log_info("on_tick_room", room.roomid)
 end
 
-function on_game_start( room, roleid )
-	local game = room.game.texas
-	start_hand(room, 1)
+function on_game_start( room )
+	start_new_hand(room)
 end
 
 function next_seat( room, seatid )
@@ -47,16 +46,22 @@ function next_seat( room, seatid )
 	return seatid
 end
 
-function start_hand( room, index )
+function start_new_hand( room )
 	local game = room.game.texas
 	local hand = proto.create("texas_hand")
 	hand.button = next_seat(room, game.button)
 	hand.start_time = app.mstime() - room.start_time * 1000
 	dealer.shuffle_card(game, hand)
-	dealer.deal_card(game, hand, 0)
+	start_new_round(room, hand)
 
 	game.current = hand
 	table.insert(game.hands, hand)
+end
+
+function start_new_round( room, hand )
+	local game = room.game.texas
+	local round_idx = #hand.rounds
+	dealer.deal_card(game, hand, round_idx)
 end
 
 function env.cs_texas_chat_req( room, roleid, flowid, content )
