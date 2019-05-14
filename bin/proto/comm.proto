@@ -138,28 +138,28 @@ message texas_action {
 	int64 act_chips = 4;
 }
 
-message texas_turn {
+message texas_round {
 	int32 start_time = 1;
 	repeated texas_action actions = 2;
 }
 
-message texas_round {
+message texas_hand {
 	int32 button = 1;
 	int32 start_time = 2;
 	texas_public public_cards = 3;
-	repeated texas_turn card_turns = 4;
+	repeated texas_round card_rounds = 4;
 }
 
 message texas_detail {
 	repeated texas_player players = 1;
-	oneof oneof_round {
-		texas_round current = 2;	
+	oneof oneof_hand {
+		texas_hand current = 2;	
 	}
 }
 
 message texas_record {
 	int64 roomid = 1;
-	texas_round round = 2;
+	texas_hand hand = 2;
 	repeated texas_seat seats = 3;
 	repeated texas_player players = 4;
 }

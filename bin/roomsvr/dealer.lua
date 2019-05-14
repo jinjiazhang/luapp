@@ -2,7 +2,7 @@
 MIN_PLAYER_NUM = 2
 MAX_PLAYER_NUM = 9
 
-function shuffle_card( game, round )
+function shuffle_card( game, hand )
 	local cards = {
 		01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13,
 		14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
@@ -16,37 +16,37 @@ function shuffle_card( game, round )
 		cards[i], cards[j] = cards[j], cards[i]
 	end
 
-	round.cards = cards
+	hand.cards = cards
 end
 
-function deal_card( game, round, turn_idx )
-	if turn_idx == 0 then
-		deal_hole_card(game, round)
-	elseif turn_idx == 1 then
-		deal_flop_card(game, round)
-	elseif turn_idx == 2 then
-		deal_turn_card(game, round)
-	elseif turn_idx == 3 then
-		deal_river_card(game, round)
+function deal_card( game, hand, round_idx )
+	if round_idx == 0 then
+		deal_hole_card(game, hand)
+	elseif round_idx == 1 then
+		deal_flop_card(game, hand)
+	elseif round_idx == 2 then
+		deal_trun_card(game, hand)
+	elseif round_idx == 3 then
+		deal_river_card(game, hand)
 	else
-		log_error("deal_card turn index invalid", turn_idx)
+		log_error("deal_card round index invalid", round_idx)
 	end
 end
 
-function deal_hole_card( game, round )
+function deal_hole_card( game, hand )
 
 end
 
-function deal_flop_card( game, round )
+function deal_flop_card( game, hand )
 
 end
 
-function deal_turn_card( game, round )
+function deal_trun_card( game, hand )
 
 end
 
-function deal_river_card( game, round )
-	local cards = round.cards
+function deal_river_card( game, hand )
+	local cards = hand.cards
 	table.remove(cards, 1)
 	
 end

@@ -12,7 +12,7 @@ function on_create_room( room )
 	game.seat_table = {} -- seatid -> texas_player
 	game.player_table = {} -- roleid -> texas_player
 	game.button = 0
-	game.rounds = {}
+	game.hands = {}
 	game.current = nil
 
 	room.game.texas = game
@@ -32,7 +32,7 @@ end
 
 function on_game_start( room, roleid )
 	local game = room.game.texas
-	start_round(room, 1)
+	start_hand(room, 1)
 end
 
 function next_seat( room, seatid )
@@ -47,16 +47,16 @@ function next_seat( room, seatid )
 	return seatid
 end
 
-function start_round( room, index )
+function start_hand( room, index )
 	local game = room.game.texas
-	local round = proto.create("texas_round")
-	round.button = next_seat(room, game.button)
-	round.start_time = app.mstime() - room.start_time * 1000
-	dealer.shuffle_card(game, round)
-	dealer.deal_card(game, round, 0)
+	local hand = proto.create("texas_hand")
+	hand.button = next_seat(room, game.button)
+	hand.start_time = app.mstime() - room.start_time * 1000
+	dealer.shuffle_card(game, hand)
+	dealer.deal_card(game, hand, 0)
 
-	game.current = round
-	table.insert(game.rounds, round)
+	game.current = hand
+	table.insert(game.hands, hand)
 end
 
 function env.cs_texas_chat_req( room, roleid, flowid, content )
