@@ -1,10 +1,10 @@
 -- 服务器配置
 module = "config"
 
-redis_ip = "10.125.30.158"
+redis_ip = "jinjiazh.com"
 redis_port = 6379
 
-mysql_ip = "10.125.30.158"
+mysql_ip = "jinjiazh.com"
 mysql_port = 3306
 mysql_user = "jinjiazh"
 mysql_pass = "10086"

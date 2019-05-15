@@ -84,10 +84,10 @@ function net.ss_leave_room_rsp( svrid, flowid, result, roleid, roomid, reason )
 		return
 	end
 
-	if result == errno.SUCCESS then
-		rolemgr.on_leave_room(ss.role, roomid, reason)
+	rolemgr.on_leave_room(ss.role, roomid, reason)
+	if reason == reason_type.LEAVE_ROOM then
+		ss.cs_leave_room_rsp(flowid, result, roomid)
 	end
-	ss.cs_leave_room_rsp(flowid, result, roomid)
 end
 
 function net.cs_dismiss_room_req( ss, flowid, roomid )
