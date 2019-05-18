@@ -227,7 +227,7 @@ int resultbuf::parse_required(MYSQL_STMT* stmt, MYSQL_BIND& bind, Message* messa
     do { \
         CType value; \
         WireFormatLite::ReadPrimitive<CType, WType>(input, &value); \
-        reflection->##AddFunc##(message, field, value); \
+        reflection->AddFunc(message, field, value); \
     } while (0)
 
 int decode_single(CodedInputStream* input, Message* message, const FieldDescriptor* field)
