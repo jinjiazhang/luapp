@@ -33,20 +33,39 @@ function deal_card( game, hand, round_idx )
 	end
 end
 
-function deal_hole_card( game, hand )
+function deal_player_card(game, hand)
+	local seatid = game.button
+	for i = 1, MAX_PLAYER_NUM do
+		local nextid = seatid
 
+		
+	end
+end
+
+function deal_hole_card( game, hand, seatid )
+	
 end
 
 function deal_flop_card( game, hand )
-
+	local cards = hand.cards
+	local card1 = table.remove(cards)
+	local card2 = table.remove(cards)
+	local card3 = table.remove(cards)
+	table.insert(hand.communities, card1)
+	table.insert(hand.communities, card2)
+	table.insert(hand.communities, card3)
 end
 
 function deal_turn_card( game, hand )
-
+	local cards = hand.cards
+	table.remove(cards)
+	local card = table.remove(cards)
+	table.insert(hand.communities, card)
 end
 
 function deal_river_card( game, hand )
 	local cards = hand.cards
-	table.remove(cards, 1)
-	
+	table.remove(cards)
+	local card = table.remove(cards)
+	table.insert(hand.communities, card)
 end

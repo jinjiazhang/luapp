@@ -21,7 +21,7 @@ void set_title(unsigned int svrid, const char* entry)
 unsigned int svrid_stoi(const std::string& text)
 {
     unsigned int bytes[4] = {0};
-    scanf(text.c_str(), "%d.%d.%d.%d", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
+    sscanf(text.c_str(), "%d.%d.%d.%d", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
     return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3] << 0);
 }
 
