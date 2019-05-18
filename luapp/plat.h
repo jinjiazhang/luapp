@@ -5,6 +5,8 @@
 #include "protolog/protolog.h"
 
 #ifdef __linux__
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #else
 using int64_t = long long;

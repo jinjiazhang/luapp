@@ -119,7 +119,21 @@ int lua_logfatal(lua_State* L)
 void app_daemon()
 {
 #ifdef __linux__
+    pid_t pid = fork();
+    if (pid != 0)
+        exit(0);
 
+    setsid();
+    umask(0);
+
+    int null = open("/dev/null", O_RDWR);
+    if (null != -1)
+    {
+        dup2(null, STDIN_FILENO);
+        dup2(null, STDOUT_FILENO);
+        dup2(null, STDERR_FILENO);
+        close(null);
+    }
 #endif
 }
 
