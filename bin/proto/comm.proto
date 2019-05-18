@@ -116,7 +116,7 @@ message texas_player {
 	bool playing = 9;
 }
 
-message texas_seat {
+message texas_privacy {
 	int32 seatid = 1;
 	int32 hole_card1 = 2;
 	int32 hole_card2 = 3;
@@ -142,7 +142,7 @@ message texas_round {
 message texas_hand {
 	int32 button = 1;
 	int32 start_time = 2;
-	repeated int32 community = 3;
+	repeated int32 communities = 3;
 	repeated texas_round rounds = 4;
 }
 
@@ -156,6 +156,6 @@ message texas_detail {
 message texas_record {
 	int64 roomid = 1;
 	texas_hand hand = 2;
-	repeated texas_seat seats = 3;
+	repeated texas_privacy privacies = 3;
 	repeated texas_player players = 4;
 }

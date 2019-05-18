@@ -15,6 +15,7 @@ function on_create_room( room )
 	game.hands = {}
 	game.current = nil
 
+	game.broadcast = room.broadcast
 	room.game.texas = game
 end
 
@@ -30,12 +31,11 @@ function on_tick_room( room )
 	-- log_info("on_tick_room", room.roomid)
 end
 
-function on_game_start( room )
-	start_new_hand(room)
+function on_game_start( game )
+	start_new_hand(game)
 end
 
-function next_seat( room, seatid )
-	local game = room.game.texas
+function next_seat( game, seatid )
 	for i = 1, MAX_PLAYER_NUM do
 		local index = (seatid + i - 1) % MAX_PLAYER_NUM + 1
 		local player = game.players[index]
@@ -46,20 +46,19 @@ function next_seat( room, seatid )
 	return seatid
 end
 
-function start_new_hand( room )
-	local game = room.game.texas
+function start_new_hand( game )
 	local hand = proto.create("texas_hand")
-	hand.button = next_seat(room, game.button)
-	hand.start_time = app.mstime() - room.start_time * 1000
+	hand.privacies = {}
+	hand.button = next_seat(game, game.button)
+	hand.start_time = app.mstime() - game.start_time * 1000
 	dealer.shuffle_card(game, hand)
-	start_new_round(room, hand)
+	start_new_round(game, hand)
 
 	game.current = hand
 	table.insert(game.hands, hand)
 end
 
-function start_new_round( room, hand )
-	local game = room.game.texas
+function start_new_round( game, hand )
 	local round_idx = #hand.rounds
 	dealer.deal_card(game, hand, round_idx)
 end
@@ -155,7 +154,8 @@ function env.cs_texas_start_req( room, roleid, flowid )
 
 	room.status = room_status.PLAYING
 	room.start_time = app.time()
+	game.start_time = room.start_time
 	room.broadcast(roleid, "cs_texas_start_ntf", 0, room.roomid)
-	on_game_start(room)
+	on_game_start(game)
 	return errno.SUCCESS
 end
