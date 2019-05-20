@@ -21,7 +21,7 @@ end
 
 function deal_card( game, hand, round_idx )
 	if round_idx == 0 then
-		deal_hole_card(game, hand)
+		deal_privacy_card(game, hand)
 	elseif round_idx == 1 then
 		deal_flop_card(game, hand)
 	elseif round_idx == 2 then
@@ -33,17 +33,22 @@ function deal_card( game, hand, round_idx )
 	end
 end
 
-function deal_player_card(game, hand)
+function deal_privacy_card(game, hand)
+	local cards = hand.cards
 	local seatid = game.button
 	for i = 1, MAX_PLAYER_NUM do
-		local nextid = seatid
-
+		local privacy = proto.create("texas_privacy")
+		privacy.seatid = seatid
+		privacy.hole_card1 = table.remove(cards)
+		privacy.hole_card2 = table.remove(cards)
+		privacy.show_flag = 0
+		table.insert(hand.privacies, privacy)
 		
+		seatid = texas.next_seat(game, seatid)
+		if seatid == game.button then
+			break
+		end
 	end
-end
-
-function deal_hole_card( game, hand, seatid )
-	
 end
 
 function deal_flop_card( game, hand )
