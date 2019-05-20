@@ -4,13 +4,13 @@
 #include <sstream>
 #include "plat.h"
 
-#ifndef __linux__
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 
 void set_title(unsigned int svrid, const char* entry)
 {
-#ifndef __linux__
+#ifdef _MSC_VER
     std::stringstream stream;
     stream << entry << " --id=" << svrid_itos(svrid);
     SetConsoleTitle(stream.str().c_str());
@@ -43,7 +43,7 @@ void sys_sleep(int time)
 
 int64_t sys_mstime()
 {
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
     return std::chrono::system_clock::now().time_since_epoch().count() / 1000000;
 #else
     return std::chrono::system_clock::now().time_since_epoch().count() / 10000;
@@ -118,7 +118,7 @@ int lua_logfatal(lua_State* L)
 
 void app_daemon()
 {
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
     pid_t pid = fork();
     if (pid != 0)
         exit(0);

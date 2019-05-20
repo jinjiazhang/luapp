@@ -25,7 +25,7 @@ include_directories(../thirdparty/protobuf/src)
 include_directories(../thirdparty/curl/include)
 
 
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(${PROJECT_NAME} gateway protosql proroute protonet protolua lualib luaredis lua log4cplusS libprotobuf mariadbclient libcurl hiredis dl pthread)
 ELSE ()
     target_link_libraries(${PROJECT_NAME} gateway protosql proroute protonet protolua lualib luaredis lua log4cplusS libprotobuf mariadbclient libcurl wldap32 hiredis)

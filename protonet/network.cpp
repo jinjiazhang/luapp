@@ -29,7 +29,11 @@ bool network::init()
 {
 #ifdef __linux__
     frame_ = new fepoll();
-#else
+#endif
+#ifdef __APPLE__
+    frame_ = nullptr;
+#endif
+#ifdef _MSC_VER
     frame_ = new fselect();
 #endif
     if (!frame_->init())
