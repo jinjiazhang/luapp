@@ -1,6 +1,4 @@
 -- 德州玩法
-MIN_PLAYER_NUM = 2
-MAX_PLAYER_NUM = 9
 
 function shuffle_card( game, hand )
 	local cards = {
@@ -36,7 +34,7 @@ end
 function deal_privacy_card( game, hand, round )
 	local cards = hand.cards
 	local seatid = game.button
-	for i = 1, MAX_PLAYER_NUM do
+	for i = 1, texas.MAX_PLAYER_NUM do
 		local card1 = table.remove(cards)
 		local card2 = table.remove(cards)
 		local privacy = proto.create("texas_privacy")

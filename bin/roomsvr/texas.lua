@@ -36,6 +36,7 @@ function on_tick_room( room )
 
 	local game = room.game.texas
 	check_new_hand(game)
+	scorer.tick_timeout(game)
 end
 
 function next_seat( game, seatid )
@@ -169,4 +170,28 @@ function env.cs_texas_start_req( room, roleid, flowid )
 	room.start_time = app.time()
 	room.broadcast(roleid, "cs_texas_start_ntf", 0, room.roomid)
 	return errno.SUCCESS
+end
+
+function env.cs_texas_action_req( room, roleid, flowid, hand_idx, round_idx, act_type, act_chips )
+	if room.status ~= room_status.PLAYING then
+		return errno.DATA_ERROR
+	end
+
+	local game = room.game.texas
+	local player = game.player_table[roleid]
+	if not player then
+		return errno.DATA_ERROR
+	end
+
+	local hand = game.current
+	if not hand or hand.index ~= hand_idx then
+		return errno.PARAM_ERROR
+	end
+
+	local round = hand.rounds[#hand.rounds]
+	if not round or round.index ~= round_idx then
+		return errno.PARAM_ERROR
+	end
+
+	return scorer.proc_action(game, player, act_type, act_chips)
 end

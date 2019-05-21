@@ -228,3 +228,24 @@ message cs_texas_deal_ntf {
 	int32 start_time = 5;
 	repeated int32 cards = 6;
 }
+
+message cs_texas_action_req {
+	int64 flowid = 1;
+	int32 hand_idx = 2;
+	int32 round_idx = 3;
+	action_type act_type = 4;
+	int64 act_chips = 5;
+}
+
+message cs_texas_action_rsp {
+	int64 flowid = 1;
+	errno result = 2;
+}
+
+message cs_texas_action_ntf {
+	int64 flowid = 1;
+	int64 roomid = 2;
+	int32 hand_idx = 3;
+	int32 round_idx = 4;
+	texas_action action = 5;
+}
