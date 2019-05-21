@@ -30,10 +30,12 @@ end
 
 function on_tick_room( room )
 	-- log_info("on_tick_room", room.roomid)
-end
+	if room.status ~= room_status.PLAYING then
+		return
+	end
 
-function on_game_start( game )
-	start_new_hand(game)
+	local game = room.game.texas
+	check_new_hand(game)
 end
 
 function next_seat( game, seatid )
@@ -45,6 +47,12 @@ function next_seat( game, seatid )
 		end
 	end
 	return seatid
+end
+
+function check_new_hand( game )
+	if not game.current then
+		start_new_hand(game)
+	end
 end
 
 function start_new_hand( game )
@@ -156,9 +164,9 @@ function env.cs_texas_start_req( room, roleid, flowid )
 		return errno.TEXAS_PLAYER_NUM
 	end
 
+	game.button = player.seatid
 	room.status = room_status.PLAYING
 	room.start_time = app.time()
 	room.broadcast(roleid, "cs_texas_start_ntf", 0, room.roomid)
-	on_game_start(game)
 	return errno.SUCCESS
 end

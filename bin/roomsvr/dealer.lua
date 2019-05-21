@@ -47,10 +47,10 @@ function deal_privacy_card( game, hand, round )
 		table.insert(hand.privacies, privacy)
 
 		local player = game.seat_table[seatid]
-		if player then
-			local deal_cards = { card1, card2 }
-			airport.call_client(player.roleid, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
-		end
+		assert(player ~= nil)
+		local deal_cards = { card1, card2 }
+		airport.call_client(player.roleid, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
+		log_info("deal_privacy_card", game.roomid, hand.index, round.index, seatid, player.name, card1, card2)
 		
 		seatid = texas.next_seat(game, seatid)
 		if seatid == game.button then
