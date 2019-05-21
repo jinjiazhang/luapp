@@ -1,3 +1,3 @@
 #!/bin/sh
 
-killall -q luapp
+killall luapp
