@@ -5,7 +5,7 @@ waittings = waittings or {}
 function wait_for_notify( name )
 	local co = coroutine.running()
 	waittings[name] = co
-	coroutine.yield(co)
+	return coroutine.yield(co)
 end
 
 function on_recv_notify( name, ... )
@@ -54,4 +54,14 @@ end
 function net.cs_texas_start_ntf( roomid )
 	log_info("cs_texas_start_ntf", roomid)
 	on_recv_notify("texas_start", roomid)
+end
+
+function net.cs_texas_hand_ntf( roomid, hand )
+	log_info("cs_texas_hand_ntf", roomid, hand)
+	on_recv_notify("texas_hand", roomid, hand)
+end
+
+function net.cs_texas_deal_ntf( roomid, hand_idx, round_idx, start_time, cards )
+	log_info("cs_texas_deal_ntf", roomid, hand_idx, round_idx, start_time, cards)
+	on_recv_notify("texas_deal", roomid, hand_idx, round_idx, start_time, cards)
 end

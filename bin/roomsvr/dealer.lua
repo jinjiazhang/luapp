@@ -19,30 +19,38 @@ function shuffle_card( game, hand )
 	hand.cards = cards
 end
 
-function deal_card( game, hand, round_idx )
-	if round_idx == 0 then
-		deal_privacy_card(game, hand)
-	elseif round_idx == 1 then
-		deal_flop_card(game, hand)
-	elseif round_idx == 2 then
-		deal_turn_card(game, hand)
-	elseif round_idx == 3 then
-		deal_river_card(game, hand)
+function deal_card( game, hand, round )
+	if round.index == 1 then
+		deal_privacy_card(game, hand, round)
+	elseif round.index == 2 then
+		deal_flop_card(game, hand, round)
+	elseif round.index == 3 then
+		deal_turn_card(game, hand, round)
+	elseif round.index == 4 then
+		deal_river_card(game, hand, round)
 	else
-		log_error("deal_card round index invalid", round_idx)
+		log_error("deal_card round index invalid", round.index)
 	end
 end
 
-function deal_privacy_card(game, hand)
+function deal_privacy_card( game, hand, round )
 	local cards = hand.cards
 	local seatid = game.button
 	for i = 1, MAX_PLAYER_NUM do
+		local card1 = table.remove(cards)
+		local card2 = table.remove(cards)
 		local privacy = proto.create("texas_privacy")
 		privacy.seatid = seatid
-		privacy.hole_card1 = table.remove(cards)
-		privacy.hole_card2 = table.remove(cards)
+		privacy.hole_card1 = card1
+		privacy.hole_card2 = card2
 		privacy.show_flag = 0
 		table.insert(hand.privacies, privacy)
+
+		local player = game.seat_table[seatid]
+		if player then
+			local deal_cards = { card1, card2 }
+			airport.call_client(player.roleid, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
+		end
 		
 		seatid = texas.next_seat(game, seatid)
 		if seatid == game.button then
@@ -51,7 +59,7 @@ function deal_privacy_card(game, hand)
 	end
 end
 
-function deal_flop_card( game, hand )
+function deal_flop_card( game, hand, round )
 	local cards = hand.cards
 	local card1 = table.remove(cards)
 	local card2 = table.remove(cards)
@@ -59,18 +67,27 @@ function deal_flop_card( game, hand )
 	table.insert(hand.communities, card1)
 	table.insert(hand.communities, card2)
 	table.insert(hand.communities, card3)
+
+	local deal_cards = { card1, card2, card3 }
+	game.broadcast(0, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
 end
 
-function deal_turn_card( game, hand )
+function deal_turn_card( game, hand, round )
 	local cards = hand.cards
 	table.remove(cards)
 	local card = table.remove(cards)
 	table.insert(hand.communities, card)
+
+	local deal_cards = { card }
+	game.broadcast(0, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
 end
 
-function deal_river_card( game, hand )
+function deal_river_card( game, hand, round )
 	local cards = hand.cards
 	table.remove(cards)
 	local card = table.remove(cards)
 	table.insert(hand.communities, card)
+
+	local deal_cards = { card }
+	game.broadcast(0, "cs_texas_deal_ntf", 0, game.roomid, hand.index, round.index, round.start_time, deal_cards)
 end

@@ -135,15 +135,17 @@ message texas_action {
 }
 
 message texas_round {
-	int32 start_time = 1;
-	repeated texas_action actions = 2;
+	int32 index = 1;
+	int32 start_time = 2;
+	repeated texas_action actions = 3;
 }
 
 message texas_hand {
-	int32 button = 1;
-	int32 start_time = 2;
-	repeated int32 communities = 3;
-	repeated texas_round rounds = 4;
+	int32 index = 1;
+	int32 button = 2;
+	int32 start_time = 3;
+	repeated int32 communities = 4;
+	repeated texas_round rounds = 5;
 }
 
 message texas_detail {

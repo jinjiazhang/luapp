@@ -80,7 +80,9 @@ function enter_room_flow( role, roomid, cipher )
 	check_result("cs_texas_sitdown_req", result)
 	table.insert(game.players, player)
 
-	notify.wait_for_notify("texas_start")
+	if not game.current then
+		notify.wait_for_notify("texas_start")
+	end
 	return room
 end
 
@@ -96,5 +98,8 @@ function texas_flow( openid, token )
 		local info = room_list[1]
 		enter_room_flow(role, info.roleid, info.cipher)
 	end
+
+	local roomid, hand = notify.wait_for_notify("texas_hand")
+	log_info("texas_hand", roomid, app.tostring(hand))
 	log_info("test texas_flow finish!")
 end

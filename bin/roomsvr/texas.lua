@@ -9,6 +9,7 @@ MAX_PLAYER_NUM = 9
 function on_create_room( room )
 	log_info("on_create_room", room.roomid)
 	local game = proto.create("texas_detail")
+	game.roomid = room.roomid
 	game.seat_table = {} -- seatid -> texas_player
 	game.player_table = {} -- roleid -> texas_player
 	game.button = 0
@@ -49,18 +50,21 @@ end
 function start_new_hand( game )
 	local hand = proto.create("texas_hand")
 	hand.privacies = {}
+	hand.index = #game.hands + 1
 	hand.button = next_seat(game, game.button)
-	hand.start_time = app.mstime() - game.start_time * 1000
+	hand.start_time = app.mstime()
 	dealer.shuffle_card(game, hand)
-	start_new_round(game, hand)
-
-	game.current = hand
 	table.insert(game.hands, hand)
+	game.current = hand
+	game.broadcast(0, "cs_texas_hand_ntf", 0, game.roomid, hand)
+	start_new_round(game, hand)
 end
 
 function start_new_round( game, hand )
-	local round_idx = #hand.rounds
-	dealer.deal_card(game, hand, round_idx)
+	local round = proto.create("texas_round")
+	round.index = #hand.rounds + 1
+	round.start_time = app.mstime() - hand.start_time
+	dealer.deal_card(game, hand, round)
 end
 
 function env.cs_texas_chat_req( room, roleid, flowid, content )
@@ -154,7 +158,6 @@ function env.cs_texas_start_req( room, roleid, flowid )
 
 	room.status = room_status.PLAYING
 	room.start_time = app.time()
-	game.start_time = room.start_time
 	room.broadcast(roleid, "cs_texas_start_ntf", 0, room.roomid)
 	on_game_start(game)
 	return errno.SUCCESS
