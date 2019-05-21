@@ -19,5 +19,3 @@ include_directories(../thirdparty/lua-5.3.5/src)
 include_directories(../thirdparty/log4cplus/include)
 include_directories(../thirdparty/protobuf/src)
 include_directories(../thirdparty/mariadb-connector-c/include)
-
-add_dependencies(protosql mariadbclient)
