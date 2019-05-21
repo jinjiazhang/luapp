@@ -3,6 +3,7 @@
 #include "connector.h"
 #include "fepoll.h"
 #include "fselect.h"
+#include "fkqueue.h"
 
 network::network()
 {
@@ -31,7 +32,7 @@ bool network::init()
     frame_ = new fepoll();
 #endif
 #ifdef __APPLE__
-    frame_ = nullptr;
+    frame_ = new fkqueue();
 #endif
 #ifdef _MSC_VER
     frame_ = new fselect();
