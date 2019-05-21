@@ -46,11 +46,11 @@ int fkqueue::update(int timeout)
     for (int i = 0; i < count; i++)
     {
         struct kevent& event = results[i];
-        iobject* handler = (iobject*)event.udata;
+        iobject* object = (iobject*)event.udata;
         if (event.filter == EVFILT_READ)
-            handler->on_event(EVENT_READ);
+            object->on_event(EVENT_READ);
         else if (event.filter == EVFILT_WRITE)
-            handler->on_event(EVENT_WRITE);
+            object->on_event(EVENT_WRITE);
     }
     return 0;
 }
