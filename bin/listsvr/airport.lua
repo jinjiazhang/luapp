@@ -1,4 +1,3 @@
--- 消息路由客户端
 module = "airport"
 
 function init( ... )

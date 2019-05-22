@@ -1,4 +1,3 @@
--- 德州玩法
 
 function shuffle_card( game, hand )
 	local cards = {

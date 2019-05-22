@@ -1,4 +1,3 @@
--- 消息路由服务器
 
 function init( ... )
 	router = route.listen(config.router_ip, config.router_port)

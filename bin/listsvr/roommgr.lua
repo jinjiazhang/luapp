@@ -1,4 +1,3 @@
--- 房间管理器
 module = "roommgr"
 
 roomid_room_table = roomid_room_table or {}

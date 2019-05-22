@@ -1,5 +1,5 @@
--- 消息通知处理
 module = "notify"
+
 waittings = waittings or {}
 
 function wait_for_notify( name )

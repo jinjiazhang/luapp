@@ -1,4 +1,3 @@
--- 监听端口服务
 module = "server"
 
 function init( ... )

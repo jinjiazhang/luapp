@@ -1,4 +1,3 @@
--- 监听端口服务
 
 function init( ... )
 	server = net.listen(config.dbagent_ip, config.dbagent_port)

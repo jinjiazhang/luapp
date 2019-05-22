@@ -1,4 +1,3 @@
--- redis连接实例
 module = "rdsclient"
 
 rdsclient_callbacks = rdsclient_callbacks or {}

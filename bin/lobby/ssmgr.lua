@@ -1,5 +1,5 @@
--- 会话管理器
 module = "ssmgr"
+
 number_session_table = number_session_table or {}
 openid_session_table = number_session_table or {}
 roleid_session_table = number_session_table or {}

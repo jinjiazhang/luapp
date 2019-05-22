@@ -1,4 +1,3 @@
--- 机器人脚本
 
 function run( ... )
 	local openid = string.format("openid_%d", app.time())

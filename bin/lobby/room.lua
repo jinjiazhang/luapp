@@ -1,4 +1,3 @@
--- 房间逻辑
 
 function net.cs_fetch_room_req( ss, flowid, mode )
 	log_info("cs_fetch_room_req", ss.roleid, flowid, mode)

@@ -1,4 +1,3 @@
--- 德州玩法
 module = "texas"
 dealer = import("roomsvr/dealer.lua")
 scorer = import("roomsvr/scorer.lua")

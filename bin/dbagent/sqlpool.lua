@@ -1,4 +1,3 @@
--- mysql连接池
 module = "sqlpool"
 
 sqlpool_callbacks = sqlpool_callbacks or {}

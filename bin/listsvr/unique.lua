@@ -1,4 +1,3 @@
--- 生成全局唯一id
 module = "unique"
 
 instance = app.svrid() % 256

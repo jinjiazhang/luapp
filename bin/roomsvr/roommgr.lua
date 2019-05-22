@@ -1,4 +1,3 @@
--- 房间管理器
 module = "roommgr"
 texas = import("roomsvr/texas.lua")
 

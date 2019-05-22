@@ -1,4 +1,3 @@
--- 协程池模块
 module = "copool"
 
 coroutine_pool = setmetatable({}, { __mode = "kv" })

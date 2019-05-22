@@ -1,4 +1,3 @@
--- 德州玩法
 
 function tick_timeout(game)
 	

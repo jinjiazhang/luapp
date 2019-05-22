@@ -1,4 +1,3 @@
--- 网络客户端
 module = "client"
 
 client_callbacks = client_callbacks or {}

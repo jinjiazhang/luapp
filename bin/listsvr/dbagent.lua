@@ -1,4 +1,3 @@
--- dbagent客户端
 module = "dbagent"
 
 function init( ... )

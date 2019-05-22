@@ -1,4 +1,3 @@
--- 房间管理器
 module = "assign"
 
 roomsvr_payload_table = roomsvr_payload_table or {}

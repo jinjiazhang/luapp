@@ -1,4 +1,3 @@
--- 登录逻辑
 
 ONLINE_VALID_DURATION = 28		-- 在线状态有效期
 UNIQUE_ROLEID_MINIMUM = 112358	-- 最小的角色id

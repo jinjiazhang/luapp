@@ -1,5 +1,5 @@
--- 会话管理器
 module = "rolemgr"
+
 openid_role_table = openid_role_table or {}
 roleid_role_table = roleid_role_table or {}
 
