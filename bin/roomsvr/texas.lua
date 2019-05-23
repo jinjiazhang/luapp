@@ -1,6 +1,5 @@
 module = "texas"
 dealer = import("roomsvr/dealer.lua")
-scorer = import("roomsvr/scorer.lua")
 
 MIN_PLAYER_NUM = 2
 MAX_PLAYER_NUM = 9
@@ -15,6 +14,7 @@ function on_create_room( room )
 	game.hands = {}
 	game.current = nil
 
+	game.option = room.option
 	game.broadcast = room.broadcast
 	room.game.texas = game
 end
@@ -35,7 +35,7 @@ function on_tick_room( room )
 
 	local game = room.game.texas
 	check_new_hand(game)
-	scorer.tick_timeout(game)
+	dealer.tick_timeout(game)
 end
 
 function next_seat( game, seatid )
@@ -56,30 +56,38 @@ function check_new_hand( game )
 end
 
 function start_new_hand( game )
+	local option = game.option
 	local hand = proto.create("texas_hand")
 	hand.privacies = {}
 	hand.index = #game.hands + 1
 	hand.button = next_seat(game, game.button)
 	hand.start_time = app.mstime()
-	dealer.shuffle_card(game, hand)
-	table.insert(game.hands, hand)
 	game.current = hand
+	table.insert(game.hands, hand)
+
+	start_new_round(game)
+	dealer.ante_action(game)
+	dealer.blind_action(game)
 	game.broadcast(0, "cs_texas_hand_ntf", 0, game.roomid, hand)
-	start_new_round(game, hand)
+
+	dealer.shuffle_card(game)
+	dealer.deal_privacy(game)
 end
 
-function start_new_round( game, hand )
+function start_new_round( game )
+	local hand = game.current
 	local round = proto.create("texas_round")
 	round.index = #hand.rounds + 1
 	round.start_time = app.mstime() - hand.start_time
-	dealer.deal_card(game, hand, round)
+	hand.current = round
+	table.insert(hand.rounds, round)
 end
 
 function env.cs_texas_chat_req( room, roleid, flowid, content )
 	if not room.get_viewer(roleid) then
 		return errno.DATA_ERROR
 	end
-	
+
 	room.broadcast(0, "cs_texas_chat_ntf", 0, room.roomid, roleid, content)
 	return errno.SUCCESS
 end
@@ -192,5 +200,5 @@ function env.cs_texas_action_req( room, roleid, flowid, hand_idx, round_idx, act
 		return errno.PARAM_ERROR
 	end
 
-	return scorer.proc_action(game, player, act_type, act_chips)
+	return dealer.proc_action(game, player, act_type, act_chips)
 end

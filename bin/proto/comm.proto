@@ -18,7 +18,7 @@ enum errno {
     TEXAS_PLAYER_NUM = 103;
 }
 
-enum func_type {
+enum service {
 	LUAPP = 0;
 	ROUTER = 1;
 	DBAGENT = 2;
@@ -137,14 +137,14 @@ message texas_action {
 message texas_round {
 	int32 index = 1;
 	int32 start_time = 2;
-	repeated texas_action actions = 3;
+	repeated int32 cards = 3;
+	repeated texas_action actions = 4;
 }
 
 message texas_hand {
 	int32 index = 1;
 	int32 button = 2;
 	int32 start_time = 3;
-	repeated int32 communities = 4;
 	repeated texas_round rounds = 5;
 }
 
@@ -158,6 +158,7 @@ message texas_detail {
 message texas_record {
 	int64 roomid = 1;
 	texas_hand hand = 2;
-	repeated texas_privacy privacies = 3;
-	repeated texas_player players = 4;
+	repeated int32 communities = 3;
+	repeated texas_privacy privacies = 4;
+	repeated texas_player players = 5;
 }
