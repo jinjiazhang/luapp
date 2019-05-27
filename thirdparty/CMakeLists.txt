@@ -15,10 +15,10 @@ ENDIF()
 
 add_subdirectory(lua-5.3.5 EXCLUDE_FROM_ALL)
 add_subdirectory(curl EXCLUDE_FROM_ALL)
-add_subdirectory(log4cplus EXCLUDE_FROM_ALL)
 add_subdirectory(protobuf/cmake EXCLUDE_FROM_ALL)
 add_subdirectory(hiredis EXCLUDE_FROM_ALL)
 add_subdirectory(mariadb-connector-c EXCLUDE_FROM_ALL)
+add_subdirectory(log4cplus EXCLUDE_FROM_ALL)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(TARGET lua PROPERTY FOLDER "thirdparty")
