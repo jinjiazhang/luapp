@@ -43,6 +43,11 @@ unsigned int luapp::svrid()
     return svrid_;
 }
 
+void luapp::exit()
+{
+    status_ = 0;
+}
+
 int64_t luapp::time()
 {
     return (app_mstime_ + time_offset_) / 1000;
@@ -56,16 +61,6 @@ int64_t luapp::mstime()
 void luapp::offset(int64_t ms)
 {
     time_offset_ += ms;
-}
-
-int luapp::status()
-{
-    return status_;
-}
-
-void luapp::change(int state)
-{
-    status_ = state;
 }
 
 void luapp::run(luctx* ctx)
@@ -189,11 +184,10 @@ int luapp::idle()
 }
 
 EXPORT_OFUNC(luapp, svrid)
+EXPORT_OFUNC(luapp, exit)
 EXPORT_OFUNC(luapp, time)
 EXPORT_OFUNC(luapp, mstime)
 EXPORT_OFUNC(luapp, offset)
-EXPORT_OFUNC(luapp, status)
-EXPORT_OFUNC(luapp, change)
 const luaL_Reg* luapp::get_libs()
 {
     static const luaL_Reg libs[] = {
@@ -202,11 +196,10 @@ const luaL_Reg* luapp::get_libs()
         { "tick", lua_emptyfunc },
         { "idle", lua_emptyfunc },
         { IMPORT_OFUNC(luapp, svrid) },
+        { IMPORT_OFUNC(luapp, exit) },
         { IMPORT_OFUNC(luapp, time) },
         { IMPORT_OFUNC(luapp, mstime) },
         { IMPORT_OFUNC(luapp, offset) },
-        { IMPORT_OFUNC(luapp, status) },
-        { IMPORT_OFUNC(luapp, change) },
         { NULL, NULL }
     };
     return libs;

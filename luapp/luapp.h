@@ -32,11 +32,10 @@ public:
 
 public:
     unsigned int svrid();
+    void exit();
     int64_t time();
     int64_t mstime();
     void offset(int64_t ms);
-    int status();
-    void change(int state);
 
 private:
     int init();
