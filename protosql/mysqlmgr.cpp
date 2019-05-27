@@ -20,11 +20,12 @@ mysqlmgr::~mysqlmgr()
 
 int mysqlmgr::update()
 {
+    int count = 0;
     for (sqlpool* pool : sqlpools_)
     {
-        pool->update();
+        count += pool->update();
     }
-    return 0;
+    return count;
 }
 
 int mysqlmgr::parse(lua_State* L)

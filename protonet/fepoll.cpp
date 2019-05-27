@@ -44,7 +44,7 @@ int fepoll::update(int timeout)
         iobject* object = (iobject*)results[i].data.ptr;
         object->on_event(events);
     }
-    return 0;
+    return count;
 }
 
 int fepoll::add_event(iobject* object, socket_t fd, int events)

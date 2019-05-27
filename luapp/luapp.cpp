@@ -148,19 +148,14 @@ int luapp::init()
 
 int luapp::proc()
 {
+    int count = 0;
     app_mstime_ = sys_mstime();
-    network_->update(ctx_->idle_sleep);
-    http_->update();
-    mysqlmgr_->update();
-    timer_->update(this->mstime());
-    luaL_callfunc(L, this, "proc");
-
-    int64_t cost_mstime = sys_mstime() - app_mstime_;
-    if (cost_mstime >= ctx_->tick_invl)
-    {
-        return 1;
-    }
-    return 0;
+    luaL_callfunc(L, this, "proc", std::tie(count));
+    count += timer_->update(this->mstime());
+    count += network_->update(0);
+    count += http_->update();
+    count += mysqlmgr_->update();
+    return count;
 }
 
 int luapp::tick()
@@ -183,7 +178,12 @@ int luapp::idle()
     int64_t cost_mstime = sys_mstime() - app_mstime_;
     if (cost_mstime < ctx_->idle_sleep)
     {
-        sys_sleep(ctx_->idle_sleep - (int)cost_mstime);
+        network_->update(ctx_->idle_sleep - (int)cost_mstime);
+        cost_mstime = sys_mstime() - app_mstime_;
+        if (cost_mstime + 1 < ctx_->idle_sleep)
+        {
+            sys_sleep(ctx_->idle_sleep - (int)cost_mstime);
+        }
     }
     return 0;
 }

@@ -25,6 +25,7 @@ int http::update()
 
     CURLMsg* msg;
     int inqueue;
+    int count = 0;
     while(msg = curl_multi_info_read(multi_, &inqueue))
     {
         if(msg->msg == CURLMSG_DONE)
@@ -37,9 +38,10 @@ int http::update()
 
             curl_multi_remove_handle(multi_, curl);
             curl_easy_cleanup(curl);
+            count++;
         }
     }
-    return running;
+    return count;
 }
 
 size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata)

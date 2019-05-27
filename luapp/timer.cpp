@@ -14,12 +14,13 @@ timer::~timer()
 
 int timer::update(int64_t current)
 {
+    int count = 0;
     while (current_ < current - TIME_UNIT / 2)
     {
-        forward();
+        count += forward();
         current_ += TIME_UNIT;
     }
-    return 0;
+    return count;
 }
 
 int timer::insert(callback* handle, int second, bool repeat)
@@ -73,9 +74,9 @@ bool timer::change(int tid, int second)
     return true;
 }
 
-void timer::forward()
+int timer::forward()
 {
-    timeout(jiffies_ & LEVEL_MASK);
+    int count = timeout(jiffies_ & LEVEL_MASK);
     int64_t point = ++jiffies_;
     int level = 0;
     while ((point & LEVEL_MASK) == 0 && level < LEVEL_DEPTH - 1)
@@ -85,6 +86,7 @@ void timer::forward()
         point >>= LEVEL_BITS;
         level++;
     }
+    return count;
 }
 
 int timer::select(tnode* node)
@@ -132,14 +134,16 @@ bool timer::remove(tnode* node)
     return true;
 }
 
-void timer::timeout(int index)
+int timer::timeout(int index)
 {
+    int count = 0;
     node_list& list = wheels_[index];
     while (!list.empty())
     {
         tnode* node = list.front();
         list.pop_front();
         node->handle->timeout(node->tid);
+        count++;
 
         if (node->repeat)
         {
@@ -153,9 +157,10 @@ void timer::timeout(int index)
             delete node;
         }
     }
+    return count;
 }
 
-void timer::movlist(int index)
+int timer::movlist(int index)
 {
     node_list list;
     wheels_[index].swap(list);
@@ -165,4 +170,5 @@ void timer::movlist(int index)
         list.pop_front();
         insert(node);
     }
+    return 0;
 }

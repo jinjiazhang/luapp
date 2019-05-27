@@ -45,11 +45,13 @@ int sqlpool::update()
     auto rsp_queue = std::move(rsp_queue_);
     rsp_mutex_.unlock();
 
+    int count = 0;
     for (auto task : rsp_queue)
     {
         on_respond(task);
+        count++;
     }    
-    return 0;
+    return count;
 }
 
 void sqlpool::work_thread(const char* host, const char* user, const char* passwd, const char* db, unsigned int port)

@@ -69,7 +69,7 @@ int fselect::update(int timeout)
     if (timeout >= 0)
     {
         tv.tv_sec = timeout / 1000;
-        tv.tv_usec = timeout % 1000;
+        tv.tv_usec = (timeout % 1000) * 1000;
         ptv = &tv;
     }
 
@@ -97,7 +97,8 @@ int fselect::update(int timeout)
         fire_event(vec_eo_->fd_array[i], EVENT_WRITE);
     }
 
-    return 0;
+    int count = vec_ro_->fd_count + vec_wo_->fd_count + vec_eo_->fd_count;
+    return count;
 }
 
 int fselect::add_event(iobject* object, socket_t fd, int events)

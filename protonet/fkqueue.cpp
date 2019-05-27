@@ -53,7 +53,7 @@ int fkqueue::update(int timeout)
         if (event.filter == EVFILT_WRITE) events |= EVENT_WRITE;
         object->on_event(events);
     }
-    return 0;
+    return count;
 }
 
 int fkqueue::add_event(iobject* object, socket_t fd, int events)

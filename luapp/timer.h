@@ -41,9 +41,9 @@ public:
     bool change(int tid, int second);
 
 private:
-    void forward();
-    void timeout(int index);
-    void movlist(int index);
+    int  forward();
+    int  timeout(int index);
+    int  movlist(int index);
     int  select(tnode* node);
     bool insert(tnode* node);
     bool remove(tnode* node);
