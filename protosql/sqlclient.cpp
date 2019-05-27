@@ -21,15 +21,15 @@ sqlclient::~sqlclient()
         mysql_close(mysql_);
 }
 
-bool sqlclient::connect(const char* host, const char* user, const char* passwd, const char* db, unsigned int port)
+int sqlclient::connect(const char* host, const char* user, const char* passwd, const char* db, unsigned int port)
 {
-    unsigned int timeout = 3000;
+    unsigned int timeout = 3;
     mysql_options(mysql_, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
     if (mysql_real_connect(mysql_, host, user, passwd, db, port, NULL, 0) == NULL)
     {
-        return false;
+        return mysql_errno(mysql_);
     }
-    return true;
+    return 0;
 }
 
 int sqlclient::sql_select(const Descriptor* descriptor, const std::string& condition, result_set& results)

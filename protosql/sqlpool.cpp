@@ -2,6 +2,7 @@
 #include "sqlclient.h"
 #include "mysqlmgr.h"
 
+#define SQL_METHOD_CONNECT  0
 #define SQL_METHOD_SELECT   1
 #define SQL_METHOD_INSERT   2
 #define SQL_METHOD_UPDATE   3
@@ -57,7 +58,20 @@ int sqlpool::update()
 void sqlpool::work_thread(const char* host, const char* user, const char* passwd, const char* db, unsigned int port)
 {
     sqlclient* client = new sqlclient();
-    client->connect(host, user, passwd, db, port);
+    int ret_code = client->connect(host, user, passwd, db, port);
+    if (ret_code != 0)
+    {
+        log_error("sqlclient::connect fail, code(%d) host(%s:%d)", ret_code, host, port);
+        std::shared_ptr<taskdata> task(new taskdata());
+        task->token = 0;
+        task->method = SQL_METHOD_CONNECT;
+        task->ret_code = ret_code;
+        rsp_mutex_.lock();
+        rsp_queue_.push_back(task);
+        rsp_mutex_.unlock();
+        return;
+    }
+
     while (run_flag_)
     {
         std::shared_ptr<taskdata> task;
@@ -310,6 +324,7 @@ void sqlpool::on_respond(std::shared_ptr<taskdata> task)
     case SQL_METHOD_EXECUTE:
         on_executed(task);
         break;
+    case SQL_METHOD_CONNECT:
     case SQL_METHOD_INSERT:
     case SQL_METHOD_UPDATE:
     case SQL_METHOD_DELETE:

@@ -12,7 +12,7 @@ public:
     sqlclient();
     ~sqlclient();
 
-    bool connect(const char* host, const char* user, const char* passwd, const char* db, unsigned int port);
+    int connect(const char* host, const char* user, const char* passwd, const char* db, unsigned int port);
 
     typedef std::vector<std::shared_ptr<google::protobuf::Message>> result_set;
     int sql_select(const google::protobuf::Descriptor* descriptor, const std::string& condition, result_set& results);

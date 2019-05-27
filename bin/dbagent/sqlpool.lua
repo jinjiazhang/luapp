@@ -13,6 +13,11 @@ end
 
 function on_respond( token, ret_code, ... )
 	-- log_info("sqlpool.on_respond", token, ret_code, ...)
+	if token == 0 and ret_code ~= 0 then -- connect fail
+		app.exit()
+		return
+	end
+
 	local proc_func = sqlpool_callbacks[token]
 	if proc_func then
 		sqlpool_callbacks[token] = nil
