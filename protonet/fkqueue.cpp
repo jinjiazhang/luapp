@@ -61,18 +61,17 @@ int fkqueue::add_event(iobject* object, socket_t fd, int events)
     int exists = object->get_events();
     int newevs = exists | events;
     int addevs = newevs & (~exists);
-    int flags = (exists == 0) ? EV_ADD : EV_ENABLE;
 
     struct kevent event;
     if (addevs & EVENT_READ)
     {
-        EV_SET(&event, fd, EVFILT_READ, flags, 0, 0, object);
+        EV_SET(&event, fd, EVFILT_READ, EV_ADD, 0, 0, object);
         kevent(handle_, &event, 1, nullptr, 0, nullptr);
     }
 
     if (addevs & EVENT_WRITE)
     {
-        EV_SET(&event, fd, EVFILT_WRITE, flags, 0, 0, object);
+        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD, 0, 0, object);
         kevent(handle_, &event, 1, nullptr, 0, nullptr);
     }
 
@@ -85,18 +84,17 @@ int fkqueue::del_event(iobject* object, socket_t fd, int events)
     int exists = object->get_events();
     int newevs = exists & (~events);
     int delevs = exists & (~newevs);
-    int flags = (newevs == 0) ? EV_DELETE : EV_DISABLE;
 
     struct kevent event;
     if (delevs & EVENT_READ)
     {
-        EV_SET(&event, fd, EVFILT_READ, flags, 0, 0, object);
+        EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, object);
         kevent(handle_, &event, 1, nullptr, 0, nullptr);
     }
 
     if (delevs & EVENT_WRITE)
     {
-        EV_SET(&event, fd, EVFILT_WRITE, flags, 0, 0, object);
+        EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, object);
         kevent(handle_, &event, 1, nullptr, 0, nullptr);
     }
 
