@@ -31,4 +31,4 @@ add_subdirectory(protosql)
 add_subdirectory(thirdparty)
 
 add_dependencies(luapp lualib gateway luaredis protosql proroute protolua protonet 
-	lua log4cplusS libprotobuf libcurl hiredis mariadb-connector-c)
+	lua log4cplusS libprotobuf libcurl hiredis mariadbclient)
