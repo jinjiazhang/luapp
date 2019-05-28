@@ -13,7 +13,6 @@ function apply_player( game )
 			break
 		end
 	end
-	log_info("seatids", app.tostring(hand.seatids))
 end
 
 function shuffle_card( game )
@@ -98,12 +97,14 @@ function apply_action( game, seatid, type, chips, notify)
 		act_type = type,
 		act_chips = chips
 	}
-
 	table.insert(round.actions, action)
+
+	if notify then
+		game.broadcast(0, "cs_texas_action_ntf", 0, game.roomid, hand.index, round.index, action)
+	end
 end
 
 function ante_action( game )
-	log_info("ante_action", app.tostring(game.option))
 	local ante_chips = game.option.ante
 	if ante_chips <= 0 then
 		return
