@@ -43,11 +43,8 @@ void sys_sleep(int time)
 
 int64_t sys_mstime()
 {
-#if defined(__linux__)
-    return std::chrono::system_clock::now().time_since_epoch().count() / 1000000;
-#else
-    return std::chrono::system_clock::now().time_since_epoch().count() / 10000;
-#endif
+    std::chrono::system_clock::duration d = std::chrono::system_clock::now().time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(d).count();
 }
 
 int64_t sys_filetime(const char* file)
