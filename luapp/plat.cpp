@@ -36,6 +36,27 @@ std::string svrid_itos(unsigned int svrid)
     return stream.str();
 }
 
+void app_daemon()
+{
+#if defined(__linux__) || defined(__APPLE__)
+    pid_t pid = fork();
+    if (pid != 0)
+        exit(0);
+
+    setsid();
+    umask(0);
+
+    int null = open("/dev/null", O_RDWR);
+    if (null != -1)
+    {
+        dup2(null, STDIN_FILENO);
+        dup2(null, STDOUT_FILENO);
+        dup2(null, STDERR_FILENO);
+        close(null);
+    }
+#endif
+}
+
 void sys_sleep(int time)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -59,6 +80,26 @@ int64_t sys_filetime(const char* file)
 std::string sys_md5file(const char* file)
 {
     return std::to_string(sys_filetime(file));
+}
+
+EXPORT_CFUNC(sys_sleep)
+EXPORT_CFUNC(sys_mstime)
+EXPORT_CFUNC(sys_filetime)
+EXPORT_CFUNC(sys_md5file)
+int luaopen_system(lua_State* L)
+{
+    static const struct luaL_Reg sysLibs[] = {
+        { "sleep", lua_sys_sleep },
+        { "mstime", lua_sys_mstime },
+        { "filetime", lua_sys_filetime },
+        { "md5file", lua_sys_md5file },
+        { NULL, NULL }
+    };
+
+    lua_newtable(L);
+    luaL_setfuncs(L, sysLibs, 0);
+    lua_setglobal(L, "sys");
+    return 0;
 }
 
 std::string lua_stackview(lua_State* L)
@@ -110,47 +151,6 @@ int lua_logerror(lua_State* L)
 int lua_logfatal(lua_State* L)
 {
     put_fatal(lua_stackview(L).c_str());
-    return 0;
-}
-
-void app_daemon()
-{
-#if defined(__linux__) || defined(__APPLE__)
-    pid_t pid = fork();
-    if (pid != 0)
-        exit(0);
-
-    setsid();
-    umask(0);
-
-    int null = open("/dev/null", O_RDWR);
-    if (null != -1)
-    {
-        dup2(null, STDIN_FILENO);
-        dup2(null, STDOUT_FILENO);
-        dup2(null, STDERR_FILENO);
-        close(null);
-    }
-#endif
-}
-
-EXPORT_CFUNC(sys_sleep)
-EXPORT_CFUNC(sys_mstime)
-EXPORT_CFUNC(sys_filetime)
-EXPORT_CFUNC(sys_md5file)
-int luaopen_system(lua_State* L)
-{
-    static const struct luaL_Reg sysLibs[] = {
-        { "sleep", lua_sys_sleep },
-        { "mstime", lua_sys_mstime },
-        { "filetime", lua_sys_filetime },
-        { "md5file", lua_sys_md5file },
-        { NULL, NULL }
-    };
-
-    lua_newtable(L);
-    luaL_setfuncs(L, sysLibs, 0);
-    lua_setglobal(L, "sys");
     return 0;
 }
 
