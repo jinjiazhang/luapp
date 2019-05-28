@@ -125,6 +125,16 @@ message texas_privacy {
 
 enum action_type {
 	TIMEOUT = 0;
+	ANTE = 1;
+	SMALL_BLIND = 2;
+	BIG_BLIND = 3;
+	BET = 4;
+	CALL = 5;
+	FOLD = 6;
+	CHECK = 7;
+	RAISE = 8;
+	RE_RAISE = 9;
+	ALL_IN = 10;
 }
 
 message texas_action {

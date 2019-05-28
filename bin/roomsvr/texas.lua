@@ -14,7 +14,7 @@ function on_create_room( room )
 	game.hands = {}
 	game.current = nil
 
-	game.option = room.option
+	game.option = room.option.texas
 	game.broadcast = room.broadcast
 	room.game.texas = game
 end
@@ -66,6 +66,7 @@ function start_new_hand( game )
 	table.insert(game.hands, hand)
 
 	start_new_round(game)
+	dealer.apply_player(game)
 	dealer.ante_action(game)
 	dealer.blind_action(game)
 	game.broadcast(0, "cs_texas_hand_ntf", 0, game.roomid, hand)
@@ -74,13 +75,21 @@ function start_new_hand( game )
 	dealer.deal_privacy(game)
 end
 
-function start_new_round( game )
+function start_new_round( game, card_num, notify )
 	local hand = game.current
 	local round = proto.create("texas_round")
 	round.index = #hand.rounds + 1
 	round.start_time = app.mstime() - hand.start_time
 	hand.current = round
 	table.insert(hand.rounds, round)
+
+	if card_num and card_num > 0 then
+		dealer.deal_community(game, card_num)
+	end
+
+	if notify then
+		game.broadcast(0, "cs_texas_round_ntf", 0, game.roomid, hand.index, round)
+	end
 end
 
 function env.cs_texas_chat_req( room, roleid, flowid, content )
