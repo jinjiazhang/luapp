@@ -4,10 +4,10 @@ rdsclient_callbacks = rdsclient_callbacks or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	client = redis.connect(config.redis_ip, config.redis_port)
-	client.on_connect = on_connect
-	client.on_disconnect = on_disconnect
-	client.on_reply = on_reply
+	_client = redis.connect(config.redis_ip, config.redis_port)
+	_client.on_connect = on_connect
+	_client.on_disconnect = on_disconnect
+	_client.on_reply = on_reply
 end
 
 function on_connect( status, errmsg )
@@ -33,8 +33,8 @@ end
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif type(client[key]) == 'function' then
-		env[key] = create_co_func(key, client[key])
+	elseif type(_client[key]) == 'function' then
+		env[key] = create_co_func(key, _client[key])
 		return env[key]
 	end
 end

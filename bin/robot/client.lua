@@ -4,10 +4,10 @@ client_callbacks = client_callbacks or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	conn = net.connect("127.0.0.1", config.lobby_port)
-	conn.on_accept = on_accept
-	conn.on_closed = on_closed
-	conn.on_message = on_message
+	_client = net.connect("127.0.0.1", config.lobby_port)
+	_client.on_accept = on_accept
+	_client.on_closed = on_closed
+	_client.on_message = on_message
 end
 
 function __index( env, key )
@@ -27,7 +27,7 @@ end
 function create_co_func( proto )
 	return function(...)
 		local flowid = new_flowid()
-		conn.call(proto, flowid, ...)
+		_client.call(proto, flowid, ...)
 
 		local co = coroutine.running()
 		client_callbacks[flowid] = function(...)

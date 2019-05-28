@@ -2,18 +2,18 @@ module = "airport"
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	port = route.connect(config.router_ip, config.router_port)
-	port.on_accept = on_accept
-	port.on_closed = on_closed
-	port.on_message = on_message
-	port.on_transmit = on_transmit
+	_airport = route.connect(config.router_ip, config.router_port)
+	_airport.on_accept = on_accept
+	_airport.on_closed = on_closed
+	_airport.on_message = on_message
+	_airport.on_transmit = on_transmit
 end
 
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif port[key] then
-		return port[key]
+	else
+		return _airport[key]
 	end
 end
 
@@ -69,7 +69,7 @@ function call_lobby( lobbyid, ... )
 		log_error("airport.call_lobby funcid error", lobbyid)
 		return
 	end
-	airport.call_target(lobbyid, ...)
+	_airport.call_target(lobbyid, ...)
 end
 
 function call_roomsvr( rsvrid, ... )
@@ -77,7 +77,7 @@ function call_roomsvr( rsvrid, ... )
 		log_error("airport.call_roomsvr funcid error", rsvrid)
 		return
 	end
-	airport.call_target(rsvrid, ...)
+	_airport.call_target(rsvrid, ...)
 end
 
 function call_listsvr( lsvrid, ... )
@@ -85,13 +85,13 @@ function call_listsvr( lsvrid, ... )
 		log_error("airport.call_listsvr funcid error", lsvrid)
 		return
 	end
-	airport.call_target(lsvrid, ...)
+	_airport.call_target(lsvrid, ...)
 end
 
 function call_listsvr_mode( mode, ... )
-	port.call_random(service.LISTSVR, ...)
+	_airport.call_random(service.LISTSVR, ...)
 end
 
 function call_listsvr_all( ... )
-	port.call_group(service.LISTSVR, ...)
+	_airport.call_group(service.LISTSVR, ...)
 end

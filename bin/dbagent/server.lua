@@ -1,9 +1,9 @@
 
 function init( ... )
-	server = net.listen(config.dbagent_ip, config.dbagent_port)
-	server.on_accept = on_accept
-	server.on_closed = on_closed
-	server.on_message = on_message
+	_server = net.listen(config.dbagent_ip, config.dbagent_port)
+	_server.on_accept = on_accept
+	_server.on_closed = on_closed
+	_server.on_message = on_message
 end
 
 function on_accept( number, errno )

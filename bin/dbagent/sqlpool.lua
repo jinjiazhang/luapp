@@ -5,9 +5,9 @@ sqlpool_callbacks = sqlpool_callbacks or {}
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
 	mysql.parse("proto/db.proto")
-	pool = mysql.create_pool()
-	pool.on_respond = on_respond
-	pool.connect(config.mysql_ip, config.mysql_user, config.mysql_pass, config.mysql_db, config.mysql_port)
+	_sqlpool = mysql.create_pool()
+	_sqlpool.on_respond = on_respond
+	_sqlpool.connect(config.mysql_ip, config.mysql_user, config.mysql_pass, config.mysql_db, config.mysql_port)
 	copool.fork(init_schema)
 end
 
@@ -31,8 +31,8 @@ end
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif type(pool[key]) == 'function' then
-		env[key] = create_co_func(key, pool[key])
+	elseif type(_sqlpool[key]) == 'function' then
+		env[key] = create_co_func(key, _sqlpool[key])
 		return env[key]
 	end
 end
