@@ -34,7 +34,7 @@ function bind_role( ss, role )
 end
 
 function kickout( ss, reason )
-	ss.cs_kickout_ntf(0, reason)
+	ss.cs_kickout_ntf(reason)
 	kickout_session_table[ss.number] = app.mstime()
 end
 
@@ -83,14 +83,14 @@ function on_stop( number )
 
 	if ss.roleid then
 		rolemgr.on_logout(ss.role)
-		dbagent.ss_save_role_req(0, ss.openid, ss.role)
+		dbagent.ss_save_role_req(ss.openid, ss.role)
 		roleid_session_table[ss.roleid] = nil
 		ss.role = nil
 		ss.roleid = nil
 	end
 
 	if ss.openid then
-		dbagent.ss_logout_req(0, ss.openid, app.svrid())
+		dbagent.ss_logout_req(ss.openid, app.svrid())
 		openid_session_table[ss.openid] = nil
 		ss.account = nil
 		ss.openid = nil

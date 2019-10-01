@@ -49,7 +49,7 @@ function deal_privacy( game )
 		local player = game.seat_table[seatid]
 		assert(player ~= nil)
 		local deal_cards = { card1, card2 }
-		airport.call_client(player.roleid, "cs_texas_deal_ntf", 0, game.roomid, hand.index, deal_cards)
+		airport.call_client(player.roleid, "cs_texas_deal_ntf", game.roomid, hand.index, deal_cards)
 	end
 end
 
@@ -100,7 +100,7 @@ function apply_action( game, seatid, type, chips, notify)
 	table.insert(round.actions, action)
 
 	if notify then
-		game.broadcast(0, "cs_texas_action_ntf", 0, game.roomid, hand.index, round.index, action)
+		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
 	end
 end
 

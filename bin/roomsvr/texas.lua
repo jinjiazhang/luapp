@@ -69,7 +69,7 @@ function start_new_hand( game )
 	dealer.apply_player(game)
 	dealer.ante_action(game)
 	dealer.blind_action(game)
-	game.broadcast(0, "cs_texas_hand_ntf", 0, game.roomid, hand)
+	game.broadcast(0,"cs_texas_hand_ntf", game.roomid, hand)
 
 	dealer.shuffle_card(game)
 	dealer.deal_privacy(game)
@@ -88,7 +88,7 @@ function start_new_round( game, card_num, notify )
 	end
 
 	if notify then
-		game.broadcast(0, "cs_texas_round_ntf", 0, game.roomid, hand.index, round)
+		game.broadcast(0,"cs_texas_round_ntf", game.roomid, hand.index, round)
 	end
 end
 
@@ -97,7 +97,7 @@ function env.cs_texas_chat_req( room, roleid, content )
 		return errno.DATA_ERROR
 	end
 
-	room.broadcast(0, "cs_texas_chat_ntf", 0, room.roomid, roleid, content)
+	room.broadcast(0,"cs_texas_chat_ntf", room.roomid, roleid, content)
 	return errno.SUCCESS
 end
 
@@ -136,7 +136,7 @@ function env.cs_texas_sitdown_req( room, roleid, seatid )
 	game.player_table[roleid] = player
 	game.seat_table[seatid] = player
 
-	room.broadcast(roleid, "cs_texas_sitdown_ntf", 0, room.roomid, player)
+	room.broadcast(roleid, "cs_texas_sitdown_ntf", room.roomid, player)
 	return errno.SUCCESS, player
 end
 
@@ -158,7 +158,7 @@ function env.cs_texas_standup_req( room, roleid )
 	game.seat_table[seatid] = nil
 	game.player_table[roleid] = nil
 
-	room.broadcast(roleid, "cs_texas_standup_ntf", 0, room.roomid, seatid)
+	room.broadcast(roleid, "cs_texas_standup_ntf", room.roomid, seatid)
 	return errno.SUCCESS
 end
 
@@ -184,7 +184,7 @@ function env.cs_texas_start_req( room, roleid )
 	game.button = player.seatid
 	room.status = room_status.PLAYING
 	room.start_time = app.time()
-	room.broadcast(roleid, "cs_texas_start_ntf", 0, room.roomid)
+	room.broadcast(roleid, "cs_texas_start_ntf", room.roomid)
 	return errno.SUCCESS
 end
 

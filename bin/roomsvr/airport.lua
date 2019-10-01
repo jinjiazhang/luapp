@@ -88,7 +88,7 @@ function call_listsvr( lsvrid, ... )
 	_airport.call_target(lsvrid, ...)
 end
 
-function call_listsvr_mode( mode, ... )
+function call_listsvr_hash( mode, ... )
 	_airport.call_random(service.LISTSVR, ...)
 end
 

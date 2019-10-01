@@ -26,7 +26,7 @@ end
 
 function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
-	leave_room(role, 0, reason_type.ROLE_OFFLINE)
+	leave_room(role, reason_type.ROLE_OFFLINE)
 	airport.unreg_role(role.roleid)
 
 	role.offline = app.time()
@@ -75,7 +75,7 @@ function tick_online(  )
 	for roleid, role in pairs(roleid_role_table) do
 		if time - role.save_online >= SAVE_ONLINE_INTERVAL then
 			log_info("rolemgr.save_online", role.openid, role.roleid)
-			dbagent.ss_online_req(0, role.openid, app.svrid())
+			dbagent.ss_online_req(role.openid, app.svrid())
 			role.save_online = time
 
 			count = count + 1

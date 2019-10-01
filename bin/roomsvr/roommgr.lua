@@ -96,13 +96,13 @@ end
 function report_payload(  )
 	local mstime = app.mstime()
 	if mstime - last_report_payload >= 1000 then
-		airport.call_listsvr_all("ss_report_payload_req", 0, support_mode, total_role_count, total_room_count)
+		airport.call_listsvr_all("ss_report_payload_req", support_mode, total_role_count, total_room_count)
 		last_report_payload = mstime
 	end
 end
 
 function update_listsvr( room )
-	airport.call_listsvr(room.lsvrid, "ss_update_room_req", 0, room)
+	airport.call_listsvr(room.lsvrid, "ss_update_room_req", room)
 end
 
 function broadcast( room, exceptid, proto, ... )
@@ -162,7 +162,7 @@ function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
 	end
 
 	local viewer = room.viewer_table[role.roleid]
-	room.broadcast(role.roleid, "cs_enter_room_ntf", 0, room.roomid, viewer)
+	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
 	airport.call_lobby(lobbyid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
@@ -180,7 +180,7 @@ function net.ss_leave_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
-	room.broadcast(roleid, "cs_leave_room_ntf", 0, room.roomid, roleid, reason)
+	room.broadcast(roleid, "cs_leave_room_ntf", room.roomid, roleid, reason)
 	airport.call_lobby(svrid, "ss_leave_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
 
@@ -198,7 +198,7 @@ function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
-	room.broadcast(roleid, "cs_dismiss_room_ntf", 0, room.roomid, reason)
+	room.broadcast(roleid, "cs_dismiss_room_ntf", room.roomid, reason)
 	airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
 
