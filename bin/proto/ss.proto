@@ -5,206 +5,177 @@ import "db.proto";
 import "cs.proto";
 
 message ss_login_req {
-	int64 flowid = 1;
-	int32 number = 2;
-	string openid = 3;
-	int32 svrid = 4;
+	int32 number = 1;
+	string openid = 2;
+	int32 svrid = 3;
 }
 
 message ss_login_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int32 number = 3;
-	string openid = 4;
-	int32 svrid = 5;
+	errno result = 1;
+	int32 number = 2;
+	string openid = 3;
+	int32 svrid = 4;
 	oneof oneof_account {
-		tb_account account = 6;
+		tb_account account = 5;
 	}
 }
 
 message ss_logout_req {
-	int64 flowid = 1;
-	string openid = 2;
-	int32 svrid = 3;
+	string openid = 1;
+	int32 svrid = 2;
 }
 
 message ss_logout_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	string openid = 3;
+	errno result = 1;
+	string openid = 2;
 }
 
 message ss_online_req {
-	int64 flowid = 1;
-	string openid = 2;
-	int32 svrid = 3;
+	string openid = 1;
+	int32 svrid = 2;
 }
 
 message ss_online_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	string openid = 3;
+	errno result = 1;
+	string openid = 2;
 }
 
 message ss_kickout_ntf {
-	int64 flowid = 1;
-	string openid = 2;
-	errno reason = 3;
+	string openid = 1;
+	errno reason = 2;
 }
 
 message ss_create_role_req {
-	int64 flowid = 1;
-	string openid = 2;
-	string name = 3;
+	string openid = 1;
+	string name = 2;
 }
 
 message ss_create_role_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	string openid = 3;
+	errno result = 1;
+	string openid = 2;
 	oneof oneof_role {
-		tb_role role = 4;
+		tb_role role = 3;
 	}
 }
 
 message ss_load_role_req {
-	int64 flowid = 1;
-	string openid = 2;
-	int64 roleid = 3;
+	string openid = 1;
+	int64 roleid = 2;
 }
 
 message ss_load_role_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	string openid = 3;
+	errno result = 1;
+	string openid = 2;
 	oneof oneof_role {
-		tb_role role = 4;
+		tb_role role = 3;
 	}
 }
 
 message ss_save_role_req {
-	int64 flowid = 1;
-	string openid = 2;
-	tb_role role = 3;
+	string openid = 1;
+	tb_role role = 2;
 }
 
 message ss_save_role_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	string openid = 3;
-	int64 roleid = 4;
+	errno result = 1;
+	string openid = 2;
+	int64 roleid = 3;
 }
 
 message ss_fetch_room_req {
-	int64 flowid = 1;
-	int64 roleid = 2;
-	game_mode mode = 3;
+	int64 roleid = 1;
+	game_mode mode = 2;
 }
 
 message ss_fetch_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
-	repeated room_brief room_list = 4;
+	errno result = 1;
+	int64 roleid = 2;
+	repeated room_brief room_list = 3;
 }
 
 message ss_create_room_req {
-	int64 flowid = 1;
-	int32 lobbyid = 2;
-	room_role role = 3;
-	int64 roomid = 4;
-	int32 cipher = 5;
-	string name = 6;
-	game_mode mode = 7;
-	game_opt option = 8;
+	int32 lobbyid = 1;
+	room_role role = 2;
+	int64 roomid = 3;
+	int32 cipher = 4;
+	string name = 5;
+	game_mode mode = 6;
+	game_opt option = 7;
 }
 
 message ss_create_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
+	errno result = 1;
+	int64 roleid = 2;
 	oneof oneof_room {
-		room_detail room = 4;
+		room_detail room = 3;
 	}
 }
 
 message ss_enter_room_req {
-	int64 flowid = 1;
-	int32 lobbyid = 2;
-	room_role role = 3;
-	int64 roomid = 4;
-	int32 cipher = 5;
+	int32 lobbyid = 1;
+	room_role role = 2;
+	int64 roomid = 3;
+	int32 cipher = 4;
 }
 
 message ss_enter_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
+	errno result = 1;
+	int64 roleid = 2;
 	oneof oneof_room {
-		room_detail room = 4;
+		room_detail room = 3;
 	}
 }
 
 message ss_leave_room_req {
-	int64 flowid = 1;
-	int64 roleid = 2;
-	int64 roomid = 3;
-	reason_type reason = 4;
+	int64 roleid = 1;
+	int64 roomid = 2;
+	reason_type reason = 3;
 }
 
 message ss_leave_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
-	int64 roomid = 4;
-	reason_type reason = 5;
-}
-
-message ss_dismiss_room_req {
-	int64 flowid = 1;
+	errno result = 1;
 	int64 roleid = 2;
 	int64 roomid = 3;
 	reason_type reason = 4;
 }
 
+message ss_dismiss_room_req {
+	int64 roleid = 1;
+	int64 roomid = 2;
+	reason_type reason = 3;
+}
+
 message ss_dismiss_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
-	int64 roomid = 4;
-	reason_type reason = 5;
+	errno result = 1;
+	int64 roleid = 2;
+	int64 roomid = 3;
+	reason_type reason = 4;
 }
 
 message ss_game_operate_req {
-	int64 flowid = 1;
-	int64 roleid = 2;
-	int64 roomid = 3;
+	int64 roleid = 1;
+	int64 roomid = 2;
 }
 
 message ss_game_operate_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roleid = 3;
+	errno result = 1;
+	int64 roleid = 2;
 }
 
 message ss_update_room_req {
-	int64 flowid = 1;
-	room_brief room = 2;
+	room_brief room = 1;
 }
 
 message ss_update_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }
 
 message ss_report_payload_req {
-	int64 flowid = 1;
-	int32 support_mode = 2;
-	int32 role_count = 3;
-	int32 room_count = 4;
+	int32 support_mode = 1;
+	int32 role_count = 2;
+	int32 room_count = 3;
 }
 
 message ss_report_payload_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }

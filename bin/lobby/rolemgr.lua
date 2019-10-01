@@ -40,10 +40,10 @@ function is_gaming( role )
 	return gaming.rsvrid > 0 and gaming.roomid > 0
 end
 
-function leave_room( role, flowid, reason )
+function leave_room( role, reason )
 	local gaming = role.gaming
 	if gaming.rsvrid > 0 and gaming.roomid > 0 then
-		airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", flowid, role.roleid, gaming.roomid, reason)
+		airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", role.roleid, gaming.roomid, reason)
 	end
 end
 

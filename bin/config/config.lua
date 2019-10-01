@@ -7,7 +7,7 @@ redis_port = 6379
 mysql_ip = "jinjiazh.com"
 mysql_port = 3306
 mysql_user = "jinjiazh"
-mysql_pass = "10086"
+mysql_pass = "mckSL5VzzMeuZUuK"
 mysql_db = "game"
 
 dbagent_ip = "127.0.0.1"

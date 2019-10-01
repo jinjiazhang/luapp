@@ -24,233 +24,197 @@ message cs_role {
 }
 
 message cs_login_req {
-	int64 flowid = 1;
-	string openid = 2;
-	string token = 3;
+	string openid = 1;
+	string token = 2;
 }
 
 message cs_login_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_account {
-		cs_account account = 3;
+		cs_account account = 2;
 	}
 }
 
 message cs_kickout_ntf {
-	int64 flowid = 1;
-	errno reason = 2;
+	errno reason = 1;
 }
 
 message cs_create_role_req {
-	int64 flowid = 1;
-	string name = 2;
+	string name = 1;
 }
 
 message cs_create_role_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_role {
-		cs_role role = 3;
+		cs_role role = 2;
 	}
 }
 
 message cs_select_role_req {
-	int64 flowid = 1;
-	int64 roleid = 2;
+	int64 roleid = 1;
 }
 
 message cs_select_role_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_role {
-		cs_role role = 3;
+		cs_role role = 2;
 	}
 }
 
 message cs_fetch_room_req {
-	int64 flowid = 1;
-	game_mode mode = 2;
+	game_mode mode = 1;
 }
 
 message cs_fetch_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	repeated room_brief room_list = 3;
+	errno result = 1;
+	repeated room_brief room_list = 2;
 }
 
 message cs_create_room_req {
-	int64 flowid = 1;
-	string name = 2;
-	game_mode mode = 3;
-	game_opt option = 4;
+	string name = 1;
+	game_mode mode = 2;
+	game_opt option = 3;
 }
 
 message cs_create_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_room {
-		room_detail room = 3;
+		room_detail room = 2;
 	}
 }
 
 message cs_enter_room_req {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int32 cipher = 3;
+	int64 roomid = 1;
+	int32 cipher = 2;
 }
 
 message cs_enter_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_room {
-		room_detail room = 3;
+		room_detail room = 2;
 	}
 }
 
 message cs_enter_room_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	room_role viewer = 3;
+	int64 roomid = 1;
+	room_role viewer = 2;
 }
 
 message cs_leave_room_req {
-	int64 flowid = 1;
-	int64 roomid = 2;
+	int64 roomid = 1;
 }
 
 message cs_leave_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roomid = 3;
+	errno result = 1;
+	int64 roomid = 2;
 }
 
 message cs_leave_room_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int64 roleid = 3;
-	reason_type reason = 4;
-}
-
-message cs_dismiss_room_req {
-	int64 flowid = 1;
-	int64 roomid = 2;
-}
-
-message cs_dismiss_room_rsp {
-	int64 flowid = 1;
-	errno result = 2;
-	int64 roomid = 3;
-}
-
-message cs_dismiss_room_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
+	int64 roomid = 1;
+	int64 roleid = 2;
 	reason_type reason = 3;
 }
 
+message cs_dismiss_room_req {
+	int64 roomid = 1;
+}
+
+message cs_dismiss_room_rsp {
+	errno result = 1;
+	int64 roomid = 2;
+}
+
+message cs_dismiss_room_ntf {
+	int64 roomid = 1;
+	reason_type reason = 2;
+}
+
 message cs_texas_chat_req {
-	int64 flowid = 1;
-	string content = 2;
+	string content = 1;
 }
 
 message cs_texas_chat_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }
 
 message cs_texas_chat_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int64 roleid = 3;
-	string content = 4;
+	int64 roomid = 1;
+	int64 roleid = 2;
+	string content = 3;
 }
 
 message cs_texas_sitdown_req {
-	int64 flowid = 1;
-	int32 seatid = 2;
+	int32 seatid = 1;
 }
 
 message cs_texas_sitdown_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 	oneof oneof_player {
-		texas_player player = 3;	
+		texas_player player = 2;	
 	}
 }
 
 message cs_texas_sitdown_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	texas_player player = 3;
+	int64 roomid = 1;
+	texas_player player = 2;
 }
 
 message cs_texas_standup_req {
-	int64 flowid = 1;
+	int32 seatid = 1;
 }
 
 message cs_texas_standup_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }
 
 message cs_texas_standup_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int32 seatid = 3;
+	int64 roomid = 1;
+	int32 seatid = 2;
 }
 
 message cs_texas_start_req {
-	int64 flowid = 1;
+	int32 reserved = 1;
 }
 
 message cs_texas_start_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }
 
 message cs_texas_start_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
+	int64 roomid = 1;
 }
 
 message cs_texas_hand_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	texas_hand hand = 3;
+	int64 roomid = 1;
+	texas_hand hand = 2;
 }
 
 message cs_texas_deal_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int32 hand_idx = 3;
-	repeated int32 cards = 4;
+	int64 roomid = 1;
+	int32 hand_idx = 2;
+	repeated int32 cards = 3;
 }
 
 message cs_texas_round_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int32 hand_idx = 3;
-	texas_round round = 4;
+	int64 roomid = 1;
+	int32 hand_idx = 2;
+	texas_round round = 3;
 }
 
 message cs_texas_action_req {
-	int64 flowid = 1;
-	int32 hand_idx = 2;
-	int32 round_idx = 3;
-	action_type act_type = 4;
-	int64 act_chips = 5;
+	int32 hand_idx = 1;
+	int32 round_idx = 2;
+	action_type act_type = 3;
+	int64 act_chips = 4;
 }
 
 message cs_texas_action_rsp {
-	int64 flowid = 1;
-	errno result = 2;
+	errno result = 1;
 }
 
 message cs_texas_action_ntf {
-	int64 flowid = 1;
-	int64 roomid = 2;
-	int32 hand_idx = 3;
-	int32 round_idx = 4;
-	texas_action action = 5;
+	int64 roomid = 1;
+	int32 hand_idx = 2;
+	int32 round_idx = 3;
+	texas_action action = 4;
 }

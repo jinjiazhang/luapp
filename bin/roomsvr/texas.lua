@@ -92,7 +92,7 @@ function start_new_round( game, card_num, notify )
 	end
 end
 
-function env.cs_texas_chat_req( room, roleid, flowid, content )
+function env.cs_texas_chat_req( room, roleid, content )
 	if not room.get_viewer(roleid) then
 		return errno.DATA_ERROR
 	end
@@ -101,7 +101,7 @@ function env.cs_texas_chat_req( room, roleid, flowid, content )
 	return errno.SUCCESS
 end
 
-function env.cs_texas_sitdown_req( room, roleid, flowid, seatid )
+function env.cs_texas_sitdown_req( room, roleid, seatid )
 	local role = room.get_viewer(roleid)
 	if not role then
 		return errno.DATA_ERROR
@@ -140,7 +140,7 @@ function env.cs_texas_sitdown_req( room, roleid, flowid, seatid )
 	return errno.SUCCESS, player
 end
 
-function env.cs_texas_standup_req( room, roleid, flowid )
+function env.cs_texas_standup_req( room, roleid )
 	local game = room.game.texas
 	local player = game.player_table[roleid]
 	if not player then
@@ -162,7 +162,7 @@ function env.cs_texas_standup_req( room, roleid, flowid )
 	return errno.SUCCESS
 end
 
-function env.cs_texas_start_req( room, roleid, flowid )
+function env.cs_texas_start_req( room, roleid )
 	local game = room.game.texas
 	local player = game.player_table[roleid]
 	if not player then
@@ -188,7 +188,7 @@ function env.cs_texas_start_req( room, roleid, flowid )
 	return errno.SUCCESS
 end
 
-function env.cs_texas_action_req( room, roleid, flowid, hand_idx, round_idx, act_type, act_chips )
+function env.cs_texas_action_req( room, roleid, hand_idx, round_idx, act_type, act_chips )
 	if room.status ~= room_status.PLAYING then
 		return errno.DATA_ERROR
 	end
