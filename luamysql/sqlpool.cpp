@@ -1,6 +1,6 @@
 #include "sqlpool.h"
 #include "sqlclient.h"
-#include "mysqlmgr.h"
+#include "luamysql.h"
 
 #define SQL_METHOD_CONNECT  0
 #define SQL_METHOD_SELECT   1
@@ -20,7 +20,7 @@ bool encode_message(Message* message, const Descriptor* descriptor, lua_State* L
 sqlpool::sqlpool(lua_State* L) : lobject(L)
 {
     last_token_ = 0;
-    sqlmgr_ = nullptr;
+    mysql_ = nullptr;
     run_flag_ = false;
 }
 
@@ -33,9 +33,9 @@ sqlpool::~sqlpool()
     }
 }
 
-bool sqlpool::init(mysqlmgr* sqlmgr)
+bool sqlpool::init(luamysql* mysql)
 {
-    sqlmgr_ = sqlmgr;
+    mysql_ = mysql;
     run_flag_ = true;
     return true;
 }
@@ -122,7 +122,7 @@ int sqlpool::sql_select(lua_State* L)
     luaL_checktype(L, 1, LUA_TSTRING);
     luaL_checktype(L, 2, LUA_TSTRING);
     const char* proto = luaL_getvalue<const char*>(L, 1);
-    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    const Descriptor* descriptor = mysql_->find_message(proto);
     if (descriptor == nullptr)
     {
         log_error("sqlpool::sql_select message not found, proto=%s", proto);
@@ -149,7 +149,7 @@ int sqlpool::sql_insert(lua_State* L)
     luaL_checktype(L, 1, LUA_TSTRING);
     luaL_checktype(L, 2, LUA_TTABLE);
     const char* proto = luaL_getvalue<const char*>(L, 1);
-    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    const Descriptor* descriptor = mysql_->find_message(proto);
     if (descriptor == nullptr)
     {
         log_error("sqlpool::sql_insert message not found, proto=%s", proto);
@@ -184,7 +184,7 @@ int sqlpool::sql_update(lua_State* L)
     luaL_checktype(L, 2, LUA_TTABLE);
     luaL_checktype(L, 3, LUA_TSTRING);
     const char* proto = luaL_getvalue<const char*>(L, 1);
-    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    const Descriptor* descriptor = mysql_->find_message(proto);
     if (descriptor == nullptr)
     {
         log_error("sqlpool::sql_update message not found, proto=%s", proto);
@@ -219,7 +219,7 @@ int sqlpool::sql_delete(lua_State* L)
     luaL_checktype(L, 1, LUA_TSTRING);
     luaL_checktype(L, 2, LUA_TSTRING);
     const char* proto = luaL_getvalue<const char*>(L, 1);
-    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    const Descriptor* descriptor = mysql_->find_message(proto);
     if (descriptor == nullptr)
     {
         log_error("sqlpool::sql_delete message not found, proto=%s", proto);
@@ -244,7 +244,7 @@ int sqlpool::sql_create(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* proto = luaL_getvalue<const char*>(L, 1);
-    const Descriptor* descriptor = sqlmgr_->find_message(proto);
+    const Descriptor* descriptor = mysql_->find_message(proto);
     if (descriptor == nullptr)
     {
         log_error("sqlpool::sql_create message not found, proto=%s", proto);

@@ -5,6 +5,7 @@ option (CURL_STATICLIB "curl static lib" ON)
 option (BUILD_SHARED_LIBS "log4cplus build shared lib" OFF)
 option (UNICODE "log4cplus use unicode" OFF)
 option (CMAKE_USE_OPENSSL "Use OpenSSL code. Experimental" OFF)
+option (ENABLE_TESTS "Build MongoDB C Driver tests." OFF)
 option (ENABLE_UNINSTALL "Enable creation of uninstall script and associated uninstall build target." OFF)
 
 # http://slproweb.com/products/Win32OpenSSL.html

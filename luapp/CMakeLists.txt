@@ -26,7 +26,7 @@ include_directories(../thirdparty/curl/include)
 
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    target_link_libraries(${PROJECT_NAME} gateway protosql proroute protonet protolua lualib luaredis luamongo lua log4cplusS libprotobuf mariadbclient libcurl hiredis mongoc_static bson_static dl pthread)
+    target_link_libraries(${PROJECT_NAME} gateway proroute protonet protolua lualib luaredis luamongo luamysql lua log4cplusS libprotobuf mariadbclient libcurl hiredis mongoc_static bson_static dl pthread)
 ELSE ()
-    target_link_libraries(${PROJECT_NAME} gateway protosql proroute protonet protolua lualib luaredis luamongo lua log4cplusS libprotobuf mariadbclient libcurl wldap32 hiredis mongoc_static bson_static)
+    target_link_libraries(${PROJECT_NAME} gateway proroute protonet protolua lualib luaredis luamongo luamysql lua log4cplusS libprotobuf mariadbclient libcurl wldap32 hiredis mongoc_static bson_static)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "Darwin")

@@ -7,11 +7,11 @@
 #include "google/protobuf/dynamic_message.h"
 
 class sqlpool;
-class mysqlmgr : public lobject
+class luamysql : public lobject
 {
 public:
-    mysqlmgr(lua_State* L);
-    ~mysqlmgr();
+    luamysql(lua_State* L);
+    ~luamysql();
 
     int update();
     int parse(lua_State* L);

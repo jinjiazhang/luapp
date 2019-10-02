@@ -4,9 +4,9 @@
 #include "lualib/lobject.h"
 #include "luaredis/luaredis.h"
 #include "luamongo/luamongo.h"
+#include "luamysql/luamysql.h"
 #include "protonet/lnetwork.h"
 #include "proroute/routermgr.h"
-#include "protosql/mysqlmgr.h"
 #include "lhttp.h"
 #include "ltimer.h"
 
@@ -57,9 +57,9 @@ private:
     ltimer* timer_;
     lnetwork* luanet_;
 	luaredis* luaredis_;
+    luamysql* luamysql_;
     luamongo* luamongo_;
     routermgr* routermgr_;
-    mysqlmgr* mysqlmgr_;
 };
 
 extern const char* assist_code;

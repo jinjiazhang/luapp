@@ -6,7 +6,7 @@
 #include "google/protobuf/dynamic_message.h"
 
 
-class mysqlmgr;
+class luamysql;
 class sqlclient;
 class sqlpool : public lobject
 {
@@ -28,7 +28,7 @@ public:
     sqlpool(lua_State* L);
     ~sqlpool();
 
-    bool init(mysqlmgr* sqlmgr);
+    bool init(luamysql* mysql);
     int  update();
     void work_thread(const char* host, const char* user, const char* passwd, const char* db, unsigned int port);
 
@@ -48,7 +48,7 @@ private:
     void on_executed(std::shared_ptr<taskdata> task);
 
 private:
-    mysqlmgr* sqlmgr_;
+    luamysql* mysql_;
     int last_token_;
     std::atomic_bool run_flag_;
     std::vector<std::thread> threads_;

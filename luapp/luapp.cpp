@@ -17,8 +17,8 @@ luapp::luapp(lua_State* L) : lobject(L)
     luanet_ = nullptr;
 	luaredis_ = nullptr;
     luamongo_ = nullptr;
+    luamysql_ = nullptr;
     routermgr_ = nullptr;
-    mysqlmgr_ = nullptr;
 }
 
 luapp::~luapp()
@@ -33,10 +33,10 @@ luapp::~luapp()
         delete luaredis_;
     if (luamongo_)
         delete luamongo_;
+    if (luamysql_)
+        delete luamysql_;
     if (routermgr_)
         delete routermgr_;
-    if (mysqlmgr_)
-        delete mysqlmgr_;
     if (network_) 
         network_->release();
 }
@@ -128,13 +128,13 @@ int luapp::init()
     lua_pushlobject(L, luamongo_);
     lua_setglobal(L, "mongo");
 
+    luamysql_ = new luamysql(L);
+    lua_pushlobject(L, luamysql_);
+    lua_setglobal(L, "mysql");
+
     routermgr_ = new routermgr(L, network_, svrid_);
     lua_pushlobject(L, routermgr_);
     lua_setglobal(L, "route");
-
-    mysqlmgr_ = new mysqlmgr(L);
-    lua_pushlobject(L, mysqlmgr_);
-    lua_setglobal(L, "mysql");
 
     luaL_dostring(L, assist_code);
     if (!luaL_callfunc(L, this, "import", ctx_->entry))
@@ -156,7 +156,7 @@ int luapp::proc()
     count += timer_->update(this->mstime());
     count += network_->update(0);
     count += http_->update();
-    count += mysqlmgr_->update();
+    count += luamysql_->update();
     return count;
 }
 

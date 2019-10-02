@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(protosql)
+project(luamysql)
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" SUPPORT_CXX11)
