@@ -3,6 +3,7 @@
 
 #include "lualib/lobject.h"
 #include "luaredis/luaredis.h"
+#include "luamongo/luamongo.h"
 #include "protonet/lnetwork.h"
 #include "proroute/routermgr.h"
 #include "protosql/mysqlmgr.h"
@@ -56,6 +57,7 @@ private:
     ltimer* timer_;
     lnetwork* luanet_;
 	luaredis* luaredis_;
+    luamongo* luamongo_;
     routermgr* routermgr_;
     mysqlmgr* mysqlmgr_;
 };

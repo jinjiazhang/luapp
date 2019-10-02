@@ -24,6 +24,7 @@ add_subdirectory(luapp)
 add_subdirectory(lualib)
 add_subdirectory(gateway)
 add_subdirectory(luaredis)
+add_subdirectory(luamongo)
 add_subdirectory(proroute)
 add_subdirectory(protolua)
 add_subdirectory(protonet)
@@ -31,4 +32,4 @@ add_subdirectory(protosql)
 add_subdirectory(thirdparty)
 
 add_dependencies(luapp lualib gateway luaredis protosql proroute protolua protonet 
-	lua log4cplusS libprotobuf libcurl hiredis mariadbclient)
+	lua log4cplusS libprotobuf libcurl hiredis mariadbclient mongoc_static bson_static)

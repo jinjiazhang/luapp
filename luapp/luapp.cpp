@@ -16,6 +16,7 @@ luapp::luapp(lua_State* L) : lobject(L)
     timer_ = nullptr;
     luanet_ = nullptr;
 	luaredis_ = nullptr;
+    luamongo_ = nullptr;
     routermgr_ = nullptr;
     mysqlmgr_ = nullptr;
 }
@@ -30,6 +31,8 @@ luapp::~luapp()
         delete luanet_;
     if (luaredis_) 
         delete luaredis_;
+    if (luamongo_)
+        delete luamongo_;
     if (routermgr_)
         delete routermgr_;
     if (mysqlmgr_)
@@ -120,6 +123,10 @@ int luapp::init()
 	luaredis_ = new luaredis(L, network_);
 	lua_pushlobject(L, luaredis_);
 	lua_setglobal(L, "redis");
+
+    luamongo_ = new luamongo(L);
+    lua_pushlobject(L, luamongo_);
+    lua_setglobal(L, "mongo");
 
     routermgr_ = new routermgr(L, network_, svrid_);
     lua_pushlobject(L, routermgr_);
