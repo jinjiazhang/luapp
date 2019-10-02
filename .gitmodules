@@ -16,3 +16,6 @@
 [submodule "thirdparty/mariadb-connector-c"]
 	path = thirdparty/mariadb-connector-c
 	url = https://github.com/MariaDB/mariadb-connector-c.git
+[submodule "thirdparty/mongo-c-driver"]
+	path = thirdparty/mongo-c-driver
+	url = https://github.com/mongodb/mongo-c-driver.git
