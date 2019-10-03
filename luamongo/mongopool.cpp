@@ -1,14 +1,9 @@
 #include "mongopool.h"
 #include "luamongo.h"
+#include "bsonutil.h"
 
 #define MONGO_METHOD_CONNECT  0
-#define MONGO_METHOD_SELECT   1
-#define MONGO_METHOD_INSERT   2
-#define MONGO_METHOD_UPDATE   3
-#define MONGO_METHOD_DELETE   4
-#define MONGO_METHOD_CREATE   5
-#define MONGO_METHOD_EXECUTE  6
-#define MONGO_METHOD_INCREASE 7
+#define MONGO_METHOD_COMMAND  1
 
 mongopool::mongopool(lua_State* L, luamongo* mongo) : lobject(L)
 {
@@ -80,23 +75,6 @@ void mongopool::work_thread(void* data)
     mongoc_client_pool_t* pool = (mongoc_client_pool_t*)data;
     mongoc_client_t* client = mongoc_client_pool_pop(pool);
 
-    bson_t reply;
-    bson_error_t error;
-    bson_t* command = BCON_NEW("ping", BCON_INT32(1));
-    bool retval = mongoc_client_command_simple(client, "admin", command, nullptr, &reply, &error);
-    if (!retval)
-    {
-        log_error("mongoclient::command fail, error(%s)", error.message);
-        std::shared_ptr<taskdata> task(new taskdata());
-        task->token = 0;
-        task->method = MONGO_METHOD_CONNECT;
-        task->errmsg = error.message;
-        rsp_mutex_.lock();
-        rsp_queue_.push_back(task);
-        rsp_mutex_.unlock();
-        return;
-    }
-
     while (run_flag_)
     {
         std::shared_ptr<taskdata> task;
@@ -123,20 +101,60 @@ void mongopool::work_thread(void* data)
     mongoc_client_pool_push(pool, client);
 }
 
+// pool.mongo_command("db_name", {ping = 1})
+int mongopool::mongo_command(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = MONGO_METHOD_COMMAND;
+    task->db_name = lua_tostring(L, 1);
+    task->command = luaL_tobson(L, 2);
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
 void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> task)
 {
-
+    switch (task->method)
+    {
+    case MONGO_METHOD_COMMAND:
+        task->retval = mongoc_client_command_simple(client, task->db_name.c_str(), task->command, nullptr, &task->reply, &task->error);
+        break;    
+    default:
+        break;
+    }
 }
 
 void mongopool::on_respond(std::shared_ptr<taskdata> task)
 {
-
+    switch (task->method)
+    {
+    case MONGO_METHOD_COMMAND:
+        luaL_pushfunc(L, this, "on_respond");
+        luaL_pushvalue(L, task->token);
+        task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
+        luaL_pushbson(L, &task->reply);
+        luaL_safecall(L, 3, 0);
+        break;
+    default:
+        break;
+    }
 }
 
+EXPORT_OFUNC(mongopool, mongo_command)
 const luaL_Reg* mongopool::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "on_respond", lua_emptyfunc },
+        { IMPORT_OFUNC(mongopool, mongo_command) },
         { NULL, NULL }
     };
     return libs;

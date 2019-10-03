@@ -17,7 +17,12 @@ public:
     {
         int token = 0;
         int method = 0;
-        std::string errmsg = "";
+        bool retval = false;
+        std::string db_name;
+
+        bson_t* command;
+        bson_t reply;
+        bson_error_t error;
     };
 
 public:
@@ -28,6 +33,7 @@ public:
     int  update();
     void work_thread(void* data);
 
+    int mongo_command(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:

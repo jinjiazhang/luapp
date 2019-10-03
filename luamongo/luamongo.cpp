@@ -36,6 +36,7 @@ int luamongo::create_pool(lua_State* L)
         return 0;
     }
 
+    mongopools_.push_back(pool);
     lua_pushlobject(L, pool);
     return 1;
 }
