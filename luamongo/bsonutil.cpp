@@ -50,7 +50,7 @@ static void luaL_fillbson(lua_State* L, int index, bson_t* bson, const char *key
         break;
     case LUA_TSTRING:
         bytes = lua_tolstring(L, index, &length);
-        bson_append_binary(bson, key, key_length, BSON_SUBTYPE_BINARY, (const uint8_t*)bytes, length);
+        bson_append_utf8(bson, key, key_length, bytes, length);
         break;
     case LUA_TTABLE:
         if (luaL_isarray(L, index))
@@ -75,11 +75,12 @@ static void luaL_fillbson(lua_State* L, int index, bson_t* bson, const char *key
         {
             bson_t child;
             bson_append_document_begin(bson, key, key_length, &child);
+            lua_pushnil(L);
             while (lua_next(L, index))
             {
-                size_t length = 0;
-                const char* key = lua_tolstring(L, -2, &length);
-                luaL_fillbson(L, lua_absindex(L, -1), bson, key, key_length);
+                size_t child_key_length = 0;
+                const char* child_key = lua_tolstring(L, -2, &child_key_length);
+                luaL_fillbson(L, lua_absindex(L, -1), &child, child_key, child_key_length);
                 lua_pop(L, 1);
             }
             bson_append_document_end(bson, &child);
