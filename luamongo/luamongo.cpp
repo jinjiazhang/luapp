@@ -1,34 +1,40 @@
 #include "luamongo.h"
-#include "mongoclient.h"
+#include "mongopool.h"
+#include "mongoc/mongoc.h"
 
 luamongo::luamongo(lua_State* L) : lobject(L)
 {
-
+    mongoc_init();
 }
 
 luamongo::~luamongo()
 {
-
+    mongoc_cleanup();
 }
 
-int luamongo::connect(lua_State* L)
+int luamongo::create_pool(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    const char* ip = luaL_getvalue<const char*>(L, 1);
+    const char* url = luaL_getvalue<const char*>(L, 1);
     luaL_checktype(L, 2, LUA_TNUMBER);
-    int port = luaL_getvalue<int>(L, 2);
+    int num = luaL_getvalue<int>(L, 2);
 
-    mongoclient* client = new mongoclient(this->L, this);
+    mongopool* pool = new mongopool(this->L, this);
+    if (!pool->init(url, num))
+    {
+        delete pool;
+        return 0;
+    }
 
-    lua_pushlobject(L, client);
+    lua_pushlobject(L, pool);
     return 1;
 }
 
-EXPORT_OFUNC(luamongo, connect)
+EXPORT_OFUNC(luamongo, create_pool)
 const luaL_Reg* luamongo::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(luamongo, connect) },
+        { IMPORT_OFUNC(luamongo, create_pool) },
         { NULL, NULL }
     };
     return libs;

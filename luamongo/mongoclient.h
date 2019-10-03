@@ -1,4 +1,3 @@
-#include "lualib/lobject.h"
 #ifndef _JINJIAZHANG_MONGOCLIENT_H_
 #define _JINJIAZHANG_MONGOCLIENT_H_
 

@@ -3,17 +3,19 @@
 
 #include "lualib/lobject.h"
 
+class mongopool;
 class luamongo : public lobject
 {
 public:
     luamongo(lua_State* L);
     ~luamongo();
 
-    int connect(lua_State* L);
+    int update();
+    int create_pool(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:
-
+    std::vector<mongopool*> mongopools_;
 };
 
 #endif
