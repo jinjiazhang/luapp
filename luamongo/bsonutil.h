@@ -5,6 +5,6 @@
 #include "mongoc/mongoc.h"
 
 bson_t* luaL_tobson(lua_State* L, int index);
-void luaL_pushbson(lua_State* L, bson_t* bson);
+void luaL_pushbson(lua_State* L, const bson_t* bson);
 
 #endif

@@ -21,8 +21,10 @@ public:
         std::string db_name;
         std::string coll_name;
 
-        bson_t* command = nullptr;
-        bson_t* document = nullptr;
+        bson_t* param1 = nullptr;
+        bson_t* param2 = nullptr;
+        bson_t* param3 = nullptr;
+        std::vector<const bson_t*> results;
         bson_t reply;
         bson_error_t error;
     };
@@ -37,6 +39,10 @@ public:
 
     int mongo_command(lua_State* L);
     int mongo_insert(lua_State* L);
+    int mongo_find(lua_State* L);
+    int mongo_update(lua_State* L);
+    int mongo_replace(lua_State* L);
+    int mongo_delete(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:

@@ -105,7 +105,7 @@ bson_t* luaL_tobson(lua_State* L, int index)
     return bson;
 }
 
-void luaL_pushbson(lua_State* L, bson_t* bson)
+void luaL_pushbson(lua_State* L, const bson_t* bson)
 {
     char* str = bson_as_json(bson, NULL);
     lua_pushstring(L, str);
