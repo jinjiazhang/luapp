@@ -44,14 +44,14 @@ mongopool::~mongopool()
 bool mongopool::init(const char* url, int num)
 {
     bson_error_t error;
-    mongoc_uri_t* uri = mongoc_uri_new_with_error(url, &error);
-    if (url == nullptr)
+    uri_ = mongoc_uri_new_with_error(url, &error);
+    if (uri_ == nullptr)
     {
         lua_pushstring(L, error.message);
         return 1;
     }
 
-    pool_ = mongoc_client_pool_new(uri);
+    pool_ = mongoc_client_pool_new(uri_);
     mongoc_client_pool_set_error_api(pool_, 2);
 
     run_flag_ = true;
@@ -78,7 +78,22 @@ int mongopool::update()
 
 void mongopool::work_thread(void* data)
 {
-    mongoclient* client = nullptr;
+    mongoc_client_pool_t* pool = (mongoc_client_pool_t*)data;
+    mongoclient* client = new mongoclient(pool);
+    int ret_code = client->command("ping");
+    if (ret_code != 0)
+    {
+        log_error("mongoclient::command fail, code(%d)", ret_code);
+        std::shared_ptr<taskdata> task(new taskdata());
+        task->token = 0;
+        task->method = MONGO_METHOD_CONNECT;
+        task->ret_code = ret_code;
+        rsp_mutex_.lock();
+        rsp_queue_.push_back(task);
+        rsp_mutex_.unlock();
+        return;
+    }
+
     while (run_flag_)
     {
         std::shared_ptr<taskdata> task;
@@ -102,6 +117,7 @@ void mongopool::work_thread(void* data)
         rsp_queue_.push_back(task);
         rsp_mutex_.unlock();
     }
+    delete client;
 }
 
 void mongopool::do_request(mongoclient* client, std::shared_ptr<taskdata> task)
