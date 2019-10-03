@@ -1,5 +1,4 @@
 #include "mongopool.h"
-#include "mongoclient.h"
 #include "luamongo.h"
 
 #define MONGO_METHOD_CONNECT  0
@@ -79,15 +78,19 @@ int mongopool::update()
 void mongopool::work_thread(void* data)
 {
     mongoc_client_pool_t* pool = (mongoc_client_pool_t*)data;
-    mongoclient* client = new mongoclient(pool);
-    int ret_code = client->command("ping");
-    if (ret_code != 0)
+    mongoc_client_t* client = mongoc_client_pool_pop(pool);
+
+    bson_t reply;
+    bson_error_t error;
+    bson_t* command = BCON_NEW("ping", BCON_INT32(1));
+    bool retval = mongoc_client_command_simple(client, "admin", command, nullptr, &reply, &error);
+    if (!retval)
     {
-        log_error("mongoclient::command fail, code(%d)", ret_code);
+        log_error("mongoclient::command fail, error(%s)", error.message);
         std::shared_ptr<taskdata> task(new taskdata());
         task->token = 0;
         task->method = MONGO_METHOD_CONNECT;
-        task->ret_code = ret_code;
+        task->errmsg = error.message;
         rsp_mutex_.lock();
         rsp_queue_.push_back(task);
         rsp_mutex_.unlock();
@@ -117,10 +120,10 @@ void mongopool::work_thread(void* data)
         rsp_queue_.push_back(task);
         rsp_mutex_.unlock();
     }
-    delete client;
+    mongoc_client_pool_push(pool, client);
 }
 
-void mongopool::do_request(mongoclient* client, std::shared_ptr<taskdata> task)
+void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> task)
 {
 
 }

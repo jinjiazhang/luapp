@@ -156,6 +156,7 @@ int luapp::proc()
     count += timer_->update(this->mstime());
     count += network_->update(0);
     count += http_->update();
+    count += luamongo_->update();
     count += luamysql_->update();
     return count;
 }

@@ -1,10 +1,12 @@
 #ifndef _JINJIAZHANG_MONGOPOOL_H_
 #define _JINJIAZHANG_MONGOPOOL_H_
 
+#define BSON_STATIC
+#define MONGOC_STATIC
+
 #include <list>
 #include "lualib/lobject.h"
 #include "mongoc/mongoc.h"
-
 
 class luamongo;
 class mongoclient;
@@ -15,7 +17,7 @@ public:
     {
         int token = 0;
         int method = 0;
-        int ret_code = 0;
+        std::string errmsg = "";
     };
 
 public:
@@ -29,7 +31,7 @@ public:
     virtual const luaL_Reg* get_libs();
 
 private:
-    void do_request(mongoclient* client, std::shared_ptr<taskdata> task);
+    void do_request(mongoc_client_t* client, std::shared_ptr<taskdata> task);
     void on_respond(std::shared_ptr<taskdata> task);
 
 private:

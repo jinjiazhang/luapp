@@ -12,6 +12,16 @@ luamongo::~luamongo()
     mongoc_cleanup();
 }
 
+int luamongo::update()
+{
+    int count = 0;
+    for (mongopool* pool : mongopools_)
+    {
+        count += pool->update();
+    }
+    return count;
+}
+
 int luamongo::create_pool(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
