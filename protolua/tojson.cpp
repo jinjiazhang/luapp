@@ -5,7 +5,7 @@
 #include "rapidjson/stringbuffer.h"
 #include <string>
 
-bool luaL_isarray(lua_State* L, int index)
+static bool luaL_isarray(lua_State* L, int index)
 {
     luaL_checktype(L, index, LUA_TTABLE);
     int count = (int)luaL_len(L, index);
@@ -36,7 +36,7 @@ bool luaL_isarray(lua_State* L, int index)
     return isarray;
 }
 
-void luaL_fillkey(lua_State* L, int index, rapidjson::Value& key, rapidjson::Document::AllocatorType& allocator)
+static void luaL_fillkey(lua_State* L, int index, rapidjson::Value& key, rapidjson::Document::AllocatorType& allocator)
 {
     int type = lua_type(L, index);
     switch (type)
@@ -55,7 +55,7 @@ void luaL_fillkey(lua_State* L, int index, rapidjson::Value& key, rapidjson::Doc
     }
 }
 
-void luaL_fillvalue(lua_State* L, int index, rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator)
+static void luaL_fillvalue(lua_State* L, int index, rapidjson::Value& value, rapidjson::Document::AllocatorType& allocator)
 {
     size_t length = 0;
     const char* bytes = nullptr;

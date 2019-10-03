@@ -4,6 +4,7 @@
 
 #define MONGO_METHOD_CONNECT  0
 #define MONGO_METHOD_COMMAND  1
+#define MONGO_METHOD_INSERT   2
 
 mongopool::mongopool(lua_State* L, luamongo* mongo) : lobject(L)
 {
@@ -121,13 +122,40 @@ int mongopool::mongo_command(lua_State* L)
     return 1;
 }
 
+int mongopool::mongo_insert(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 3, LUA_TTABLE);
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = MONGO_METHOD_INSERT;
+    task->db_name = lua_tostring(L, 1);
+    task->coll_name = lua_tostring(L, 2);
+    task->document = luaL_tobson(L, 3);
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
 void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> task)
 {
+    mongoc_collection_t *collection;
     switch (task->method)
     {
     case MONGO_METHOD_COMMAND:
         task->retval = mongoc_client_command_simple(client, task->db_name.c_str(), task->command, nullptr, &task->reply, &task->error);
-        break;    
+        break;
+    case MONGO_METHOD_INSERT:
+        collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
+        task->retval = mongoc_collection_insert_one(collection, task->document, nullptr, &task->reply, &task->error);
+        mongoc_collection_destroy(collection);
+        break;
     default:
         break;
     }
@@ -138,6 +166,7 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
     switch (task->method)
     {
     case MONGO_METHOD_COMMAND:
+    case MONGO_METHOD_INSERT:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
         task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
@@ -150,11 +179,13 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
 }
 
 EXPORT_OFUNC(mongopool, mongo_command)
+EXPORT_OFUNC(mongopool, mongo_insert)
 const luaL_Reg* mongopool::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "on_respond", lua_emptyfunc },
         { IMPORT_OFUNC(mongopool, mongo_command) },
+        { IMPORT_OFUNC(mongopool, mongo_insert) },
         { NULL, NULL }
     };
     return libs;

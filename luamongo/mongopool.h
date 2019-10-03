@@ -19,8 +19,10 @@ public:
         int method = 0;
         bool retval = false;
         std::string db_name;
+        std::string coll_name;
 
-        bson_t* command;
+        bson_t* command = nullptr;
+        bson_t* document = nullptr;
         bson_t reply;
         bson_error_t error;
     };
@@ -34,6 +36,7 @@ public:
     void work_thread(void* data);
 
     int mongo_command(lua_State* L);
+    int mongo_insert(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:
