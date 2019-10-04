@@ -343,14 +343,17 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
         task->retval = mongoc_collection_update_one(collection, task->param1, task->param2, task->param3, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
+        break;
     case MONGO_METHOD_REPLACE:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
         task->retval = mongoc_collection_replace_one(collection, task->param1, task->param2, task->param3, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
+        break;
     case MONGO_METHOD_DELETE:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
         task->retval = mongoc_collection_delete_one(collection, task->param1, task->param2, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
+        break;
     default:
         break;
     }
@@ -382,6 +385,8 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
     case MONGO_METHOD_COMMAND:
     case MONGO_METHOD_INSERT:
     case MONGO_METHOD_UPDATE:
+    case MONGO_METHOD_REPLACE:
+    case MONGO_METHOD_DELETE:
     case MONGO_METHOD_FIND_AND_MODIFY:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
