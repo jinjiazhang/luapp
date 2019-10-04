@@ -91,6 +91,56 @@ static void luaL_fillbson(lua_State* L, int index, bson_t* bson, const char *key
     }
 }
 
+void luaL_pushvalue(lua_State* L, bson_iter_t& iter)
+{
+    const char* key = bson_iter_key(&iter);
+    int64_t num_key = bson_ascii_strtoll(key, nullptr, 10);
+    errno ? lua_pushstring(L, key) : lua_pushinteger(L, num_key);
+
+    const bson_value_t* value = bson_iter_value(&iter);
+    switch (value->value_type)
+    {
+    case BSON_TYPE_OID:
+    case BSON_TYPE_NULL:
+        lua_pushnil(L);
+        break;
+    case BSON_TYPE_BOOL:
+        lua_pushboolean(L, value->value.v_bool ? 1 : 0);
+        break;
+    case BSON_TYPE_INT32:
+        lua_pushinteger(L, value->value.v_int32);
+        break;
+    case BSON_TYPE_INT64:
+        lua_pushinteger(L, value->value.v_int64);
+        break;
+    case BSON_TYPE_DOUBLE:
+        lua_pushnumber(L, value->value.v_double);
+        break;
+    case BSON_TYPE_UTF8:
+        lua_pushlstring(L, value->value.v_utf8.str, value->value.v_utf8.len);
+        break;
+    case BSON_TYPE_BINARY:
+        lua_pushlstring(L, (char*)value->value.v_binary.data, value->value.v_binary.data_len);
+        break;
+    case BSON_TYPE_DOCUMENT:
+    case BSON_TYPE_ARRAY:
+        {
+            bson_iter_t child;
+            bson_iter_recurse(&iter, &child);
+
+            lua_newtable(L);
+            while (bson_iter_next(&child)) {
+                luaL_pushvalue(L, child);
+                lua_settable(L, -3);
+            }
+        }
+        break;
+    default:
+        luaL_error(L, "luaL_pushbson type(%d) not supported", value->value_type);
+        break;
+    }
+}
+
 bson_t* luaL_tobson(lua_State* L, int index)
 {
     bson_t* bson = bson_new();
@@ -107,6 +157,12 @@ bson_t* luaL_tobson(lua_State* L, int index)
 
 void luaL_pushbson(lua_State* L, const bson_t* bson)
 {
-    char* str = bson_as_json(bson, NULL);
-    lua_pushstring(L, str);
+    bson_iter_t iter;
+    bson_iter_init(&iter, bson);
+
+    lua_newtable(L);
+    while (bson_iter_next(&iter)) {
+        luaL_pushvalue(L, iter);
+        lua_settable(L, -3);
+    }
 }
