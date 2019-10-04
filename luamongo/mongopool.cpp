@@ -2,13 +2,15 @@
 #include "luamongo.h"
 #include "bsonutil.h"
 
-#define MONGO_METHOD_CONNECT  0
-#define MONGO_METHOD_COMMAND  1
-#define MONGO_METHOD_INSERT   2
-#define MONGO_METHOD_FIND     3
-#define MONGO_METHOD_UPDATE   4
-#define MONGO_METHOD_REPLACE  5
-#define MONGO_METHOD_DELETE   6
+#define MONGO_METHOD_CONNECT            0
+#define MONGO_METHOD_COMMAND            1
+#define MONGO_METHOD_INSERT             2
+#define MONGO_METHOD_FIND               3
+#define MONGO_METHOD_FIND_MANY          4
+#define MONGO_METHOD_FIND_AND_MODIFY    5
+#define MONGO_METHOD_UPDATE             6
+#define MONGO_METHOD_REPLACE            7
+#define MONGO_METHOD_DELETE             8
 
 mongopool::mongopool(lua_State* L, luamongo* mongo) : lobject(L)
 {
@@ -174,6 +176,54 @@ int mongopool::mongo_find(lua_State* L)
     return 1;
 }
 
+int mongopool::mongo_find_many(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 3, LUA_TTABLE);
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = MONGO_METHOD_FIND_MANY;
+    task->db_name = lua_tostring(L, 1);
+    task->coll_name = lua_tostring(L, 2);
+    task->param1 = luaL_tobson(L, 3);
+    if (lua_istable(L, 4)) {
+        task->param2 = luaL_tobson(L, 4);
+    }
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
+int mongopool::mongo_find_and_modify(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 3, LUA_TTABLE);
+
+    std::shared_ptr<taskdata> task(new taskdata());
+    task->token = ++last_token_;
+    task->method = MONGO_METHOD_FIND_AND_MODIFY;
+    task->db_name = lua_tostring(L, 1);
+    task->coll_name = lua_tostring(L, 2);
+    task->param1 = luaL_tobson(L, 3);
+    if (lua_istable(L, 4)) {
+        task->param2 = luaL_tobson(L, 4);
+    }
+
+    req_mutex_.lock();
+    req_queue_.push_back(task);
+    req_mutex_.unlock();
+
+    lua_pushinteger(L, task->token);
+    return 1;
+}
+
 int mongopool::mongo_update(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
@@ -267,11 +317,26 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
         break;
     case MONGO_METHOD_FIND:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
+        cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 1, 0, task->param1, task->param2, nullptr);
+        while (mongoc_cursor_next(cursor, &document)) {
+            task->results.push_back(bson_copy(document));
+            break;
+        }
+        mongoc_cursor_destroy(cursor);
+        mongoc_collection_destroy(collection);
+        break;
+    case MONGO_METHOD_FIND_MANY:
+        collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
         cursor = mongoc_collection_find_with_opts(collection, task->param1, task->param2, nullptr);
         while (mongoc_cursor_next(cursor, &document)) {
             task->results.push_back(bson_copy(document));
         }
         mongoc_cursor_destroy(cursor);
+        mongoc_collection_destroy(collection);
+        break;
+    case MONGO_METHOD_FIND_AND_MODIFY:
+        collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
+        task->retval = mongoc_collection_find_and_modify(collection, task->param1, nullptr, task->param2, nullptr, false, false, true, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     case MONGO_METHOD_UPDATE:
@@ -299,6 +364,13 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
         task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
+        task->results.empty() ? lua_pushnil(L) : luaL_pushbson(L, task->results[0]);
+        luaL_safecall(L, 3, 0);
+        break;
+    case MONGO_METHOD_FIND_MANY:
+        luaL_pushfunc(L, this, "on_respond");
+        luaL_pushvalue(L, task->token);
+        task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
         lua_newtable(L);
         for (int i = 0; i < task->results.size(); i++)
         {
@@ -310,6 +382,7 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
     case MONGO_METHOD_COMMAND:
     case MONGO_METHOD_INSERT:
     case MONGO_METHOD_UPDATE:
+    case MONGO_METHOD_FIND_AND_MODIFY:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
         task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
@@ -324,6 +397,8 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
 EXPORT_OFUNC(mongopool, mongo_command)
 EXPORT_OFUNC(mongopool, mongo_insert)
 EXPORT_OFUNC(mongopool, mongo_find)
+EXPORT_OFUNC(mongopool, mongo_find_many)
+EXPORT_OFUNC(mongopool, mongo_find_and_modify)
 EXPORT_OFUNC(mongopool, mongo_update)
 EXPORT_OFUNC(mongopool, mongo_replace)
 EXPORT_OFUNC(mongopool, mongo_delete)
@@ -334,6 +409,8 @@ const luaL_Reg* mongopool::get_libs()
         { IMPORT_OFUNC(mongopool, mongo_command) },
         { IMPORT_OFUNC(mongopool, mongo_insert) },
         { IMPORT_OFUNC(mongopool, mongo_find) },
+        { IMPORT_OFUNC(mongopool, mongo_find_many) },
+        { IMPORT_OFUNC(mongopool, mongo_find_and_modify) },
         { IMPORT_OFUNC(mongopool, mongo_update) },
         { IMPORT_OFUNC(mongopool, mongo_replace) },
         { IMPORT_OFUNC(mongopool, mongo_delete) },

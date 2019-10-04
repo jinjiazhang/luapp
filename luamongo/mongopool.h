@@ -40,6 +40,8 @@ public:
     int mongo_command(lua_State* L);
     int mongo_insert(lua_State* L);
     int mongo_find(lua_State* L);
+    int mongo_find_many(lua_State* L);
+    int mongo_find_and_modify(lua_State* L);
     int mongo_update(lua_State* L);
     int mongo_replace(lua_State* L);
     int mongo_delete(lua_State* L);
