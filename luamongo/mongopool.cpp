@@ -118,7 +118,7 @@ int mongopool::mongo_command(lua_State* L)
     task->token = ++last_token_;
     task->method = MONGO_METHOD_COMMAND;
     task->db_name = lua_tostring(L, 1);
-    task->param1 = luaL_tobson(L, 2);
+    task->bson1 = luaL_tobson(L, 2);
 
     req_mutex_.lock();
     req_queue_.push_back(task);
@@ -139,9 +139,9 @@ int mongopool::mongo_insert(lua_State* L)
     task->method = MONGO_METHOD_INSERT;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
+    task->bson1 = luaL_tobson(L, 3);
     if (lua_istable(L, 4)) {
-        task->param2 = luaL_tobson(L, 4);
+        task->bson2 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -163,9 +163,9 @@ int mongopool::mongo_find(lua_State* L)
     task->method = MONGO_METHOD_FIND;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
+    task->bson1 = luaL_tobson(L, 3);
     if (lua_istable(L, 4)) {
-        task->param2 = luaL_tobson(L, 4);
+        task->bson2 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -187,9 +187,9 @@ int mongopool::mongo_find_many(lua_State* L)
     task->method = MONGO_METHOD_FIND_MANY;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
+    task->bson1 = luaL_tobson(L, 3);
     if (lua_istable(L, 4)) {
-        task->param2 = luaL_tobson(L, 4);
+        task->bson2 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -211,9 +211,9 @@ int mongopool::mongo_find_and_modify(lua_State* L)
     task->method = MONGO_METHOD_FIND_AND_MODIFY;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
+    task->bson1 = luaL_tobson(L, 3);
     if (lua_istable(L, 4)) {
-        task->param2 = luaL_tobson(L, 4);
+        task->bson2 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -236,10 +236,10 @@ int mongopool::mongo_update(lua_State* L)
     task->method = MONGO_METHOD_UPDATE;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
-    task->param2 = luaL_tobson(L, 4);
+    task->bson1 = luaL_tobson(L, 3);
+    task->bson2 = luaL_tobson(L, 4);
     if (lua_istable(L, 5)) {
-        task->param3 = luaL_tobson(L, 5);
+        task->bson3 = luaL_tobson(L, 5);
     }
 
     req_mutex_.lock();
@@ -262,10 +262,10 @@ int mongopool::mongo_replace(lua_State* L)
     task->method = MONGO_METHOD_REPLACE;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
-    task->param2 = luaL_tobson(L, 4);
+    task->bson1 = luaL_tobson(L, 3);
+    task->bson2 = luaL_tobson(L, 4);
     if (lua_istable(L, 5)) {
-        task->param3 = luaL_tobson(L, 5);
+        task->bson3 = luaL_tobson(L, 5);
     }
 
     req_mutex_.lock();
@@ -287,9 +287,9 @@ int mongopool::mongo_delete(lua_State* L)
     task->method = MONGO_METHOD_DELETE;
     task->db_name = lua_tostring(L, 1);
     task->coll_name = lua_tostring(L, 2);
-    task->param1 = luaL_tobson(L, 3);
+    task->bson1 = luaL_tobson(L, 3);
     if (lua_istable(L, 4)) {
-        task->param2 = luaL_tobson(L, 4);
+        task->bson2 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -308,17 +308,18 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
     switch (task->method)
     {
     case MONGO_METHOD_COMMAND:
-        task->retval = mongoc_client_command_simple(client, task->db_name.c_str(), task->param1, nullptr, &task->reply, &task->error);
+        task->retval = mongoc_client_command_simple(client, task->db_name.c_str(), task->bson1, nullptr, &task->reply, &task->error);
         break;
     case MONGO_METHOD_INSERT:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        task->retval = mongoc_collection_insert_one(collection, task->param1, task->param2, &task->reply, &task->error);
+        task->retval = mongoc_collection_insert_one(collection, task->bson1, task->bson2, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     case MONGO_METHOD_FIND:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 1, 0, task->param1, task->param2, nullptr);
-        while (mongoc_cursor_next(cursor, &document)) {
+        cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 1, 0, task->bson1, task->bson2, nullptr);
+        task->retval = !mongoc_cursor_error(cursor, &task->error);
+        while (task->retval && mongoc_cursor_next(cursor, &document)) {
             task->results.push_back(bson_copy(document));
             break;
         }
@@ -327,8 +328,9 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
         break;
     case MONGO_METHOD_FIND_MANY:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        cursor = mongoc_collection_find_with_opts(collection, task->param1, task->param2, nullptr);
-        while (mongoc_cursor_next(cursor, &document)) {
+        cursor = mongoc_collection_find_with_opts(collection, task->bson1, task->bson2, nullptr);
+        task->retval = !mongoc_cursor_error(cursor, &task->error);
+        while (task->retval && mongoc_cursor_next(cursor, &document)) {
             task->results.push_back(bson_copy(document));
         }
         mongoc_cursor_destroy(cursor);
@@ -336,22 +338,22 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
         break;
     case MONGO_METHOD_FIND_AND_MODIFY:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        task->retval = mongoc_collection_find_and_modify(collection, task->param1, nullptr, task->param2, nullptr, false, false, true, &task->reply, &task->error);
+        task->retval = mongoc_collection_find_and_modify(collection, task->bson1, nullptr, task->bson2, nullptr, false, false, true, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     case MONGO_METHOD_UPDATE:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        task->retval = mongoc_collection_update_one(collection, task->param1, task->param2, task->param3, &task->reply, &task->error);
+        task->retval = mongoc_collection_update_one(collection, task->bson1, task->bson2, task->bson3, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     case MONGO_METHOD_REPLACE:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        task->retval = mongoc_collection_replace_one(collection, task->param1, task->param2, task->param3, &task->reply, &task->error);
+        task->retval = mongoc_collection_replace_one(collection, task->bson1, task->bson2, task->bson3, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     case MONGO_METHOD_DELETE:
         collection = mongoc_client_get_collection(client, task->db_name.c_str(), task->coll_name.c_str());
-        task->retval = mongoc_collection_delete_one(collection, task->param1, task->param2, &task->reply, &task->error);
+        task->retval = mongoc_collection_delete_one(collection, task->bson1, task->bson2, &task->reply, &task->error);
         mongoc_collection_destroy(collection);
         break;
     default:
@@ -375,7 +377,7 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
         luaL_pushvalue(L, task->token);
         task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
         lua_newtable(L);
-        for (int i = 0; i < task->results.size(); i++)
+        for (size_t i = 0; i < task->results.size(); i++)
         {
             luaL_pushbson(L, task->results[i]);
             lua_seti(L, -2, i + 1);

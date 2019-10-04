@@ -3,6 +3,7 @@
 
 #define BSON_STATIC
 #define MONGOC_STATIC
+#pragma warning (disable:4316)
 
 #include <list>
 #include "lualib/lobject.h"
@@ -21,9 +22,9 @@ public:
         std::string db_name;
         std::string coll_name;
 
-        bson_t* param1 = nullptr;
-        bson_t* param2 = nullptr;
-        bson_t* param3 = nullptr;
+        bson_t* bson1 = nullptr;
+        bson_t* bson2 = nullptr;
+        bson_t* bson3 = nullptr;
         std::vector<const bson_t*> results;
         bson_t reply;
         bson_error_t error;
