@@ -93,10 +93,6 @@ static void luaL_fillbson(lua_State* L, int index, bson_t* bson, const char *key
 
 void luaL_pushvalue(lua_State* L, bson_iter_t& iter)
 {
-    const char* key = bson_iter_key(&iter);
-    int64_t num_key = bson_ascii_strtoll(key, nullptr, 10);
-    errno ? lua_pushstring(L, key) : lua_pushinteger(L, num_key);
-
     const bson_value_t* value = bson_iter_value(&iter);
     switch (value->value_type)
     {
@@ -123,15 +119,30 @@ void luaL_pushvalue(lua_State* L, bson_iter_t& iter)
         lua_pushlstring(L, (char*)value->value.v_binary.data, value->value.v_binary.data_len);
         break;
     case BSON_TYPE_DOCUMENT:
-    case BSON_TYPE_ARRAY:
         {
             bson_iter_t child;
             bson_iter_recurse(&iter, &child);
 
             lua_newtable(L);
             while (bson_iter_next(&child)) {
+                const char* child_key = bson_iter_key(&child);
+                int64_t num_key = bson_ascii_strtoll(child_key, nullptr, 10);
+                errno ? lua_pushstring(L, child_key) : lua_pushinteger(L, num_key);
                 luaL_pushvalue(L, child);
                 lua_settable(L, -3);
+            }
+        }
+        break;
+    case BSON_TYPE_ARRAY:
+        {
+            bson_iter_t child;
+            bson_iter_recurse(&iter, &child);
+
+            lua_newtable(L);
+            int index = 1;
+            while (bson_iter_next(&child)) {
+                luaL_pushvalue(L, child);
+                lua_seti(L, -2, index++);
             }
         }
         break;
@@ -162,6 +173,9 @@ void luaL_pushbson(lua_State* L, const bson_t* bson)
 
     lua_newtable(L);
     while (bson_iter_next(&iter)) {
+        const char* key = bson_iter_key(&iter);
+        int64_t num_key = bson_ascii_strtoll(key, nullptr, 10);
+        errno ? lua_pushstring(L, key) : lua_pushinteger(L, num_key);
         luaL_pushvalue(L, iter);
         lua_settable(L, -3);
     }

@@ -14,7 +14,7 @@ end
 function on_respond( token, ret_code, ... )
 	-- log_info("sqlpool.on_respond", token, ret_code, ...)
 	if token == 0 and ret_code ~= 0 then -- connect fail
-		app.exit()
+		log_info("sqlpool.on_connect fail", ret_code)
 		return
 	end
 
