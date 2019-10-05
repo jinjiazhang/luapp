@@ -1,49 +1,7 @@
-
 ONLINE_VALID_DURATION = 28		-- 在线状态有效期
-UNIQUE_ROLEID_MINIMUM = 112358	-- 最小的角色id
-
-function gen_unique_roleid( name, retry )
-	if retry <= 0 then
-		return errno.NEED_RETRY
-	end
-
-	local limit = "name='unique_roleid'"
-	local code, data = sqlpool.sql_select("tb_global", limit)
-	if code < 0 then
-		return errno.SERVICE
-	end
-
-	if not data then
-		data = {
-			name = "unique_roleid", 
-			value = UNIQUE_ROLEID_MINIMUM, 
-			text = tostring(UNIQUE_ROLEID_MINIMUM),
-			magic = unique.gen_magic(),
-		}
-		if sqlpool.sql_insert("tb_global", data) < 0 then
-			return gen_unique_roleid(name, retry - 1)
-		end
-		return errno.SUCCESS, data.value
-	else
-		limit = string.format("name='unique_roleid' and magic=%s", data.magic)
-		data.magic = unique.gen_magic()
-		data.value = data.value + 1
-		local code = sqlpool.sql_update("tb_global", data, limit)
-		if code < 0 then
-			return errno.SERVICE
-		elseif code == 0 then
-			return gen_unique_roleid(name, retry - 1)
-		elseif code == 1 then
-			return errno.SUCCESS, data.value
-		else
-			return errno.UNKNOWN
-		end
-	end
-end
 
 function net.ss_login_req(ss, number, openid, svrid)
 	log_info("ss_login_req", ss.number, number, openid, svrid)
-	local limit = string.format("openid='%s'", openid)
 	local ok, data = dbimpl.get_online_info(openid)
 	if not ok then
 		ss.ss_login_rsp(errno.SERVICE, number, openid)
@@ -64,7 +22,7 @@ function net.ss_login_req(ss, number, openid, svrid)
 	end
 
 	data = { openid = openid, svrid = svrid, online = app.time() }
-	if not dbimpl.set_online_info(openid, data) then
+	if not dbimpl.insert_online_info(data) then
 		ss.ss_login_rsp(errno.SERVICE, number, openid)
 		return
 	end
@@ -77,7 +35,7 @@ function net.ss_login_req(ss, number, openid, svrid)
 
 	if not account then
 		account = { openid = openid, name = "", roleid = 0 }
-		if dbimpl.save_account_data(openid, account) then
+		if dbimpl.create_new_account(account) then
 			ss.ss_login_rsp(errno.SERVICE, number, openid)
 			return
 		end
@@ -153,7 +111,7 @@ function net.ss_create_role_req(ss, openid, name)
 	role.online = role.register
 	role.offline = role.register
 
-	if not dbimpl.save_role_data(roleid, role) then
+	if not dbimpl.create_new_role(role) then
 		ss.ss_create_role_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -182,12 +140,12 @@ function net.ss_load_role_req( ss, openid, roleid )
 	ss.ss_load_role_rsp(errno.SUCCESS, openid, role)
 end
 
-function net.ss_save_role_req( ss, openid, role )
-	log_info("ss_save_role_req", ss.number, openid, role.roleid)
+function net.ss_save_role_req( ss, openid, roleid, role )
+	log_info("ss_save_role_req", ss.number, openid, roleid)
 	if not dbimpl.save_role_data(roleid, role) then
 		ss.ss_save_role_rsp(errno.SERVICE, openid)
 		return
 	end
 
-	ss.ss_save_role_rsp(errno.SUCCESS, openid, role.roleid)
+	ss.ss_save_role_rsp(errno.SUCCESS, openid, roleid)
 end

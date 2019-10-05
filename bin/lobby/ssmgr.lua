@@ -83,7 +83,7 @@ function on_stop( number )
 
 	if ss.roleid then
 		rolemgr.on_logout(ss.role)
-		dbagent.ss_save_role_req(ss.openid, ss.role)
+		dbagent.ss_save_role_req(ss.openid, ss.roleid, ss.role)
 		roleid_session_table[ss.roleid] = nil
 		ss.role = nil
 		ss.roleid = nil

@@ -73,7 +73,8 @@ message ss_load_role_rsp {
 
 message ss_save_role_req {
 	string openid = 1;
-	tb_role role = 2;
+	int64 roleid = 2;
+	tb_role role = 3;
 }
 
 message ss_save_role_rsp {
