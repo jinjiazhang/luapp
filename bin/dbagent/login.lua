@@ -74,16 +74,16 @@ function net.ss_logout_req( ss, openid, svrid )
 	ss.ss_logout_rsp(errno.SUCCESS, openid)
 end
 
-function net.ss_online_req( ss, openid, svrid )
-	log_debug("ss_online_req", ss.number, openid, svrid)
+function net.ss_set_online_req( ss, openid, svrid )
+	log_debug("ss_set_online_req", ss.number, openid, svrid)
 	local data = { openid = openid, svrid = svrid, online = app.time() }
 	if not dbimpl.set_online_info(openid, data) then
-		log_error("ss_online_req set_online_info failed", openid)
+		log_error("ss_set_online_req set_online_info failed", openid)
 		ss.ss_online_rsp(errno.SERVICE, openid)
 		return
 	end
 
-	ss.ss_online_rsp(errno.SUCCESS, openid)
+	ss.ss_set_online_rsp(errno.SUCCESS, openid)
 end
 
 function net.ss_create_role_req(ss, openid, name)

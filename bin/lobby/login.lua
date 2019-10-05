@@ -29,19 +29,6 @@ function net.ss_logout_rsp( result, openid )
 	end
 end
 
-function net.ss_online_rsp( result, openid )
-	log_debug("ss_online_rsp", result, openid)
-	if result ~= errno.SUCCESS then
-		local ss = ssmgr.find_by_openid(openid)
-		if not ss then
-			return
-		end
-		
-		log_error("ss_online_rsp return failed", result, openid)
-		ssmgr.kickout(ss, result)
-	end
-end
-
 function net.ss_kickout_ntf( svrid, openid, reason )
 	log_debug("ss_kickout_ntf", svrid, openid)
 	local ss = ssmgr.find_by_openid(openid)
@@ -51,6 +38,19 @@ function net.ss_kickout_ntf( svrid, openid, reason )
 	end
 
 	ssmgr.kickout(ss, reason)
+end
+
+function net.ss_set_online_rsp( result, openid )
+	log_debug("ss_set_online_rsp", result, openid)
+	if result ~= errno.SUCCESS then
+		local ss = ssmgr.find_by_openid(openid)
+		if not ss then
+			return
+		end
+		
+		log_error("ss_set_online_rsp return failed", result, openid)
+		ssmgr.kickout(ss, result)
+	end
 end
 
 function net.cs_create_role_req( ss, name )

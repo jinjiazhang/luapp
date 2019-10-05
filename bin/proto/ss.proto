@@ -30,19 +30,19 @@ message ss_logout_rsp {
 	string openid = 2;
 }
 
-message ss_online_req {
+message ss_kickout_ntf {
+	string openid = 1;
+	errno reason = 2;
+}
+
+message ss_set_online_req {
 	string openid = 1;
 	int32 svrid = 2;
 }
 
-message ss_online_rsp {
+message ss_set_online_rsp {
 	errno result = 1;
 	string openid = 2;
-}
-
-message ss_kickout_ntf {
-	string openid = 1;
-	errno reason = 2;
 }
 
 message ss_create_role_req {

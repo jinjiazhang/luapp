@@ -204,7 +204,7 @@ end
 
 function net.ss_game_operate_req( svrid, roleid, roomid, req_proto, ... )
 	log_debug("ss_game_operate_req", svrid, roleid, roomid, req_proto, ...)
-	local rsp_proto = string.gsub(req_proto, "_req", "_rsp")
+	local rsp_proto = string.gsub(req_proto, "_req$", "_rsp")
 	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(svrid, "ss_game_operate_rsp", errno.NOT_FOUND, roleid, rsp_proto, errno.NOT_FOUND)
