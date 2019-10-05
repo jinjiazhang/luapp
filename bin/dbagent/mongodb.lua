@@ -1,4 +1,4 @@
-module = "mongopool"
+module = "mongodb"
 
 mongo_callbacks = mongo_callbacks or {}
 
@@ -9,12 +9,12 @@ function init( ... )
 	copool.fork(init_schema)
 end
 
-function on_respond( token, err_msg, result )
-	-- log_info("mongo.on_respond", token, err_msg, result)
+function on_respond( token, ... )
+	-- log_info("mongo.on_respond", token, ...)
 	local proc_func = mongo_callbacks[token]
 	if proc_func then
 		mongo_callbacks[token] = nil
-		local status, errmsg = xpcall(proc_func, debug.traceback, ret_code, ...)
+		local status, errmsg = xpcall(proc_func, debug.traceback, ...)
 		if not status then
 			log_error("mongo.on_respond xpcall fail", errmsg)
 		end
@@ -50,9 +50,9 @@ function create_co_func( name, pool_func )
 end
 
 function init_schema(  )
-	local err_msg, result = mongo.mongo_command("admin", {["listDatabases"] = 1})
+	local err_msg, result = _mongo.mongo_command("admin", {["listDatabases"] = 1})
 	if err_msg ~= nil then
-		log_error("mongo.init_schema show tables fail")
+		log_error("mongo.init_schema show tables fail", err_msg)
 		return
 	end
 

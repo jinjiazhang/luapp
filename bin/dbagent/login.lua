@@ -44,40 +44,40 @@ end
 function net.ss_login_req(ss, number, openid, svrid)
 	log_info("ss_login_req", ss.number, number, openid, svrid)
 	local limit = string.format("openid='%s'", openid)
-	local code, data = sqlpool.sql_select("tb_online", limit)
-	if code < 0 then
+	local ok, data = dbimpl.get_online_info(openid)
+	if not ok then
 		ss.ss_login_rsp(errno.SERVICE, number, openid)
 		return
 	end
 
-	if data and data.svrid > 0 then 
+	if data and data.svrid > 0 then
 		if app.time() - data.online < ONLINE_VALID_DURATION then
 			ss.ss_login_rsp(errno.CONFLICT, number, openid, data.svrid)
 			return
 		end
 
 		-- invalid online recode
-		if sqlpool.sql_delete("tb_online", limit) < 0 then
+		if not dbimpl.clean_online_info(openid) then
 			ss.ss_logout_rsp(errno.SERVICE, number, openid)
 			return
 		end
 	end
 
 	data = { openid = openid, svrid = svrid, online = app.time() }
-	if sqlpool.sql_insert("tb_online", data) < 0 then
+	if not dbimpl.set_online_info(openid, data) then
 		ss.ss_login_rsp(errno.SERVICE, number, openid)
 		return
 	end
 
-	local code, account = sqlpool.sql_select("tb_account", limit)
-	if code < 0 then
+	local ok, account = dbimpl.load_account_data(openid)
+	if not ok then
 		ss.ss_login_rsp(errno.SERVICE, number, openid)
 		return
 	end
 
 	if not account then
 		account = { openid = openid, name = "", roleid = 0 }
-		if sqlpool.sql_insert("tb_account", account) < 0 then
+		if dbimpl.save_account_data(openid, account) then
 			ss.ss_login_rsp(errno.SERVICE, number, openid)
 			return
 		end
@@ -88,9 +88,8 @@ end
 
 function net.ss_logout_req( ss, openid, svrid )
 	log_info("ss_logout_req", ss.number, openid, svrid)
-	local limit = string.format("openid='%s'", openid)
-	local code, data = sqlpool.sql_select("tb_online", limit)
-	if code < 0 or not data then
+	local ok, data = dbimpl.get_online_info(openid)
+	if not ok or not data then
 		ss.ss_logout_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -100,8 +99,7 @@ function net.ss_logout_req( ss, openid, svrid )
 		return
 	end
 
-	limit = string.format("openid='%s' and svrid=%d", openid, svrid)
-	if sqlpool.sql_delete("tb_online", limit) < 0 then
+	if not dbimpl.clean_online_info(openid) then
 		ss.ss_logout_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -111,9 +109,8 @@ end
 
 function net.ss_online_req( ss, openid, svrid )
 	log_info("ss_online_req", ss.number, openid, svrid)
-	local limit = string.format("openid='%s' and svrid=%d", openid, svrid)
 	local data = { openid = openid, svrid = svrid, online = app.time() }
-	if sqlpool.sql_update("tb_online", data, limit) < 0 then
+	if not dbimpl.set_online_info(openid, data) then
 		ss.ss_online_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -123,9 +120,8 @@ end
 
 function net.ss_create_role_req(ss, openid, name)
 	log_info("ss_create_role_req", ss.number, openid, name)
-	local limit = string.format("openid='%s'", openid)
-	local code, account = sqlpool.sql_select("tb_account", limit)
-	if code < 0 then
+	local ok, account = dbimpl.load_account_data(openid)
+	if not ok then
 		ss.ss_create_role_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -135,15 +131,16 @@ function net.ss_create_role_req(ss, openid, name)
 		return
 	end
 
-	local result, roleid = gen_unique_roleid(name, 3)
-	if result ~= errno.SUCCESS then
+	local ok, roleid = dbimpl.gen_unique_roleid()
+	if not ok then
 		ss.ss_create_role_rsp(errno.SERVICE, openid)
+		return
 	end
 
 	account.roleid = roleid
 	account.name = name
 
-	if sqlpool.sql_update("tb_account", account, limit) < 0 then
+	if not dbimpl.save_account_data(openid, account) then
 		ss.ss_create_role_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -156,7 +153,7 @@ function net.ss_create_role_req(ss, openid, name)
 	role.online = role.register
 	role.offline = role.register
 
-	if sqlpool.sql_insert("tb_role", role) < 0 then
+	if not dbimpl.save_role_data(roleid, role) then
 		ss.ss_create_role_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -166,9 +163,8 @@ end
 
 function net.ss_load_role_req( ss, openid, roleid )
 	log_info("ss_load_role_req", ss.number, openid, roleid)
-	local limit = string.format("roleid='%s'", roleid)
-	local code, role = sqlpool.sql_select("tb_role", limit)
-	if code < 0 then
+	local ok, role = dbimpl.load_role_data(roleid)
+	if not ok then
 		ss.ss_load_role_rsp(errno.SERVICE, openid)
 		return
 	end
@@ -188,8 +184,7 @@ end
 
 function net.ss_save_role_req( ss, openid, role )
 	log_info("ss_save_role_req", ss.number, openid, role.roleid)
-	local limit = string.format("roleid='%s'", role.roleid)
-	if sqlpool.sql_update("tb_role", role, limit) < 0 then
+	if not dbimpl.save_role_data(roleid, role) then
 		ss.ss_save_role_rsp(errno.SERVICE, openid)
 		return
 	end
