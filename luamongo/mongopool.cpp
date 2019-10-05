@@ -363,25 +363,35 @@ void mongopool::do_request(mongoc_client_t* client, std::shared_ptr<taskdata> ta
 
 void mongopool::on_respond(std::shared_ptr<taskdata> task)
 {
+	if (!task->retval)
+	{
+		luaL_pushfunc(L, this, "on_respond");
+		luaL_pushvalue(L, task->token);
+		luaL_pushvalue(L, task->retval ? 0 : -1);
+		luaL_pushvalue(L, task->error.message);
+		luaL_safecall(L, 3, 0);
+		return;
+	}
+
     switch (task->method)
     {
     case MONGO_METHOD_FIND:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
-        task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
+		luaL_pushvalue(L, task->retval ? 0 : -1);
         task->results.empty() ? lua_pushnil(L) : luaL_pushbson(L, task->results[0]);
         luaL_safecall(L, 3, 0);
         break;
     case MONGO_METHOD_FIND_MANY:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
-        task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
-        lua_newtable(L);
-        for (size_t i = 0; i < task->results.size(); i++)
-        {
-            luaL_pushbson(L, task->results[i]);
-            lua_seti(L, -2, i + 1);
-        }
+		luaL_pushvalue(L, task->retval ? 0 : -1);
+		lua_newtable(L);
+		for (size_t i = 0; i < task->results.size(); i++)
+		{
+			luaL_pushbson(L, task->results[i]);
+			lua_seti(L, -2, i + 1);
+		}       
         luaL_safecall(L, 3, 0);
         break;
     case MONGO_METHOD_COMMAND:
@@ -392,8 +402,8 @@ void mongopool::on_respond(std::shared_ptr<taskdata> task)
     case MONGO_METHOD_FIND_AND_MODIFY:
         luaL_pushfunc(L, this, "on_respond");
         luaL_pushvalue(L, task->token);
-        task->retval ? lua_pushnil(L) : luaL_pushvalue(L, task->error.message);
-        luaL_pushbson(L, &task->reply);
+		luaL_pushvalue(L, task->retval ? 0 : -1);
+		luaL_pushbson(L, &task->reply);
         luaL_safecall(L, 3, 0);
         break;
     default:

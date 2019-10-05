@@ -50,11 +50,13 @@ function create_co_func( name, pool_func )
 end
 
 function init_schema(  )
-	local err_msg, result = _mongo.mongo_command("admin", {["listDatabases"] = 1})
-	if err_msg ~= nil then
-		log_error("mongo.init_schema show tables fail", err_msg)
+	local code, result = mongodb.mongo_command("admin", {["listDatabases"] = 1})
+	if code ~= 0 then
+		log_error("mongo.init_schema show tables fail", result)
 		return
 	end
+
+	log_info("show dbs", app.tostring(result))
 
 	local need_tabls = {
 		["tb_global"] = {primarys = {"name"}},
