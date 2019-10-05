@@ -108,28 +108,28 @@ end
 function broadcast( room, exceptid, proto, ... )
 	for _, viewer in ipairs(room.viewers) do
 		if viewer.roleid ~= exceptid then
-			log_info(proto, viewer.roleid, ...)
+			log_debug("room.broadcast", room.roomid, proto, viewer.roleid, ...)
 			airport.call_client(viewer.roleid, proto, ...)
 		end
 	end
 end
 
 function net.ss_update_room_rsp( svrid, result )
-	log_info("ss_update_room_rsp", svrid, result)
+	log_debug("ss_update_room_rsp", svrid, result)
 	if result ~= errno.SUCCESS then
 		log_error("ss_update_room_rsp result", result)
 	end
 end
 
 function net.ss_report_payload_rsp( svrid, result )
-	-- log_info("ss_report_payload_req", svrid, result)
+	-- log_debug("ss_report_payload_req", svrid, result)
 	if result ~= errno.SUCCESS then
 		log_error("ss_report_payload_req result", result)
 	end
 end
 
 function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mode, option )
-	log_info("ss_create_room_req", svrid, lobbyid, role, roomid, cipher, name, mode, option)
+	log_debug("ss_create_room_req", svrid, lobbyid, role, roomid, cipher, name, mode, option)
 	assert(roomid > 0 and cipher > 0)
 	local room = create_room(svrid, roomid, cipher, role.roleid, name, mode, option)
 	if room == nil then
@@ -148,7 +148,7 @@ function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mod
 end
 
 function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
-	log_info("ss_enter_room_req", svrid, lobbyid, role, roomid, cipher)
+	log_debug("ss_enter_room_req", svrid, lobbyid, role, roomid, cipher)
 	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(lobbyid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)
@@ -167,7 +167,7 @@ function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
 end
 
 function net.ss_leave_room_req( svrid, roleid, roomid, reason )
-	log_info("ss_leave_room_req", svrid, roleid, roomid, reason)
+	log_debug("ss_leave_room_req", svrid, roleid, roomid, reason)
 	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(svrid, "ss_leave_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
@@ -185,7 +185,7 @@ function net.ss_leave_room_req( svrid, roleid, roomid, reason )
 end
 
 function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
-	log_info("ss_dismiss_room_req", svrid, roleid, roomid, reason)
+	log_debug("ss_dismiss_room_req", svrid, roleid, roomid, reason)
 	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
@@ -203,7 +203,7 @@ function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 end
 
 function net.ss_game_operate_req( svrid, roleid, roomid, req_proto, ... )
-	log_info("ss_game_operate_req", svrid, roleid, roomid, req_proto, ...)
+	log_debug("ss_game_operate_req", svrid, roleid, roomid, req_proto, ...)
 	local rsp_proto = string.gsub(req_proto, "_req", "_rsp")
 	local room = find_by_roomid(roomid)
 	if not room then

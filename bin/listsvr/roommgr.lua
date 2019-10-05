@@ -28,7 +28,7 @@ function search_room( roomid, cipher )
 end
 
 function net.ss_fetch_room_req( svrid, roleid, mode )
-	log_info("ss_fetch_room_req", svrid, roleid, mode)
+	log_debug("ss_fetch_room_req", svrid, roleid, mode)
 	local room_list = {}
 	for roomid, room in pairs(roomid_room_table) do
 		if room.mode == mode then
@@ -36,18 +36,18 @@ function net.ss_fetch_room_req( svrid, roleid, mode )
 		end
 	end
 
-	-- log_info("ss_fetch_room_rsp", app.tostring(room_list))
+	-- log_debug("ss_fetch_room_rsp", app.tostring(room_list))
 	airport.call_lobby(svrid, "ss_fetch_room_rsp", errno.SUCCESS, roleid, room_list)
 end
 
 function net.ss_update_room_req( svrid, room )
-	log_info("ss_update_room_req", svrid, room)
+	log_debug("ss_update_room_req", svrid, room)
 	local result = update_room(svrid, room)
 	airport.call_roomsvr(svrid, "ss_update_room_rsp", result)
 end
 
 function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mode, option )
-	log_info("ss_create_room_req", svrid, lobbyid, role, roomid, cipher, name, mode, option)
+	log_debug("ss_create_room_req", svrid, lobbyid, role, roomid, cipher, name, mode, option)
 	assert(roomid == 0 and cipher == 0)
 	local rsvrid = assign.assign_room(mode)
 	if rsvrid == 0 then
@@ -64,7 +64,7 @@ function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mod
 end
 
 function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
-	log_info("ss_enter_room_req", svrid, lobbyid, role, roomid, cipher)
+	log_debug("ss_enter_room_req", svrid, lobbyid, role, roomid, cipher)
 	local room = search_room(roomid, cipher)
 	if not room then
 		airport.call_lobby(svrid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)

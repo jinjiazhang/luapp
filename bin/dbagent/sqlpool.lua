@@ -12,7 +12,7 @@ function init( ... )
 end
 
 function on_respond( token, ret_code, ... )
-	-- log_info("sqlpool.on_respond", token, ret_code, ...)
+	-- log_debug("sqlpool.on_respond", token, ret_code, ...)
 	if token == 0 and ret_code ~= 0 then -- connect fail
 		log_info("sqlpool.on_connect fail", ret_code)
 		return

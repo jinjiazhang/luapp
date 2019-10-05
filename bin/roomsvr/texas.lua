@@ -5,7 +5,7 @@ MIN_PLAYER_NUM = 2
 MAX_PLAYER_NUM = 9
 
 function on_create_room( room )
-	log_info("on_create_room", room.roomid)
+	-- log_info("on_create_room", room.roomid)
 	local game = proto.create("texas_detail")
 	game.roomid = room.roomid
 	game.seat_table = {} -- seatid -> texas_player
@@ -20,15 +20,15 @@ function on_create_room( room )
 end
 
 function on_enter_room( room, roleid )
-	log_info("on_enter_room", room.roomid, roleid)
+	-- log_info("on_enter_room", room.roomid, roleid)
 end
 
 function on_leave_room( room, roleid )
-	log_info("on_leave_room", room.roomid, roleid)
+	-- log_info("on_leave_room", room.roomid, roleid)
 end
 
 function on_tick_room( room )
-	-- log_info("on_tick_room", room.roomid)
+	-- log_debug("on_tick_room", room.roomid)
 	if room.status ~= room_status.PLAYING then
 		return
 	end

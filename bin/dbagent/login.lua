@@ -1,7 +1,7 @@
 ONLINE_VALID_DURATION = 28		-- 在线状态有效期
 
 function net.ss_login_req(ss, number, openid, svrid)
-	log_info("ss_login_req", ss.number, number, openid, svrid)
+	log_debug("ss_login_req", ss.number, number, openid, svrid)
 	local ok, data = dbimpl.get_online_info(openid)
 	if not ok then
 		log_error("ss_login_req get_online_info failed", openid)
@@ -51,7 +51,7 @@ function net.ss_login_req(ss, number, openid, svrid)
 end
 
 function net.ss_logout_req( ss, openid, svrid )
-	log_info("ss_logout_req", ss.number, openid, svrid)
+	log_debug("ss_logout_req", ss.number, openid, svrid)
 	local ok, data = dbimpl.get_online_info(openid)
 	if not ok or not data then
 		log_error("ss_logout_req get_online_info failed", openid)
@@ -75,7 +75,7 @@ function net.ss_logout_req( ss, openid, svrid )
 end
 
 function net.ss_online_req( ss, openid, svrid )
-	log_info("ss_online_req", ss.number, openid, svrid)
+	log_debug("ss_online_req", ss.number, openid, svrid)
 	local data = { openid = openid, svrid = svrid, online = app.time() }
 	if not dbimpl.set_online_info(openid, data) then
 		log_error("ss_online_req set_online_info failed", openid)
@@ -87,7 +87,7 @@ function net.ss_online_req( ss, openid, svrid )
 end
 
 function net.ss_create_role_req(ss, openid, name)
-	log_info("ss_create_role_req", ss.number, openid, name)
+	log_debug("ss_create_role_req", ss.number, openid, name)
 	local ok, account = dbimpl.load_account_data(openid)
 	if not ok or not account then
 		log_error("ss_create_role_req load_account_data failed", openid)
@@ -135,7 +135,7 @@ function net.ss_create_role_req(ss, openid, name)
 end
 
 function net.ss_load_role_req( ss, openid, roleid )
-	log_info("ss_load_role_req", ss.number, openid, roleid)
+	log_debug("ss_load_role_req", ss.number, openid, roleid)
 	local ok, role = dbimpl.load_role_data(roleid)
 	if not ok then
 		log_error("ss_load_role_req load_role_data failed", openid, roleid)
@@ -159,7 +159,7 @@ function net.ss_load_role_req( ss, openid, roleid )
 end
 
 function net.ss_save_role_req( ss, openid, roleid, role )
-	log_info("ss_save_role_req", ss.number, openid, roleid)
+	log_debug("ss_save_role_req", ss.number, openid, roleid)
 	if not dbimpl.save_role_data(roleid, role) then
 		log_error("ss_save_role_req save_role_data failed", openid, roleid)
 		ss.ss_save_role_rsp(errno.SERVICE, openid)

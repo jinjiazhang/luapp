@@ -34,6 +34,7 @@ function bind_role( ss, role )
 end
 
 function kickout( ss, reason )
+	log_info("ssmgr.kickout", ss.openid, reason)
 	ss.cs_kickout_ntf(reason)
 	kickout_session_table[ss.number] = app.mstime()
 end

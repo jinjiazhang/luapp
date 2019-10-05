@@ -19,7 +19,7 @@ function on_disconnect( status, errmsg )
 end
 
 function on_reply( token, ret_code, ... )
-	log_info("rdsclient.on_reply", token, ret_code, ...)
+	log_debug("rdsclient.on_reply", token, ret_code, ...)
 	local proc_func = rdsclient_callbacks[token]
 	if proc_func then
 		rdsclient_callbacks[token] = nil

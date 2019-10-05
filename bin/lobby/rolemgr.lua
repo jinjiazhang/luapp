@@ -74,7 +74,7 @@ function tick_online(  )
 	local time = app.time()
 	for roleid, role in pairs(roleid_role_table) do
 		if time - role.save_online >= SAVE_ONLINE_INTERVAL then
-			log_info("rolemgr.save_online", role.openid, role.roleid)
+			-- log_info("rolemgr.save_online", role.openid, role.roleid)
 			dbagent.ss_online_req(role.openid, app.svrid())
 			role.save_online = time
 

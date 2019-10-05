@@ -44,5 +44,5 @@ function on_closed( svrid, errno )
 end
 
 function on_message( svrid, proto, ... )
-	log_info("router.on_message", svrid_itos(svrid), proto, ...)
+	log_debug("router.on_message", svrid_itos(svrid), proto, ...)
 end

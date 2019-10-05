@@ -28,7 +28,7 @@ function on_closed( number, errno )
 end
 
 function on_message( number, proto, ... )
-	-- log_info("dbagent.on_message", number, proto, ...)
+	-- log_debug("dbagent.on_message", number, proto, ...)
 	local proc_func = net[proto]
 	if not proc_func then
 		log_error("dbagent.on_message proc_func not found", proto)

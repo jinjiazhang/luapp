@@ -10,7 +10,7 @@ function init( ... )
 end
 
 function on_respond( token, ... )
-	-- log_info("mongo.on_respond", token, ...)
+	-- log_debug("mongo.on_respond", token, ...)
 	local proc_func = mongo_callbacks[token]
 	if proc_func then
 		mongo_callbacks[token] = nil
@@ -56,7 +56,7 @@ function init_schema(  )
 		return
 	end
 
-	log_info("show dbs", app.tostring(result))
+	-- log_info("show dbs", app.tostring(result))
 
 	local need_tabls = {
 		["tb_global"] = {primarys = {"name"}},
