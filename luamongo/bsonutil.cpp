@@ -127,7 +127,10 @@ void luaL_pushvalue(lua_State* L, bson_iter_t& iter)
             while (bson_iter_next(&child)) {
                 const char* child_key = bson_iter_key(&child);
                 int64_t num_key = bson_ascii_strtoll(child_key, nullptr, 10);
-                errno ? lua_pushstring(L, child_key) : lua_pushinteger(L, num_key);
+                if (errno != 0)
+                    lua_pushstring(L, child_key);
+                else
+                    lua_pushinteger(L, num_key);
                 luaL_pushvalue(L, child);
                 lua_settable(L, -3);
             }
@@ -175,7 +178,10 @@ void luaL_pushbson(lua_State* L, const bson_t* bson)
     while (bson_iter_next(&iter)) {
         const char* key = bson_iter_key(&iter);
         int64_t num_key = bson_ascii_strtoll(key, nullptr, 10);
-        errno ? lua_pushstring(L, key) : lua_pushinteger(L, num_key);
+        if (errno != 0)
+            lua_pushstring(L, key);
+        else
+            lua_pushinteger(L, num_key);
         luaL_pushvalue(L, iter);
         lua_settable(L, -3);
     }
