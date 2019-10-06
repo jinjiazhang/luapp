@@ -12,6 +12,7 @@ enum rtm_type
     reg_roleid,
     unreg_roleid,
     remote_call,
+    transmit_call,
     forward_svrid,
     forward_roleid,
     forward_group,
@@ -32,15 +33,23 @@ struct rtm_reg_svrid : rtm_head
 struct rtm_reg_roleid : rtm_head
 {
     roleid_t roleid;
+    group_t group;
 };
 
 struct rtm_unreg_roleid : rtm_head
 {
     roleid_t roleid;
+    group_t group;
 };
 
 struct rtm_remote_call : rtm_head
 {
+    svrid_t srcid;
+};
+
+struct rtm_transmit_call : rtm_head
+{
+    roleid_t roleid;
     svrid_t srcid;
 };
 
@@ -52,6 +61,7 @@ struct rtm_forward_svrid : rtm_head
 struct rtm_forward_roleid : rtm_head
 {
     roleid_t roleid;
+    group_t group;
 };
 
 struct rtm_forward_group : rtm_head

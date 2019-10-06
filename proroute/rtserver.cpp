@@ -48,14 +48,20 @@ svrid_t rtserver::num_to_svrid(int number)
     return it->second;
 }
 
-int rtserver::roleid_to_num(roleid_t roleid)
+int rtserver::roleid_to_num(roleid_t roleid, group_t group)
 {
-    roleid_num_map::iterator it = roleid_num_map_.find(roleid);
-    if (it == roleid_num_map_.end())
+    transmit_num_map::iterator it = transmit_num_map_.find(group);
+    if (it == transmit_num_map_.end())
     {
         return 0;
     }
-    return it->second;
+
+    roleid_num_map::iterator it2 = it->second.find(roleid);
+    if (it2 == it->second.end())
+    {
+        return 0;
+    }
+    return it2->second;
 }
 
 void rtserver::on_accept(int number, int error)
@@ -134,13 +140,13 @@ void rtserver::on_reg_svrid(int number, char* data, int len)
 void rtserver::on_reg_roleid(int number, char* data, int len)
 {
     rtm_reg_roleid* msg = (rtm_reg_roleid*)data;
-    roleid_num_map_[msg->roleid] = number;
+    transmit_num_map_[msg->group][msg->roleid] = number;
 }
 
 void rtserver::on_unreg_roleid(int number, char* data, int len)
 {
     rtm_unreg_roleid* msg = (rtm_unreg_roleid*)data;
-    roleid_num_map_.erase(msg->roleid);
+    transmit_num_map_[msg->group].erase(msg->roleid);
 }
 
 void rtserver::on_call_server(int number, char* data, int len)
@@ -201,16 +207,17 @@ void rtserver::on_forward_roleid(int number, char* data, int len)
     data += sizeof(rtm_forward_roleid);
     len -= sizeof(rtm_forward_roleid);
 
-    int dst_num = roleid_to_num(msg->roleid);
+    int dst_num = roleid_to_num(msg->roleid, msg->group);
     if (dst_num <= 0)
     {
         log_error("rtserver::on_forward_roleid roleid =%lld notfound", msg->roleid);
         return;
     }
 
-    rtm_forward_roleid head;
-    head.msg_type = rtm_type::forward_roleid;
+    rtm_transmit_call head;
+    head.msg_type = rtm_type::transmit_call;
     head.roleid = msg->roleid;
+    head.srcid = num_to_svrid(number);
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };

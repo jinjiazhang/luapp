@@ -68,8 +68,8 @@ void rtclient::on_package(int number, char* data, int len)
     case rtm_type::remote_call:
         on_remote_call(data, len);
         break;
-    case rtm_type::forward_roleid:
-        on_forward_roleid(data, len);
+    case rtm_type::transmit_call:
+        on_transmit_call(data, len);
         break;
     default:
         log_error("rtclient::on_package msg_type =%d invalid", head->msg_type);
@@ -103,11 +103,11 @@ void rtclient::on_remote_call(char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-void rtclient::on_forward_roleid(char* data, int len)
+void rtclient::on_transmit_call(char* data, int len)
 {
-    rtm_forward_roleid* msg = (rtm_forward_roleid*)data;
-    data += sizeof(rtm_forward_roleid);
-    len -= sizeof(rtm_forward_roleid);
+    rtm_transmit_call* msg = (rtm_transmit_call*)data;
+    data += sizeof(rtm_transmit_call);
+    len -= sizeof(rtm_transmit_call);
 
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_transmit");
@@ -126,9 +126,11 @@ int rtclient::reg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
+    group_t group = luaL_getvalue<group_t>(L, 2);
     rtm_reg_roleid msg;
     msg.msg_type = rtm_type::reg_roleid;
     msg.roleid = roleid;
+	msg.group = group;
     network_->send(number_, &msg, sizeof(msg));
     return 0;
 }
@@ -137,9 +139,11 @@ int rtclient::unreg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
+	group_t group = luaL_getvalue<group_t>(L, 2);
     rtm_unreg_roleid msg;
     msg.msg_type = rtm_type::unreg_roleid;
     msg.roleid = roleid;
+	msg.group = group;
     network_->send(number_, &msg, sizeof(msg));
     return 0;
 }
@@ -170,14 +174,17 @@ int rtclient::call_target(lua_State* L)
     return 1;
 }
 
-int rtclient::call_client(lua_State* L)
+int rtclient::call_transmit(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
 
+    luaL_checktype(L, 2, LUA_TNUMBER);
+    group_t group = luaL_getvalue<group_t>(L, 2);
+
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!stack_pack(L, 3, top, buffer, &len))
     {
         return 0;
     }
@@ -185,6 +192,7 @@ int rtclient::call_client(lua_State* L)
     rtm_forward_roleid head;
     head.msg_type = rtm_type::forward_roleid;
     head.roleid = roleid;
+    head.group = group;
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
@@ -253,7 +261,7 @@ int rtclient::close(lua_State* L)
 EXPORT_OFUNC(rtclient, reg_role)
 EXPORT_OFUNC(rtclient, unreg_role)
 EXPORT_OFUNC(rtclient, call_target)
-EXPORT_OFUNC(rtclient, call_client)
+EXPORT_OFUNC(rtclient, call_transmit)
 EXPORT_OFUNC(rtclient, call_group)
 EXPORT_OFUNC(rtclient, call_random)
 EXPORT_OFUNC(rtclient, close)
@@ -263,7 +271,7 @@ const luaL_Reg* rtclient::get_libs()
         { IMPORT_OFUNC(rtclient, reg_role) },
         { IMPORT_OFUNC(rtclient, unreg_role) },
         { IMPORT_OFUNC(rtclient, call_target) },
-        { IMPORT_OFUNC(rtclient, call_client) },
+        { IMPORT_OFUNC(rtclient, call_transmit) },
         { IMPORT_OFUNC(rtclient, call_group) },
         { IMPORT_OFUNC(rtclient, call_random) },
         { IMPORT_OFUNC(rtclient, close) },

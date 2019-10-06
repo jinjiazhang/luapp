@@ -18,7 +18,7 @@ public:
     int reg_role(lua_State* L);
     int unreg_role(lua_State* L);
     int call_target(lua_State* L);
-    int call_client(lua_State* L);
+    int call_transmit(lua_State* L);
     int call_group(lua_State* L);
     int call_random(lua_State* L);
     int close(lua_State* L);
@@ -31,7 +31,7 @@ public:
 private:
     void on_reg_svrid(char* data, int len);
     void on_remote_call(char* data, int len);
-    void on_forward_roleid(char* data, int len);
+    void on_transmit_call(char* data, int len);
 
 private:
     svrid_t svrid_;

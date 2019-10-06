@@ -29,7 +29,7 @@ public:
 private:
     svrid_t num_to_svrid(int number);
     int svrid_to_num(svrid_t svrid);
-    int roleid_to_num(roleid_t roleid);
+    int roleid_to_num(roleid_t roleid, group_t group);
 
     void on_reg_svrid(int number, char* data, int len);
     void on_reg_roleid(int number, char* data, int len);
@@ -44,7 +44,9 @@ private:
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;
     typedef std::unordered_map<int, svrid_t> num_svrid_map;
+
     typedef std::unordered_map<roleid_t, int> roleid_num_map;
+    typedef std::unordered_map<group_t, roleid_num_map> transmit_num_map;
 
     typedef std::set<svrid_t> svrid_list;
     typedef std::unordered_map<svrid_t, group_t> svrid_group_map;
@@ -57,7 +59,7 @@ private:
 
     svrid_num_map svrid_num_map_;
     num_svrid_map num_svrid_map_;
-    roleid_num_map roleid_num_map_;
+    transmit_num_map transmit_num_map_;
     svrid_group_map svrid_group_map_;
     group_svrids_map group_svrids_map_;
 };
