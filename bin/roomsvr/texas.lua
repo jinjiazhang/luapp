@@ -92,32 +92,49 @@ function start_new_round( game, card_num, notify )
 	end
 end
 
-function env.cs_texas_chat_req( room, roleid, content )
+function net.cs_texas_chat_req( roleid, content )
+	local room = roommgr.find_by_roleid(roleid)
+	if not room then
+		airport.call_client(roleid, "cs_texas_chat_rsp", errno.DATA_ERROR)
+		return
+	end
+
 	if not room.get_viewer(roleid) then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_chat_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	room.broadcast(0,"cs_texas_chat_ntf", room.roomid, roleid, content)
-	return errno.SUCCESS
+	airport.call_client(roleid, "cs_texas_chat_rsp", errno.SUCCESS)
 end
 
-function env.cs_texas_sitdown_req( room, roleid, seatid )
+function net.cs_texas_sitdown_req( roleid, seatid )
+	local room = roommgr.find_by_roleid(roleid)
+	if not room then
+		airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.DATA_ERROR)
+		return
+	end
+
 	local role = room.get_viewer(roleid)
 	if not role then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	if seatid <= 0 or seatid > MAX_PLAYER_NUM then
-		return errno.PARAM_ERROR
+		airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.PARAM_ERROR)
+		return
 	end
 
 	local game = room.game.texas
 	if game.player_table[roleid] then
-		return errno.TEXAS_HAS_SEAT
+		airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.TEXAS_HAS_SEAT)
+		return
 	end
 
 	if game.seat_table[seatid] then
-		return errno.TEXAS_SEAT_USED
+		airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.TEXAS_SEAT_USED)
+		return
 	end
 
 	local player = {
@@ -137,14 +154,21 @@ function env.cs_texas_sitdown_req( room, roleid, seatid )
 	game.seat_table[seatid] = player
 
 	room.broadcast(roleid, "cs_texas_sitdown_ntf", room.roomid, player)
-	return errno.SUCCESS, player
+	airport.call_client(roleid, "cs_texas_sitdown_rsp", errno.SUCCESS, player)
 end
 
-function env.cs_texas_standup_req( room, roleid )
+function net.cs_texas_standup_req( roleid )
+	local room = roommgr.find_by_roleid(roleid)
+	if not room then
+		airport.call_client(roleid, "cs_texas_standup_rsp", errno.DATA_ERROR)
+		return
+	end
+
 	local game = room.game.texas
 	local player = game.player_table[roleid]
 	if not player then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_standup_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	for index, player in ipairs(game.players) do
@@ -159,55 +183,76 @@ function env.cs_texas_standup_req( room, roleid )
 	game.player_table[roleid] = nil
 
 	room.broadcast(roleid, "cs_texas_standup_ntf", room.roomid, seatid)
-	return errno.SUCCESS
+	airport.call_client(roleid, "cs_texas_standup_rsp", errno.SUCCESS)
 end
 
-function env.cs_texas_start_req( room, roleid )
+function net.cs_texas_start_req( roleid )
+	local room = roommgr.find_by_roleid(roleid)
+	if not room then
+		airport.call_client(roleid, "cs_texas_start_rsp", errno.DATA_ERROR)
+		return
+	end
+
 	local game = room.game.texas
 	local player = game.player_table[roleid]
 	if not player then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_start_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	if roleid ~= room.master then
-		return errno.PRIVILEGE
+		airport.call_client(roleid, "cs_texas_start_rsp", errno.PRIVILEGE)
+		return
 	end
 
 	if room.status ~= room_status.WAITING then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_start_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	if #game.players < MIN_PLAYER_NUM then
-		return errno.TEXAS_PLAYER_NUM
+		airport.call_client(roleid, "cs_texas_start_rsp", errno.TEXAS_PLAYER_NUM)
+		return
 	end
 
 	game.button = player.seatid
 	room.status = room_status.PLAYING
 	room.start_time = app.time()
 	room.broadcast(roleid, "cs_texas_start_ntf", room.roomid)
-	return errno.SUCCESS
+	airport.call_client(roleid, "cs_texas_start_rsp", errno.SUCCESS)
 end
 
-function env.cs_texas_action_req( room, roleid, hand_idx, round_idx, act_type, act_chips )
+function net.cs_texas_action_req( roleid, hand_idx, round_idx, act_type, act_chips )
+	local room = roommgr.find_by_roleid(roleid)
+	if not room then
+		airport.call_client(roleid, "cs_texas_action_rsp", errno.DATA_ERROR)
+		return
+	end
+
 	if room.status ~= room_status.PLAYING then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_action_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	local game = room.game.texas
 	local player = game.player_table[roleid]
 	if not player then
-		return errno.DATA_ERROR
+		airport.call_client(roleid, "cs_texas_action_rsp", errno.DATA_ERROR)
+		return
 	end
 
 	local hand = game.current
 	if not hand or hand.index ~= hand_idx then
-		return errno.PARAM_ERROR
+		airport.call_client(roleid, "cs_texas_action_rsp", errno.PARAM_ERROR)
+		return
 	end
 
 	local round = hand.rounds[#hand.rounds]
 	if not round or round.index ~= round_idx then
-		return errno.PARAM_ERROR
+		airport.call_client(roleid, "cs_texas_action_rsp", errno.PARAM_ERROR)
+		return
 	end
 
-	return dealer.proc_action(game, player, act_type, act_chips)
+	local result = dealer.proc_action(game, player, act_type, act_chips)
+	airport.call_client(roleid, "cs_texas_action_rsp", result)
 end

@@ -153,16 +153,6 @@ message ss_dismiss_room_rsp {
 	reason_type reason = 4;
 }
 
-message ss_game_operate_req {
-	int64 roleid = 1;
-	int64 roomid = 2;
-}
-
-message ss_game_operate_rsp {
-	errno result = 1;
-	int64 roleid = 2;
-}
-
 message ss_update_room_req {
 	room_brief room = 1;
 }

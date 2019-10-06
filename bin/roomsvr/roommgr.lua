@@ -6,6 +6,7 @@ total_role_count = total_role_count or 0
 total_room_count = total_room_count or 0
 last_report_payload = last_report_payload or 0
 roomid_room_table = roomid_room_table or {}
+roleid_room_table = roleid_room_table or {}
 
 function tick(  )
 	tick_room_list()
@@ -14,6 +15,10 @@ end
 
 function find_by_roomid( roomid, cipher )
 	return roomid_room_table[roomid]
+end
+
+function find_by_roleid( roleid )
+	return roleid_room_table[roleid]
 end
 
 function get_room_meta( mode )
@@ -52,13 +57,15 @@ function create_room( lsvrid, roomid, cipher, roleid, name, mode, option )
 	return room
 end
 
-function enter_room( room, lobbyid, role )
+function enter_room( room, role )
 	if room.viewer_table[role.roleid] then
 		log_error("roommgr.enter_room role already exist", role.roleid)
 		return errno.CONFLICT
 	end
 
-	role.lobbyid = lobbyid
+	roleid_room_table[role.roleid] = room
+	airport.reg_role(role.roleid, service.ROOMSVR)
+
 	table.insert(room.viewers, role)
 	room.viewer_table[role.roleid] = role
 	room:on_enter_room(role.roleid)
@@ -80,6 +87,8 @@ function leave_room( room, roleid )
 
 	room:on_leave_room(roleid)
 	room.viewer_table[roleid] = nil
+	roleid_room_table[role.roleid] = nil
+	airport.unreg_role(role.roleid, service.ROOMSVR)
 	return errno.SUCCESS
 end
 
@@ -137,7 +146,7 @@ function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mod
 		return
 	end
 
-	local result = enter_room(room, lobbyid, role)
+	local result = enter_room(room, role)
 	if result ~= errno.SUCCESS then
 		airport.call_lobby(lobbyid, "ss_create_room_rsp", result, role.roleid)
 		return
@@ -155,7 +164,7 @@ function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
 		return
 	end
 
-	local result = enter_room(room, lobbyid, role)
+	local result = enter_room(room, role)
 	if result ~= errno.SUCCESS then
 		airport.call_lobby(lobbyid, "ss_enter_room_rsp", result, role.roleid)
 		return
@@ -200,23 +209,4 @@ function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 
 	room.broadcast(roleid, "cs_dismiss_room_ntf", room.roomid, reason)
 	airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
-end
-
-function net.ss_game_operate_req( svrid, roleid, roomid, req_proto, ... )
-	log_debug("ss_game_operate_req", svrid, roleid, roomid, req_proto, ...)
-	local rsp_proto = string.gsub(req_proto, "_req$", "_rsp")
-	local room = find_by_roomid(roomid)
-	if not room then
-		airport.call_lobby(svrid, "ss_game_operate_rsp", errno.NOT_FOUND, roleid, rsp_proto, errno.NOT_FOUND)
-		return
-	end
-
-	if not room[req_proto] then
-		airport.call_lobby(svrid, "ss_game_operate_rsp", errno.UNKNOWN, roleid, rsp_proto, errno.UNKNOWN)
-		return
-	end
-
-	local rets = { room[req_proto](room, roleid, ...) }
-	local result = rets[1] or errno.FAILURE
-	airport.call_lobby(svrid, "ss_game_operate_rsp", result, roleid, rsp_proto, table.unpack(rets))
 end

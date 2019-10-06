@@ -101,11 +101,11 @@ function on_stop( number )
 	kickout_session_table[number] = nil
 end
 
-proto_handle_table = {
-	cs_texas_chat_req = "cs_game_operate_req",
-	cs_texas_sitdown_req = "cs_game_operate_req",
-	cs_texas_standup_req = "cs_game_operate_req",
-	cs_texas_start_req = "cs_game_operate_req",
+proto_transmit_table = {
+	cs_texas_chat_req = service.ROOMSVR,
+	cs_texas_sitdown_req = service.ROOMSVR,
+	cs_texas_standup_req = service.ROOMSVR,
+	cs_texas_start_req = service.ROOMSVR,
 }
 
 function on_call( number, proto, ... )
@@ -115,9 +115,9 @@ function on_call( number, proto, ... )
 		return
 	end
 
-	if proto_handle_table[proto] then
-		local handle = proto_handle_table[proto]
-		net[handle](ss, proto, ...)
+	if ss.roleid and proto_transmit_table[proto] then
+		local group = proto_transmit_table[proto]
+		airport.call_transmit(ss.roleid, group, proto, ...)
 		return
 	end
 

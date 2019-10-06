@@ -129,28 +129,3 @@ function net.cs_dismiss_room_ntf( ss, roomid, reason )
 	rolemgr.on_room_dismiss(ss.role, roomid, reason)
 	ss.cs_dismiss_room_ntf(roomid, reason)
 end
-
-function net.cs_game_operate_req( ss, req_proto, ... )
-	log_debug("cs_game_operate_req", ss.roleid, req_proto, ...)
-	local rsp_proto = string.gsub(req_proto, "_req$", "_rsp")
-	if not rolemgr.is_gaming(ss.role) then
-		log_warn("cs_game_operate_req not gaming", roleid, req_proto)
-		ss[rsp_proto](errno.DATA_ERROR)
-		return
-	end
-
-	local roleid = ss.role.roleid
-	local gaming = ss.role.gaming
-	airport.call_roomsvr(gaming.rsvrid, "ss_game_operate_req", roleid, gaming.roomid, req_proto, ...)
-end
-
-function net.ss_game_operate_rsp( svrid, result, roleid, rsp_proto, ... )
-	log_debug("ss_game_operate_rsp", svrid, result, roleid, rsp_proto, ...)
-	local ss = ssmgr.find_by_roleid(roleid)
-	if not ss then
-		log_warn("ss_game_operate_rsp ss not exist", roleid, rsp_proto)
-		return
-	end
-
-	ss[rsp_proto](...)
-end

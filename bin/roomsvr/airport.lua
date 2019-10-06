@@ -61,7 +61,18 @@ function on_message( svrid, proto, ... )
 end
 
 function on_transmit( roleid, proto, ... )
-	log_error("airport.on_transmit", roleid, proto, ...)
+	log_debug("airport.on_transmit", roleid, proto, ...)
+	local proc_func = net[proto]
+	if not proc_func then
+		log_error("airport.on_transmit proc_func not found", proto)
+		return
+	end
+
+	proc_func(roleid, ...)
+end
+
+function call_client( roleid, ... )
+	_airport.call_transmit(roleid, service.LOBBY, ...)
 end
 
 function call_lobby( lobbyid, ... )
