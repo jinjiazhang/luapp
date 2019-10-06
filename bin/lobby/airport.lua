@@ -60,7 +60,7 @@ function on_message( svrid, proto, ... )
 	proc_func(svrid, ...)
 end
 
-function on_transmit( roleid, proto, ... )
+function on_transmit( svrid, roleid, proto, ... )
 	log_debug("airport.on_transmit", roleid, proto, ...)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then

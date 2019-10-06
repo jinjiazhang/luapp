@@ -60,7 +60,7 @@ function on_message( svrid, proto, ... )
 	proc_func(svrid, ...)
 end
 
-function on_transmit( roleid, proto, ... )
+function on_transmit( svrid, roleid, proto, ... )
 	log_error("airport.on_transmit", roleid, proto, ...)
 end
 

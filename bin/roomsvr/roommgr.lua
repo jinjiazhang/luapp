@@ -64,7 +64,7 @@ function enter_room( room, role )
 	end
 
 	roleid_room_table[role.roleid] = room
-	airport.reg_role(role.roleid, service.ROOMSVR)
+	airport.reg_role(service.ROOMSVR, role.roleid)
 
 	table.insert(room.viewers, role)
 	room.viewer_table[role.roleid] = role
@@ -88,7 +88,7 @@ function leave_room( room, roleid )
 	room:on_leave_room(roleid)
 	room.viewer_table[roleid] = nil
 	roleid_room_table[role.roleid] = nil
-	airport.unreg_role(role.roleid, service.ROOMSVR)
+	airport.unreg_role(service.ROOMSVR, role.roleid)
 	return errno.SUCCESS
 end
 

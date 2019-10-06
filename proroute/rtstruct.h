@@ -32,14 +32,14 @@ struct rtm_reg_svrid : rtm_head
 
 struct rtm_reg_roleid : rtm_head
 {
-    roleid_t roleid;
     group_t group;
+    roleid_t roleid;
 };
 
 struct rtm_unreg_roleid : rtm_head
 {
-    roleid_t roleid;
     group_t group;
+    roleid_t roleid;
 };
 
 struct rtm_remote_call : rtm_head
@@ -49,8 +49,8 @@ struct rtm_remote_call : rtm_head
 
 struct rtm_transmit_call : rtm_head
 {
-    roleid_t roleid;
     svrid_t srcid;
+    roleid_t roleid;
 };
 
 struct rtm_forward_svrid : rtm_head

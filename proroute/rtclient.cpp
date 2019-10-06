@@ -111,7 +111,8 @@ void rtclient::on_transmit_call(char* data, int len)
 
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_transmit");
-    luaL_pushvalue(L, msg->roleid);
+	luaL_pushvalue(L, msg->srcid);
+	luaL_pushvalue(L, msg->roleid);
 
     if (!stack_unpack(L, data, len))
     {
@@ -125,12 +126,12 @@ void rtclient::on_transmit_call(char* data, int len)
 int rtclient::reg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
-    group_t group = luaL_getvalue<group_t>(L, 2);
+    group_t group = luaL_getvalue<group_t>(L, 1);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 2);
     rtm_reg_roleid msg;
     msg.msg_type = rtm_type::reg_roleid;
+    msg.group = group;
     msg.roleid = roleid;
-	msg.group = group;
     network_->send(number_, &msg, sizeof(msg));
     return 0;
 }
@@ -138,12 +139,12 @@ int rtclient::reg_role(lua_State* L)
 int rtclient::unreg_role(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
-	group_t group = luaL_getvalue<group_t>(L, 2);
-    rtm_unreg_roleid msg;
+    group_t group = luaL_getvalue<group_t>(L, 1);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 2);
+    rtm_reg_roleid msg;
     msg.msg_type = rtm_type::unreg_roleid;
+    msg.group = group;
     msg.roleid = roleid;
-	msg.group = group;
     network_->send(number_, &msg, sizeof(msg));
     return 0;
 }
