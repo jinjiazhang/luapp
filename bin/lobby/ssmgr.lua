@@ -40,7 +40,7 @@ function kickout( ss, reason )
 end
 
 function __index_ss( ss, key )
-	if proto.belong(key) then
+	if proto.exist(key) then
 		ss[key] = function ( ... )
 			net.call(ss.number, key, ...)
 		end

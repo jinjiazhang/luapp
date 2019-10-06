@@ -16,7 +16,7 @@ end
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif proto.belong(key) then
+	elseif proto.exist(key) then
 		env[key] = create_co_func(key)
 		return env[key]
 	end

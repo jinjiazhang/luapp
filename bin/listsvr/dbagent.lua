@@ -11,7 +11,7 @@ end
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
-	elseif proto.belong(key) then
+	elseif proto.exist(key) then
 		env[key] = function ( ... )
 			client.call(key, ...)
 		end
