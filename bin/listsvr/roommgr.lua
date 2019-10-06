@@ -1,29 +1,29 @@
 module = "roommgr"
 
 roomid_room_table = roomid_room_table or {}
-cipher_room_table = cipher_room_table or {}
+roomkey_room_table = roomkey_room_table or {}
 
-function gen_cipher( mode )
+function gen_roomkey( mode )
 	local rand_num = math.random(1, 99999)
-	local cipher = mode * 100000 + rand_num
-	if not cipher_room_table[cipher] then
-		return cipher
+	local roomkey = mode * 100000 + rand_num
+	if not roomkey_room_table[roomkey] then
+		return roomkey
 	end
-	return gen_cipher(mode)
+	return gen_roomkey(mode)
 end
 
 function find_by_roomid( roomid )
 	return roomid_room_table[roomid]
 end
 
-function find_by_cipher( cipher )
-	return cipher_room_table[cipher]
+function find_by_roomkey( roomkey )
+	return roomkey_room_table[roomkey]
 end
 
 function refresh_room( rsvrid, roomid, room )
 	room.rsvrid = rsvrid
 	roomid_room_table[room.roomid] = room
-	cipher_room_table[room.cipher] = room
+	roomkey_room_table[room.roomkey] = room
 	return errno.SUCCESS
 end
 
@@ -56,20 +56,20 @@ function net.ss_assign_room_req( svrid, roleid, name, mode, option )
 
 	local room = proto.create("room_brief")
 	room.roomid = unique.gen_roomid()
-	room.cipher = gen_cipher(mode)
+	room.roomkey = gen_roomkey(mode)
 	room.status = room_status.INITING
 	room.name = name
 	room.mode = mode
 	room.option = option
 	refresh_room(rsvrid, room.roomid, room)
-	airport.call_lobby(svrid, "ss_assign_room_rsp", errno.SUCCESS, roleid, name, mode, option, room.roomid, room.cipher, rsvrid)
+	airport.call_lobby(svrid, "ss_assign_room_rsp", errno.SUCCESS, roleid, name, mode, option, room.roomid, room.roomkey, rsvrid)
 end
 
-function net.ss_search_room_req( svrid, roleid, roomid, cipher )
-	log_debug("ss_search_room_req", svrid, roleid, roomid, cipher)
+function net.ss_search_room_req( svrid, roleid, roomid, roomkey )
+	log_debug("ss_search_room_req", svrid, roleid, roomid, roomkey)
 	local room = find_by_roomid(roomid)
 	if not room then
-		room = find_by_cipher(cipher)
+		room = find_by_roomkey(roomkey)
 	end
 
 	if not room then
@@ -77,5 +77,5 @@ function net.ss_search_room_req( svrid, roleid, roomid, cipher )
 		return
 	end
 
-	airport.call_lobby(svrid, "ss_search_room_rsp", errno.SUCCESS, roleid, room.roomid, room.cipher, room.rsvrid)
+	airport.call_lobby(svrid, "ss_search_room_rsp", errno.SUCCESS, roleid, room.roomid, room.roomkey, room.rsvrid)
 end

@@ -108,14 +108,14 @@ message ss_assign_room_rsp {
 	game_mode mode = 4;
 	game_opt option = 5;
 	int64 roomid = 6;
-	int32 cipher = 7;
+	int32 roomkey = 7;
 	int32 rsvrid = 8;
 }
 
 message ss_create_room_req {
 	room_role role = 1;
 	int64 roomid = 2;
-	int32 cipher = 3;
+	int32 roomkey = 3;
 	string name = 4;
 	game_mode mode = 5;
 	game_opt option = 6;
@@ -132,21 +132,21 @@ message ss_create_room_rsp {
 message ss_search_room_req {
 	int64 roleid = 1;
 	int64 roomid = 2;
-	int32 cipher = 3;
+	int32 roomkey = 3;
 }
 
 message ss_search_room_rsp {
 	errno result = 1;
 	int64 roleid = 2;
 	int64 roomid = 3;
-	int32 cipher = 4;
+	int32 roomkey = 4;
 	int32 rsvrid = 5;
 }
 
 message ss_enter_room_req {
 	room_role role = 1;
 	int64 roomid = 2;
-	int32 cipher = 3;
+	int32 roomkey = 3;
 }
 
 message ss_enter_room_rsp {

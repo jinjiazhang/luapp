@@ -29,7 +29,7 @@ function get_room_meta( mode )
 	end
 end
 
-function create_room( roomid, cipher, roleid, name, mode, option )
+function create_room( roomid, roomkey, roleid, name, mode, option )
 	local room = proto.create("room_detail")
 	room.viewer_table = {}
 	room.master = roleid
@@ -44,7 +44,7 @@ function create_room( roomid, cipher, roleid, name, mode, option )
 	end
 
 	room.roomid = roomid
-	room.cipher = cipher
+	room.roomkey = roomkey
 	room.name = name
 	room.status = room_status.WAITING
 	room.create_time = app.time()
@@ -136,10 +136,9 @@ function net.ss_report_payload_rsp( svrid, result )
 	end
 end
 
-function net.ss_create_room_req( svrid, role, roomid, cipher, name, mode, option )
-	log_debug("ss_create_room_req", svrid, role, roomid, cipher, name, mode, option)
-	assert(roomid > 0 and cipher > 0)
-	local room = create_room(roomid, cipher, role.roleid, name, mode, option)
+function net.ss_create_room_req( svrid, role, roomid, roomkey, name, mode, option )
+	log_debug("ss_create_room_req", svrid, role, roomid, roomkey, name, mode, option)
+	local room = create_room(roomid, roomkey, role.roleid, name, mode, option)
 	if room == nil then
 		airport.call_lobby(svrid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
 		return
@@ -155,8 +154,8 @@ function net.ss_create_room_req( svrid, role, roomid, cipher, name, mode, option
 	airport.call_lobby(svrid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
-function net.ss_enter_room_req( svrid, role, roomid, cipher )
-	log_debug("ss_enter_room_req", svrid, role, roomid, cipher)
+function net.ss_enter_room_req( svrid, role, roomid, roomkey )
+	log_debug("ss_enter_room_req", svrid, role, roomid, roomkey)
 	local room = find_by_roomid(roomid)
 	if not room then
 		airport.call_lobby(svrid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)

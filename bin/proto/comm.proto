@@ -80,7 +80,7 @@ message room_role {
 
 message room_brief {
 	int64 roomid = 1;
-	int32 cipher = 2;
+	int32 roomkey = 2;
 	string name = 3;
 	room_status status = 4;
 	int32 create_time = 5;
@@ -92,7 +92,7 @@ message room_brief {
 
 message room_detail {
 	int64 roomid = 1;
-	int32 cipher = 2;
+	int32 roomkey = 2;
 	string name = 3;
 	room_status status = 4;
 	int32 create_time = 5;

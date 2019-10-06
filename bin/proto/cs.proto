@@ -85,7 +85,7 @@ message cs_create_room_rsp {
 
 message cs_enter_room_req {
 	int64 roomid = 1;
-	int32 cipher = 2;
+	int32 roomkey = 2;
 }
 
 message cs_enter_room_rsp {

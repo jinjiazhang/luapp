@@ -63,8 +63,8 @@ function create_room_flow( role )
 	return room
 end
 
-function enter_room_flow( role, roomid, cipher )
-	local result, room = client.cs_enter_room_req(roomid, cipher)
+function enter_room_flow( role, roomid, roomkey )
+	local result, room = client.cs_enter_room_req(roomid, roomkey)
 	log_info("cs_enter_room_req", result, app.tostring(room))
 	check_result("cs_enter_room_req", result)
 
@@ -95,7 +95,7 @@ function texas_flow( openid, token )
 		create_room_flow(role)
 	else
 		local info = room_list[1]
-		enter_room_flow(role, info.roleid, info.cipher)
+		enter_room_flow(role, info.roleid, info.roomkey)
 	end
 
 	local roomid, hand = notify.wait_for_notify("texas_hand")
