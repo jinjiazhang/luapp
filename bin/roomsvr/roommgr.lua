@@ -29,10 +29,9 @@ function get_room_meta( mode )
 	end
 end
 
-function create_room( lsvrid, roomid, cipher, roleid, name, mode, option )
+function create_room( roomid, cipher, roleid, name, mode, option )
 	local room = proto.create("room_detail")
 	room.viewer_table = {}
-	room.lsvrid = lsvrid
 	room.master = roleid
 	
 	setmetatable(room, {__index = get_room_meta(mode)})
@@ -140,7 +139,7 @@ end
 function net.ss_create_room_req( svrid, role, roomid, cipher, name, mode, option )
 	log_debug("ss_create_room_req", svrid, role, roomid, cipher, name, mode, option)
 	assert(roomid > 0 and cipher > 0)
-	local room = create_room(svrid, roomid, cipher, role.roleid, name, mode, option)
+	local room = create_room(roomid, cipher, role.roleid, name, mode, option)
 	if room == nil then
 		airport.call_lobby(svrid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
 		return
