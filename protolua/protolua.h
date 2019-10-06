@@ -36,8 +36,8 @@ bool proto_pack(const char* proto, lua_State* L, int start, int end, char* outpu
 bool proto_unpack(const char* proto, lua_State* L, const char* input, size_t size);
 bool proto_tojson(lua_State* L, int index, bool pretty, char* output, size_t* size);
 bool proto_fromjson(lua_State* L, const char* input, size_t size);
-bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size);
-bool stack_unpack(lua_State* L, const char* input, size_t size);
+bool message_pack(lua_State* L, int start, int end, char* output, size_t* size);
+bool message_unpack(lua_State* L, const char* input, size_t size);
 
 extern google::protobuf::compiler::Importer g_importer;
 extern google::protobuf::DynamicMessageFactory g_factory;

@@ -94,7 +94,7 @@ void rtclient::on_remote_call(char* data, int len)
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, msg->srcid);
 
-    if (!stack_unpack(L, data, len))
+    if (!message_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;
@@ -114,7 +114,7 @@ void rtclient::on_transmit_call(char* data, int len)
 	luaL_pushvalue(L, msg->srcid);
 	luaL_pushvalue(L, msg->roleid);
 
-    if (!stack_unpack(L, data, len))
+    if (!message_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;
@@ -157,7 +157,7 @@ int rtclient::call_target(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!message_pack(L, 2, top, buffer, &len))
     {
         return 0;
     }
@@ -185,7 +185,7 @@ int rtclient::call_transmit(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 3, top, buffer, &len))
+    if (!message_pack(L, 3, top, buffer, &len))
     {
         return 0;
     }
@@ -211,7 +211,7 @@ int rtclient::call_group(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!message_pack(L, 2, top, buffer, &len))
     {
         return 0;
     }
@@ -236,7 +236,7 @@ int rtclient::call_random(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!message_pack(L, 2, top, buffer, &len))
     {
         return 0;
     }

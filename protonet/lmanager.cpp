@@ -30,7 +30,7 @@ int lmanager::call(lua_State* L)
 {
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 1, top, buffer, &len))
+    if (!message_pack(L, 1, top, buffer, &len))
     {
         return 0;
     }
@@ -66,7 +66,7 @@ void lmanager::on_package(int number, char* data, int len)
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, number);
 
-    if (!stack_unpack(L, data, len))
+    if (!message_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;

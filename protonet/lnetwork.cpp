@@ -67,7 +67,7 @@ int lnetwork::call(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!message_pack(L, 2, top, buffer, &len))
     {
         return 0;
     }

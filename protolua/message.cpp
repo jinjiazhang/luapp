@@ -97,7 +97,7 @@ bool encode_field(Message* message, const FieldDescriptor* field, lua_State* L, 
 std::vector<const FieldDescriptor*> SortFieldsByNumber(const Descriptor* descriptor);
 
 // proto1_len, proto1, data1_len, data1, proto2_len, proto2, ...
-bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size)
+bool message_pack(lua_State* L, int start, int end, char* output, size_t* size)
 {
     int total_size = 0;
     int left_size = *size;
@@ -140,7 +140,7 @@ bool stack_pack(lua_State* L, int start, int end, char* output, size_t* size)
 }
 
 // proto1, filed1, field2, ..., proto2, ...
-bool stack_unpack(lua_State* L, const char* input, size_t size)
+bool message_unpack(lua_State* L, const char* input, size_t size)
 {
     while (size > 0)
     {

@@ -156,7 +156,7 @@ void rtserver::on_call_server(int number, char* data, int len)
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, srcid);
 
-    if (!stack_unpack(L, data, len))
+    if (!message_unpack(L, data, len))
     {
         lua_settop(L, top);
         return;
@@ -363,7 +363,7 @@ int rtserver::call_target(lua_State* L)
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
-    if (!stack_pack(L, 2, top, buffer, &len))
+    if (!message_pack(L, 2, top, buffer, &len))
     {
         return 0;
     }
