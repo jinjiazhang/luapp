@@ -13,7 +13,7 @@ function tick(  )
 	report_payload()
 end
 
-function find_by_roomid( roomid, cipher )
+function find_by_roomid( roomid )
 	return roomid_room_table[roomid]
 end
 
@@ -110,8 +110,8 @@ function report_payload(  )
 	end
 end
 
-function update_listsvr( room )
-	airport.call_listsvr(room.lsvrid, "ss_update_room_req", room)
+function refresh_listsvr( roomid, room )
+	airport.call_listsvr_hash(room.mode, "ss_refresh_room_req", roomid, room)
 end
 
 function broadcast( room, exceptid, proto, ... )
@@ -123,10 +123,10 @@ function broadcast( room, exceptid, proto, ... )
 	end
 end
 
-function net.ss_update_room_rsp( svrid, result )
-	log_debug("ss_update_room_rsp", svrid, result)
+function net.ss_refresh_room_rsp( svrid, result )
+	log_debug("ss_refresh_room_rsp", svrid, result)
 	if result ~= errno.SUCCESS then
-		log_error("ss_update_room_rsp result", result)
+		log_error("ss_refresh_room_rsp result", result)
 	end
 end
 
@@ -137,42 +137,43 @@ function net.ss_report_payload_rsp( svrid, result )
 	end
 end
 
-function net.ss_create_room_req( svrid, lobbyid, role, roomid, cipher, name, mode, option )
-	log_debug("ss_create_room_req", svrid, lobbyid, role, roomid, cipher, name, mode, option)
+function net.ss_create_room_req( svrid, role, roomid, cipher, name, mode, option )
+	log_debug("ss_create_room_req", svrid, role, roomid, cipher, name, mode, option)
 	assert(roomid > 0 and cipher > 0)
 	local room = create_room(svrid, roomid, cipher, role.roleid, name, mode, option)
 	if room == nil then
-		airport.call_lobby(lobbyid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
+		airport.call_lobby(svrid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
 		return
 	end
 
 	local result = enter_room(room, role)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(lobbyid, "ss_create_room_rsp", result, role.roleid)
+		airport.call_lobby(svrid, "ss_create_room_rsp", result, role.roleid)
 		return
 	end
 
-	update_listsvr(room)
-	airport.call_lobby(lobbyid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
+	refresh_listsvr(roomid, room)
+	airport.call_lobby(svrid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
-function net.ss_enter_room_req( svrid, lobbyid, role, roomid, cipher )
-	log_debug("ss_enter_room_req", svrid, lobbyid, role, roomid, cipher)
+function net.ss_enter_room_req( svrid, role, roomid, cipher )
+	log_debug("ss_enter_room_req", svrid, role, roomid, cipher)
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(lobbyid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)
+		airport.call_lobby(svrid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)
 		return
 	end
 
 	local result = enter_room(room, role)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(lobbyid, "ss_enter_room_rsp", result, role.roleid)
+		airport.call_lobby(svrid, "ss_enter_room_rsp", result, role.roleid)
 		return
 	end
 
+	refresh_listsvr(roomid, room)
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
-	airport.call_lobby(lobbyid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
+	airport.call_lobby(svrid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
 function net.ss_leave_room_req( svrid, roleid, roomid, reason )
@@ -189,6 +190,7 @@ function net.ss_leave_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
+	refresh_listsvr(roomid, room)
 	room.broadcast(roleid, "cs_leave_room_ntf", room.roomid, roleid, reason)
 	airport.call_lobby(svrid, "ss_leave_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
@@ -207,6 +209,7 @@ function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
+	refresh_listsvr(roomid, room)
 	room.broadcast(roleid, "cs_dismiss_room_ntf", room.roomid, reason)
 	airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end

@@ -24,7 +24,23 @@ function net.cs_create_room_req( ss, name, mode, option )
 		return
 	end
 	
-	airport.call_listsvr_hash(mode, "ss_create_room_req", app.svrid(), ss.role, 0, 0, name, mode, option)
+	airport.call_listsvr_hash(mode, "ss_assign_room_req", ss.roleid, name, mode, option)
+end
+
+function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, roomid, cipher, rsvrid)
+	log_debug("ss_assign_room_rsp", svrid, roleid, name, mode, option, roomid, cipher, rsvrid)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		log_warn("ss_assign_room_rsp ss not exist", roleid)
+		return
+	end
+
+	if result ~= errno.SUCCESS then
+		ss.cs_create_room_rsp(result)
+		return
+	end
+
+	airport.call_roomsvr(rsvrid, "ss_create_room_req", ss.role, roomid, cipher, name, mode, option)
 end
 
 function net.ss_create_room_rsp( svrid, result, roleid, room )
@@ -51,7 +67,23 @@ function net.cs_enter_room_req( ss, roomid, cipher )
 	end
 	
 	-- TODO set hash mode
-	airport.call_listsvr_hash(0, "ss_enter_room_req", app.svrid(), ss.role, roomid, cipher)
+	airport.call_listsvr_hash(0, "ss_search_room_req", ss.roleid, roomid, cipher)
+end
+
+function net.ss_search_room_rsp( svrid, result, roleid, roomid, cipher, rsvrid )
+	log_debug("ss_search_room_rsp", svrid, roleid, roomid, cipher, rsvrid)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		log_warn("ss_assign_room_rsp ss not exist", roleid)
+		return
+	end
+
+	if result ~= errno.SUCCESS then
+		ss.cs_enter_room_rsp(result)
+		return
+	end
+
+	airport.call_roomsvr(rsvrid, "ss_enter_room_req", ss.role, roomid, cipher)
 end
 
 function net.ss_enter_room_rsp( svrid, result, roleid, room )

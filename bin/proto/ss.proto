@@ -94,14 +94,31 @@ message ss_fetch_room_rsp {
 	repeated room_brief room_list = 3;
 }
 
+message ss_assign_room_req {
+	int64 roleid = 1;
+	string name = 2;
+	game_mode mode = 3;
+	game_opt option = 4;
+}
+
+message ss_assign_room_rsp {
+	errno result = 1;
+	int64 roleid = 2;
+	string name = 3;
+	game_mode mode = 4;
+	game_opt option = 5;
+	int64 roomid = 6;
+	int32 cipher = 7;
+	int32 rsvrid = 8;
+}
+
 message ss_create_room_req {
-	int32 lobbyid = 1;
-	room_role role = 2;
-	int64 roomid = 3;
-	int32 cipher = 4;
-	string name = 5;
-	game_mode mode = 6;
-	game_opt option = 7;
+	room_role role = 1;
+	int64 roomid = 2;
+	int32 cipher = 3;
+	string name = 4;
+	game_mode mode = 5;
+	game_opt option = 6;
 }
 
 message ss_create_room_rsp {
@@ -112,11 +129,24 @@ message ss_create_room_rsp {
 	}
 }
 
-message ss_enter_room_req {
-	int32 lobbyid = 1;
-	room_role role = 2;
+message ss_search_room_req {
+	int64 roleid = 1;
+	int64 roomid = 2;
+	int32 cipher = 3;
+}
+
+message ss_search_room_rsp {
+	errno result = 1;
+	int64 roleid = 2;
 	int64 roomid = 3;
 	int32 cipher = 4;
+	int32 rsvrid = 5;
+}
+
+message ss_enter_room_req {
+	room_role role = 1;
+	int64 roomid = 2;
+	int32 cipher = 3;
 }
 
 message ss_enter_room_rsp {
@@ -153,11 +183,12 @@ message ss_dismiss_room_rsp {
 	reason_type reason = 4;
 }
 
-message ss_update_room_req {
-	room_brief room = 1;
+message ss_refresh_room_req {
+	int64 roomid = 1;
+	room_brief room = 2;
 }
 
-message ss_update_room_rsp {
+message ss_refresh_room_rsp {
 	errno result = 1;
 }
 

@@ -28,7 +28,7 @@ function insert_online_info(online)
     assert(online.openid ~= nil)
     local code, result = mongodb.mongo_insert(db_name, "online", online)
     if code ~= 0 then
-        log_error("insert_online_info fail", result)
+        log_error("insert_online_info failed", result)
         return false
     end
     return true
@@ -37,7 +37,7 @@ end
 function get_online_info(openid)
     local code, result = mongodb.mongo_find(db_name, "online", {openid = openid})
     if code ~= 0 then
-        log_error("get_online_info fail", result)
+        log_error("get_online_info failed", result)
         return false
     end
     assert(not result or result.openid == openid)
@@ -48,7 +48,7 @@ function set_online_info(openid, online)
     assert(online.openid == openid)
     local code, result = mongodb.mongo_replace(db_name, "online", {openid = openid}, online)
     if code ~= 0 then
-        log_error("set_online_info fail", result)
+        log_error("set_online_info failed", result)
         return false
     end
     return true
@@ -57,7 +57,7 @@ end
 function clean_online_info(openid)
     local code, result = mongodb.mongo_delete(db_name, "online", {openid = openid})
     if code ~= 0 then
-        log_error("clean_online_info fail", result)
+        log_error("clean_online_info failed", result)
         return false
     end
     return true
@@ -67,7 +67,7 @@ function create_new_account(account)
     assert(account.openid ~= nil)
     local code, result = mongodb.mongo_insert(db_name, "account", account)
     if code ~= 0 then
-        log_error("create_new_account fail", result)
+        log_error("create_new_account failed", result)
         return false
     end
     return true
@@ -76,7 +76,7 @@ end
 function load_account_data(openid)
     local code, result = mongodb.mongo_find(db_name, "account", {openid = openid})
     if code ~= 0 then
-        log_error("load_account_data fail", result)
+        log_error("load_account_data failed", result)
         return false
     end
     assert(not result or result.openid == openid)
@@ -87,7 +87,7 @@ function save_account_data(openid, account)
     assert(account.openid == openid)
     local code, result = mongodb.mongo_replace(db_name, "account", {openid = openid}, account)
     if code ~= 0 then
-        log_error("save_account_data fail", result)
+        log_error("save_account_data failed", result)
         return false
     end
     return true
@@ -97,7 +97,7 @@ function create_new_role(role)
     assert(role.roleid ~= nil)
     local code, result = mongodb.mongo_insert(db_name, "role", role)
     if code ~= 0 then
-        log_error("create_new_role fail", result)
+        log_error("create_new_role failed", result)
         return false
     end
     return true
@@ -106,7 +106,7 @@ end
 function load_role_data(roleid)
     local code, result = mongodb.mongo_find(db_name, "role", {roleid = roleid})
     if code ~= 0 then
-        log_error("load_role_data fail", result)
+        log_error("load_role_data failed", result)
         return false
     end
     assert(not result or result.roleid == roleid)
@@ -117,7 +117,7 @@ function save_role_data(roleid, role)
     assert(role.roleid == roleid)
     local code, result = mongodb.mongo_replace(db_name, "role", {roleid = roleid}, role)
     if code ~= 0 then
-        log_error("save_role_data fail", result)
+        log_error("save_role_data failed", result)
         return false
     end
     return true

@@ -2,7 +2,7 @@ module = "assign"
 
 roomsvr_payload_table = roomsvr_payload_table or {}
 
-function assign_room( mode )
+function assign_room( mode, option )
 	for rsvrid, payload in pairs(roomsvr_payload_table) do
 		if payload.support_mode == mode then
 			return rsvrid
