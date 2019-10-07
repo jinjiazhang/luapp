@@ -117,7 +117,7 @@ function on_call( number, proto, ... )
 
 	if ss.roleid and proto_transmit_table[proto] then
 		local group = proto_transmit_table[proto]
-		airport.call_transmit(ss.roleid, group, proto, ...)
+		airport.call_transmit(group, ss.roleid, proto, ...)
 		return
 	end
 

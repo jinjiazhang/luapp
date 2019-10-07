@@ -72,7 +72,7 @@ function on_transmit( svrid, roleid, proto, ... )
 end
 
 function call_client( roleid, ... )
-	_airport.call_transmit(roleid, service.LOBBY, ...)
+	_airport.call_transmit(service.LOBBY, roleid, ...)
 end
 
 function call_lobby( lobbyid, ... )

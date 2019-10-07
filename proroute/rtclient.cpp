@@ -178,10 +178,10 @@ int rtclient::call_target(lua_State* L)
 int rtclient::call_transmit(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    roleid_t roleid = luaL_getvalue<roleid_t>(L, 1);
+    group_t group = luaL_getvalue<group_t>(L, 1);
 
     luaL_checktype(L, 2, LUA_TNUMBER);
-    group_t group = luaL_getvalue<group_t>(L, 2);
+    roleid_t roleid = luaL_getvalue<roleid_t>(L, 2);
 
     int top = lua_gettop(L);
     size_t len = sizeof(buffer);
