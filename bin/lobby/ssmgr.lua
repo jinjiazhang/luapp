@@ -102,10 +102,11 @@ function on_stop( number )
 end
 
 proto_transmit_table = {
-	cs_texas_chat_req = service.ROOMSVR,
-	cs_texas_sitdown_req = service.ROOMSVR,
-	cs_texas_standup_req = service.ROOMSVR,
-	cs_texas_start_req = service.ROOMSVR,
+	["cs_texas_chat_req"] = service.ROOMSVR,
+	["cs_texas_sitdown_req"] = service.ROOMSVR,
+	["cs_texas_standup_req"] = service.ROOMSVR,
+	["cs_texas_start_req"] = service.ROOMSVR,
+	["cs_texas_action_req"] = service.ROOMSVR,
 }
 
 function on_call( number, proto, ... )
