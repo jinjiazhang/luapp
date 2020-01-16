@@ -1,51 +1,38 @@
 #include "buffer.h"
 
-buffer::buffer()
+buffer::buffer(int init_size)
 {
-    preseted_ = 8096;
-    capacity_ = 0;
-    buffer_ = NULL;
-    begin_ = NULL;
-    end_ = NULL;
+    init_size_ = init_size;
+    if (init_size_ > 0)
+    {
+        buffer_ = (char*)malloc(init_size_);
+        begin_ = buffer_;
+        end_ = begin_;
+        capacity_ = init_size_;
+    }
+    else
+    {
+        buffer_ = NULL;
+        begin_ = NULL;
+        end_ = NULL;
+        capacity_ = 0;
+    }
 }
 
 buffer::~buffer()
 {
     if (buffer_) 
     {
-        delete[] buffer_;
-    }
-}
-
-void buffer::prepare()
-{
-    if (buffer_ == NULL)
-    {
-        buffer_ = new char[preseted_];
-        begin_ = buffer_;
-        end_ = begin_;
-        capacity_ = preseted_;
-    }
-    else if (capacity_ != preseted_)
-    {
-        char* preset = new char[preseted_];
-        int used = end_ - begin_;
-        if (used > 0)
-        {
-            assert(preseted_ >= used);
-            memcpy(preset, begin_, used);
-        }
-        delete[] buffer_;
-        buffer_ = preset;
-        begin_ = buffer_;
-        end_ = begin_ + used;
-        capacity_ = preseted_;
+        free(buffer_);
+        buffer_ = NULL;
+        begin_ = NULL;
+        end_ = NULL;
+        capacity_ = 0;
     }
 }
 
 char* buffer::data()
 {
-    prepare();
     return begin_;
 }
 
@@ -56,52 +43,70 @@ int buffer::size()
 
 char* buffer::tail()
 {
-    prepare();
     return end_;
 }
 
 int buffer::space()
 {
-    prepare();
-    return capacity_ - (end_ - buffer_);
+    return buffer_ + capacity_ - end_;
 }
 
-bool buffer::expand(int size)
+void buffer::reserve(int count)
 {
-    if (size <= 0)
+    if (buffer_ + capacity_ - begin_ > count)
+    {
+        return;
+    }
+
+    int used = end_ - begin_;
+    int bias = begin_ - buffer_; 
+
+    count = std::max<int>(count, init_size_);
+    int capacity = std::max<int>(min_buffer_size, capacity_);
+    while (capacity < count) capacity *= 2;
+        
+    if (capacity_ < capacity)
+    {
+        buffer_ = (char*)realloc(buffer_, capacity);
+        capacity_ = capacity;
+    }
+
+    if (used > 0 && bias > 0)
+    {
+        memmove(buffer_, buffer_ + bias, used);
+    }
+
+    begin_ = buffer_;
+    end_ = begin_ + used;
+}
+
+void buffer::shrink()
+{
+    int used = end_ - begin_;
+    if (used == 0)
     {
         if (buffer_)
         {
-            delete[] buffer_;
+            free(buffer_);
             buffer_ = NULL;
             begin_ = NULL;
             end_ = NULL;
             capacity_ = 0;
         }
-        return true;
+        return;
     }
-    else if (size < 0x800000)
-    {
-        while (preseted_ < size)
-        {
-            preseted_ = preseted_ * 2;
-        }
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    assert(false); // todo
 }
 
 bool buffer::push_data(char* data, int len)
 {
-    if (!expand(size() + len))
+    if (size() + len > max_buffer_size)
     {
         return false;
     }
 
-    prepare();
+    reserve(size() + len);
     memcpy(end_, data, len);
     end_ += len;
     return true;
@@ -151,9 +156,10 @@ bool buffer::pop_space(int len)
 void buffer::trim_data()
 {
     int used = end_ - begin_;
-    if (used > 0)
+    int bias = begin_ - buffer_;
+    if (used > 0 && bias > 0)
     {
-        memmove(buffer_, begin_, used);
+        memmove(buffer_, buffer_ + bias, used);
     }
 
     begin_ = buffer_;

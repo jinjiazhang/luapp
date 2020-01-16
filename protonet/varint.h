@@ -46,7 +46,7 @@ inline int encode_varint(char* data, int len, int value)
 
 inline int decode_varint(int* value, const char* data, int len)
 {
-    if (data == nullptr || len <= 0)
+    if (data == NULL || len <= 0)
         return -1;
 
     const unsigned char *s = (unsigned char *)data;

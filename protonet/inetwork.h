@@ -1,6 +1,15 @@
 #ifndef _JINJIAZHANG_INETWORK_H_
 #define _JINJIAZHANG_INETWORK_H_
 
+enum
+{
+    NET_ERROR_NONE = 0,
+    NET_INNER_ERROR = -100,
+    NET_HEAD_ERROR = -101,
+    NET_BODY_OVERSIZE = -102, // recv large package
+    NET_BUFF_OVERSIZE = -103, // send buffer full
+};
+
 struct iobuf
 {
     const void* data;

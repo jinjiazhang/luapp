@@ -3,6 +3,7 @@
 #include <vector>
 
 session::session(network* instance, imanager* manager)
+    : recvbuf_(8096), sendbuf_(0)
 {
     fd_ = -1;
     network_ = instance;
@@ -60,7 +61,7 @@ void session::on_readable()
         
         if (recv_len == 0)
         {
-            on_error(0);
+            on_error(NET_ERROR_NONE);
             return;
         }
 
@@ -87,7 +88,7 @@ void session::on_writable()
 
         if (send_len == 0)
         {
-            on_error(0);
+            on_error(NET_ERROR_NONE);
             return;
         }
 
@@ -96,7 +97,7 @@ void session::on_writable()
 
     if (sendbuf_.size() <= 0)
     {
-        sendbuf_.expand(0);
+        sendbuf_.shrink();
         network_->del_event(this, fd_, EVENT_WRITE);
     }
 }
@@ -137,7 +138,7 @@ void session::transmit(iovec* iov, int iovcnt)
     {
         if (!sendbuf_.push_data(iov, iovcnt, 0))
         {
-            on_error(-1);
+            on_error(NET_BUFF_OVERSIZE);
         }
         return;
     }
@@ -154,7 +155,7 @@ void session::transmit(iovec* iov, int iovcnt)
 
         if (!sendbuf_.push_data(iov, iovcnt, 0))
         {
-            on_error(-2);
+            on_error(NET_BUFF_OVERSIZE);
             return;
         }
         network_->add_event(this, fd_, EVENT_WRITE);
@@ -163,7 +164,7 @@ void session::transmit(iovec* iov, int iovcnt)
 
     if (send_len == 0)
     {
-        on_error(0);
+        on_error(NET_ERROR_NONE);
         return;
     }
 
@@ -177,7 +178,7 @@ void session::transmit(iovec* iov, int iovcnt)
     {
         if (!sendbuf_.push_data(iov, iovcnt, send_len))
         {
-            on_error(-3);
+            on_error(NET_BUFF_OVERSIZE);
             return;
         }
         network_->add_event(this, fd_, EVENT_WRITE);
@@ -204,7 +205,7 @@ void session::dispatch()
         int head_len = decode_varint(&body_len, recvbuf_.data(), recvbuf_.size());
         if (head_len < 0)
         {
-            on_error(-4);
+            on_error(NET_HEAD_ERROR);
             return;
         }
 
@@ -213,18 +214,13 @@ void session::dispatch()
             break;
         }
 
-        if (body_len <= 0)
+        if (body_len <= 0 || body_len > max_buffer_size)
         {
-            on_error(-5);
+            on_error(NET_BODY_OVERSIZE);
             return;
         }
 
-        if (!recvbuf_.expand(head_len + body_len))
-        {
-            on_error(-6);
-            return;
-        }
-
+        recvbuf_.reserve(head_len + body_len);
         if (recvbuf_.size() < head_len + body_len)
         {
             break;

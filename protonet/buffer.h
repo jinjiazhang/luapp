@@ -3,10 +3,13 @@
 
 #include "platform.h"
 
+const int min_buffer_size = 0x2000;
+const int max_buffer_size = 0x800000;
+
 class buffer
 {
 public:
-    buffer();
+    buffer(int init_size);
     ~buffer();
     
     char* data();
@@ -15,8 +18,9 @@ public:
     char* tail();
     int space();
     
-    void prepare();
-    bool expand(int size);
+    void reserve(int count);
+    void shrink();
+
     bool push_data(char* data, int len);
     bool push_data(iovec *iov, int cnt, int ignore);
     bool pop_data(int len);
@@ -24,7 +28,7 @@ public:
     void trim_data();
 
 private:
-    int preseted_;
+    int init_size_;
     int capacity_;
     char* buffer_;
     char* begin_;
