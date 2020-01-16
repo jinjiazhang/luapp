@@ -16,9 +16,39 @@ struct gwm_head
     unsigned char msg_type;
 };
 
-struct rtm_reg_svrid : gwm_head
+struct gwm_reg_svrid : gwm_head
 {
     svrid_t svrid;
+};
+
+struct gwm_remote_call : gwm_head
+{
+
+};
+
+struct gwm_session_start : gwm_head
+{
+
+};
+
+struct gwm_session_stop : gwm_head
+{
+
+};
+
+struct gwm_close_session : gwm_head
+{
+
+};
+
+struct gwm_transmit_data : gwm_head
+{
+
+};
+
+struct gwm_broadcast_data : gwm_head
+{
+
 };
 
 #pragma pack()
