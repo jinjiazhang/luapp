@@ -13,7 +13,7 @@ rtclient::rtclient(lua_State* L, svrid_t svrid) : lobject(L)
 
 rtclient::~rtclient()
 {
-    
+
 }
 
 int rtclient::number()
@@ -111,8 +111,8 @@ void rtclient::on_transmit_call(char* data, int len)
 
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_transmit");
-	luaL_pushvalue(L, msg->srcid);
-	luaL_pushvalue(L, msg->roleid);
+    luaL_pushvalue(L, msg->srcid);
+    luaL_pushvalue(L, msg->roleid);
 
     if (!message_unpack(L, data, len))
     {

@@ -1,48 +1,58 @@
+#include "gwclient.h"
 #include "gateway.h"
 
-gateway::gateway(lua_State* L, inetwork* network, svrid_t svrid) : lobject(L)
+gwclient::gwclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
-    network_ = network;
     svrid_ = svrid;
+    number_ = 0;
+    network_ = nullptr;
+    manager_ = nullptr;
 }
 
-gateway::~gateway()
+gwclient::~gwclient()
 {
-    
+
 }
 
-inetwork* gateway::network()
+int gwclient::number()
 {
-    return network_;
+    return number_;
 }
 
-int gateway::listen(lua_State* L)
+bool gwclient::init(gateway* manager, int number)
 {
-    luaL_checktype(L, 1, LUA_TSTRING);
-    const char* ip = luaL_getvalue<const char*>(L, 1);
-    luaL_checktype(L, 2, LUA_TNUMBER);
-    int port = luaL_getvalue<int>(L, 2);
+    network_ = manager->network();
+    manager_ = manager;
+    number_ = number;
+    return true;
+}
 
+int gwclient::close(lua_State* L)
+{
     return 0;
 }
 
-int gateway::connect(lua_State* L)
-{
-    luaL_checktype(L, 1, LUA_TSTRING);
-    const char* ip = luaL_getvalue<const char*>(L, 1);
-    luaL_checktype(L, 2, LUA_TNUMBER);
-    int port = luaL_getvalue<int>(L, 2);
 
-    return 0;
+void gwclient::on_accept(int number, int error)
+{
+
 }
 
-EXPORT_OFUNC(gateway, listen)
-EXPORT_OFUNC(gateway, connect)
-const luaL_Reg* gateway::get_libs()
+void gwclient::on_closed(int number, int error)
+{
+
+}
+
+void gwclient::on_package(int number, char* data, int len)
+{
+
+}
+
+EXPORT_OFUNC(gwclient, close)
+const luaL_Reg* gwclient::get_libs()
 {
     static const luaL_Reg libs[] = {
-    	{ IMPORT_OFUNC(gateway, listen) },
-        { IMPORT_OFUNC(gateway, connect) },
+        { IMPORT_OFUNC(gwclient, close) },
         { NULL, NULL }
     };
     return libs;
