@@ -28,6 +28,10 @@ private:
     int svrid_to_num(svrid_t svrid);
 
     void on_reg_svrid(int number, char* data, int len);
+    void on_remote_call(int number, char* data, int len);
+    void on_close_session(int number, char* data, int len);
+    void on_transmit_data(int number, char* data, int len);
+    void on_broadcast_data(int number, char* data, int len);
 
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;

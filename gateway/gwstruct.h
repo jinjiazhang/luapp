@@ -8,6 +8,12 @@ enum gwm_type
 {
     invalid = 0,
     reg_svrid,
+    remote_call,
+    session_start,
+    session_stop,
+    close_session,
+    transmit_data,
+    broadcast_data,
 };
 
 #pragma pack(1)
@@ -23,7 +29,7 @@ struct gwm_reg_svrid : gwm_head
 
 struct gwm_remote_call : gwm_head
 {
-
+    svrid_t srcid;
 };
 
 struct gwm_session_start : gwm_head

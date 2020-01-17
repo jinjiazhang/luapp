@@ -24,6 +24,10 @@ public:
 
 private:
     void on_reg_svrid(char* data, int len);
+    void on_remote_call(char* data, int len);
+    void on_session_start(char* data, int len);
+    void on_session_stop(char* data, int len);
+    void on_transmit_data(char* data, int len);
 
 private:
     svrid_t svrid_;

@@ -1,5 +1,6 @@
 #include "gwserver.h"
 #include "gateway.h"
+#include "protolua/protolua.h"
 
 gwserver::gwserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
@@ -88,6 +89,18 @@ void gwserver::on_package(int number, char* data, int len)
     case gwm_type::reg_svrid:
         on_reg_svrid(number, data, len);
         break;
+    case gwm_type::remote_call:
+        on_remote_call(number, data, len);
+        break;
+    case gwm_type::close_session:
+        on_close_session(number, data, len);
+        break;
+    case gwm_type::transmit_data:
+        on_transmit_data(number, data, len);
+        break;
+    case gwm_type::broadcast_data:
+        on_broadcast_data(number, data, len);
+        break;
     default:
         log_error("gwserver::on_package msg_type =%d invalid", head->msg_type);
         break;
@@ -100,6 +113,43 @@ void gwserver::on_reg_svrid(int number, char* data, int len)
     svrid_num_map_[msg->svrid] = number;
     num_svrid_map_[number] = msg->svrid;
     luaL_callfunc(L, this, "on_accept", msg->svrid, 0);
+}
+
+void gwserver::on_remote_call(int number, char* data, int len)
+{
+    gwm_remote_call* msg = (gwm_remote_call*)data;
+    svrid_t srcid = num_to_svrid(number);
+    assert(msg->srcid == srcid);
+
+    data += sizeof(gwm_remote_call);
+    len -= sizeof(gwm_remote_call);
+
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_message");
+    luaL_pushvalue(L, msg->srcid);
+
+    if (!message_unpack(L, data, len))
+    {
+        lua_settop(L, top);
+        return;
+    }
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
+}
+
+void gwserver::on_close_session(int number, char* data, int len)
+{
+
+}
+
+void gwserver::on_transmit_data(int number, char* data, int len)
+{
+
+}
+
+void gwserver::on_broadcast_data(int number, char* data, int len)
+{
+
 }
 
 int gwserver::close(lua_State* L)
