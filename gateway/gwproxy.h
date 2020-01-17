@@ -1,5 +1,5 @@
-#ifndef _JINJIAZHANG_GWACCESS_H_
-#define _JINJIAZHANG_GWACCESS_H_
+#ifndef _JINJIAZHANG_gwproxy_H_
+#define _JINJIAZHANG_gwproxy_H_
 
 #include "gwstruct.h"
 #include "protonet/inetwork.h"
@@ -7,11 +7,11 @@
 #include <unordered_map>
 
 class gateway;
-class gwaccess : public lobject, public imanager
+class gwproxy : public lobject, public imanager
 {
 public:
-    gwaccess(lua_State* L, svrid_t svrid);
-    ~gwaccess();
+    gwproxy(lua_State* L, svrid_t svrid);
+    ~gwproxy();
 
     int number();
     bool init(gateway* manager, int number);
