@@ -4,6 +4,7 @@
 #include "gwstruct.h"
 #include "protonet/inetwork.h"
 #include "lualib/lobject.h"
+#include <unordered_map>
 
 class gateway;
 class gwserver : public lobject, public imanager
@@ -23,11 +24,22 @@ public:
     virtual void on_package(int number, char* data, int len);
 
 private:
+    svrid_t num_to_svrid(int number);
+    int svrid_to_num(svrid_t svrid);
+
+    void on_reg_svrid(int number, char* data, int len);
+
+private:
+    typedef std::unordered_map<svrid_t, int> svrid_num_map;
+    typedef std::unordered_map<int, svrid_t> num_svrid_map;
+
     svrid_t svrid_;
     int number_;
     inetwork* network_;
     gateway* manager_;
 
+    svrid_num_map svrid_num_map_;
+    num_svrid_map num_svrid_map_;
 };
 
 #endif

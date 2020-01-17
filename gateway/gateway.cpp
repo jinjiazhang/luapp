@@ -1,4 +1,6 @@
 #include "gateway.h"
+#include "gwclient.h"
+#include "gwserver.h"
 
 gateway::gateway(lua_State* L, inetwork* network, svrid_t svrid) : lobject(L)
 {
@@ -23,7 +25,17 @@ int gateway::listen(lua_State* L)
     luaL_checktype(L, 2, LUA_TNUMBER);
     int port = luaL_getvalue<int>(L, 2);
 
-    return 0;
+    gwserver* server = new gwserver(this->L, svrid_);
+    int number = network_->listen(server, ip, port);
+    if (number <= 0)
+    {
+        delete server;
+        return 0;
+    }
+
+    server->init(this, number);
+    lua_pushlobject(L, server);
+    return 1;
 }
 
 int gateway::connect(lua_State* L)
@@ -33,7 +45,17 @@ int gateway::connect(lua_State* L)
     luaL_checktype(L, 2, LUA_TNUMBER);
     int port = luaL_getvalue<int>(L, 2);
 
-    return 0;
+    gwclient* client = new gwclient(this->L, svrid_);
+    int number = network_->connect(client, ip, port);
+    if (number <= 0)
+    {
+        delete client;
+        return 0;
+    }
+
+    client->init(this, number);
+    lua_pushlobject(L, client);
+    return 1;
 }
 
 EXPORT_OFUNC(gateway, listen)

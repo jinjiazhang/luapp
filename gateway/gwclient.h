@@ -23,7 +23,11 @@ public:
     virtual void on_package(int number, char* data, int len);
 
 private:
+    void on_reg_svrid(char* data, int len);
+
+private:
     svrid_t svrid_;
+    svrid_t gateway_;
     int number_;
     inetwork* network_;
     gateway* manager_;
