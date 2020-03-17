@@ -112,15 +112,6 @@ message texas_player {
 	int32 gender = 5;
 	int32 seatid = 6;
 	int64 chips = 7;
-	bool online = 8;
-	bool playing = 9;
-}
-
-message texas_hole {
-	int32 seatid = 1;
-	int32 card1 = 2;
-	int32 card2 = 3;
-	int32 show_flag = 4;
 }
 
 enum action_type {
@@ -163,6 +154,13 @@ message texas_detail {
 	oneof oneof_hand {
 		texas_hand current = 2;	
 	}
+}
+
+message texas_hole {
+	int32 seatid = 1;
+	int32 card1 = 2;
+	int32 card2 = 3;
+	int32 show_flag = 4;
 }
 
 message texas_record {

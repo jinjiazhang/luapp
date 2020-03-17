@@ -54,7 +54,7 @@ function apply_deal_order( game )
 	local hand = game.current
 	for seatid = 1, texas.MAX_PLAYER_NUM do
 		local player = game.seat_table[seatid]
-		if player and player.playing then
+		if player ~= nil then
 			table.insert(hand.deal_order, seatid)
 		end
 	end

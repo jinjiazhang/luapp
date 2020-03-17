@@ -90,8 +90,6 @@ function net.cs_texas_sitdown_req( roleid, seatid )
 		gender = role.gender,
 		seatid = seatid,
 		chips = 0,
-		online = true,
-		playing = true,
 	}
 
 	table.insert(game.players, player)
