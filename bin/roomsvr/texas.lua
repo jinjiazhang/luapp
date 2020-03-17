@@ -34,62 +34,7 @@ function on_tick_room( room )
 	end
 
 	local game = room.game.texas
-	check_new_hand(game)
-	dealer.tick_timeout(game)
-end
-
-function next_seat( game, seatid )
-	for i = 1, MAX_PLAYER_NUM do
-		local index = (seatid + i - 1) % MAX_PLAYER_NUM + 1
-		local player = game.players[index]
-		if player and player.playing then
-			return player.seatid
-		end
-	end
-	return seatid
-end
-
-function check_new_hand( game )
-	if not game.current then
-		start_new_hand(game)
-	end
-end
-
-function start_new_hand( game )
-	local option = game.option
-	local hand = proto.create("texas_hand")
-	hand.privacies = {}
-	hand.index = #game.hands + 1
-	hand.button = next_seat(game, game.button)
-	hand.start_time = app.mstime()
-	game.current = hand
-	table.insert(game.hands, hand)
-
-	start_new_round(game)
-	dealer.apply_player(game)
-	dealer.ante_action(game)
-	dealer.blind_action(game)
-	game.broadcast(0,"cs_texas_hand_ntf", game.roomid, hand)
-
-	dealer.shuffle_card(game)
-	dealer.deal_privacy(game)
-end
-
-function start_new_round( game, card_num, notify )
-	local hand = game.current
-	local round = proto.create("texas_round")
-	round.index = #hand.rounds + 1
-	round.start_time = app.mstime() - hand.start_time
-	hand.current = round
-	table.insert(hand.rounds, round)
-
-	if card_num and card_num > 0 then
-		dealer.deal_community(game, card_num)
-	end
-
-	if notify then
-		game.broadcast(0,"cs_texas_round_ntf", game.roomid, hand.index, round)
-	end
+	dealer.tick_game(game)
 end
 
 function net.cs_texas_chat_req( roleid, content )
@@ -253,6 +198,6 @@ function net.cs_texas_action_req( roleid, hand_idx, round_idx, act_type, act_chi
 		return
 	end
 
-	local result = dealer.proc_action(game, player, act_type, act_chips)
+	local result = dealer.on_proc_action(game, player, act_type, act_chips)
 	airport.call_client(roleid, "cs_texas_action_rsp", result)
 end

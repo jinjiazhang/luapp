@@ -116,10 +116,10 @@ message texas_player {
 	bool playing = 9;
 }
 
-message texas_privacy {
+message texas_hole {
 	int32 seatid = 1;
-	int32 hole_card1 = 2;
-	int32 hole_card2 = 3;
+	int32 card1 = 2;
+	int32 card2 = 3;
 	int32 show_flag = 4;
 }
 
@@ -139,14 +139,14 @@ enum action_type {
 
 message texas_action {
 	int32 seatid = 1;
-	int32 act_time = 2;
+	int32 game_time = 2;
 	action_type act_type = 3;
 	int64 act_chips = 4;
 }
 
 message texas_round {
 	int32 index = 1;
-	int32 start_time = 2;
+	int32 game_time = 2;
 	repeated int32 cards = 3;
 	repeated texas_action actions = 4;
 }
@@ -168,7 +168,7 @@ message texas_detail {
 message texas_record {
 	int64 roomid = 1;
 	texas_hand hand = 2;
-	repeated int32 communities = 3;
-	repeated texas_privacy privacies = 4;
+	repeated int32 shared_cards = 3;
+	repeated texas_hole hole_cards = 4;
 	repeated texas_player players = 5;
 }
