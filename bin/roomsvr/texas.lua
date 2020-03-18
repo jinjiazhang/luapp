@@ -1,5 +1,5 @@
 module = "texas"
-dealer = import("roomsvr/dealer.lua")
+dealer = import("roomsvr/texas_dealer.lua")
 
 MIN_PLAYER_NUM = 2
 MAX_PLAYER_NUM = 9

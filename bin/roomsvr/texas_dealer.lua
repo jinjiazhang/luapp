@@ -1,3 +1,4 @@
+banker = import("roomsvr/texas_banker.lua")
 
 function tick_game( game )
 	if not game.current then
@@ -209,7 +210,7 @@ function round_move_turn( game )
 	if hand.ingame_count == 1 then
 		hand.status = texas_status.SETTLING
 		hand.settle_time = app.mstime()
-		-- todo settlement
+		banker.settle_cur_hand(game)
 		return
 	end
 
@@ -234,7 +235,7 @@ function round_move_turn( game )
 	elseif hand.status == texas_status.RIVER then
 		hand.status = texas_status.SETTLING
 		hand.settle_time = app.mstime()
-		-- todo settlement
+		banker.settle_cur_hand(game)
 		return
 	end
 
