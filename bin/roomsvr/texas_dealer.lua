@@ -410,7 +410,7 @@ function on_reraise_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.RERAISE, chips, true)
+	accept_action(game, player.seatid, action_type.RE_RAISE, chips, true)
 	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
@@ -436,7 +436,7 @@ end
 
 function revise_action_type( game, player, chips )
 	local hand = game.current
-	local bet_chips = chips - hand.round_chips[player.seatid]
+	local bet_chips = hand.round_chips[player.seatid]
 	if chips < 0 then
 		return action_type.FOLD
 	elseif chips == bet_chips then
@@ -452,10 +452,10 @@ function revise_action_type( game, player, chips )
 			if hand.last_raise == hand.first_bet then
 				return action_type.RAISE
 			else
-				return action_type.RERAISE
+				return action_type.RE_RAISE
 			end
 		end
 	else
-		return action.FOLD
+		return action_type.FOLD
 	end
 end
