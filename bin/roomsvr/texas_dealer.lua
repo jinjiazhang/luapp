@@ -214,11 +214,12 @@ function seat_move_turn( game )
 		local seat = table.remove(hand.ingame_seats, 1)
 		table.insert(hand.ingame_seats, seat)
 		
-		if seat.is_allin then
+		local next_seat = hand.ingame_seats[1]
+		if next_seat.is_allin then
 			hand.incall_count = hand.incall_count + 1
 		end
 		
-		if not seat.is_fold then
+		if not next_seat.is_fold then
 			break
 		end
 	end
@@ -437,7 +438,9 @@ function on_allin_action( game, player, chips )
 	hand.ingame_seats[1].is_allin = true
 	if chips > hand.last_raise then
 		hand.last_raise = chips
-		hand.incall_count = 0
+		hand.incall_count = 1
+	else
+		hand.incall_count = hand.incall_count + 1
 	end
 	return errno.SUCCESS
 end
