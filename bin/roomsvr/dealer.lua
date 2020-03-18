@@ -109,6 +109,9 @@ function start_new_round( game, notify )
 	hand.current = round
 	table.insert(hand.rounds, round)
 
+	hand.first_bet = 0
+	hand.max_raise = 0
+
 	if notify then
 		game.broadcast(0, "cs_texas_round_ntf", game.roomid, hand.index, round)
 	end
@@ -157,7 +160,7 @@ function deal_shared_card( game, count )
 	game.broadcast(0, "cs_texas_deal_ntf", game.roomid, hand.index, 0, deal_cards)
 end
 
-function apply_action( game, seatid, type, chips, notify)
+function accept_action( game, seatid, type, chips, notify)
 	local hand = game.current
 	local round = hand.current
 	local action = {
@@ -203,8 +206,14 @@ end
 
 function round_move_turn( game )
 	local hand = game.current
-	seat_move_turn(game)
+	if hand.ingame_count == 1 then
+		hand.status = texas_status.SETTLING
+		hand.settle_time = app.mstime()
+		-- todo settlement
+		return
+	end
 
+	seat_move_turn(game)
 	if hand.incall_count < hand.ingame_count then
 		return
 	end
@@ -226,6 +235,7 @@ function round_move_turn( game )
 		hand.status = texas_status.SETTLING
 		hand.settle_time = app.mstime()
 		-- todo settlement
+		return
 	end
 
 	-- reset for new round
@@ -272,12 +282,12 @@ end
 function on_ante_action( game )
 	local ante_chips = game.option.ante
 	if ante_chips <= 0 then
-		return
+		return errno.SUCCESS
 	end
 
 	local hand = game.current
 	for _, seat in ipairs(hand.ingame_seats) do
-		apply_action(game, seat.seatid, action_type.ANTE, ante_chips, false)
+		accept_action(game, seat.seatid, action_type.ANTE, ante_chips, false)
 	end
 	return errno.SUCCESS
 end
@@ -286,12 +296,12 @@ function on_blind_action( game )
 	local hand = game.current
 	local small_blind = game.option.small_blind
 	local small_seat = table.remove(hand.ingame_seats, 1)
-	apply_action(game, small_seat.seatid, action_type.SMALL_BLIND, small_blind, false)
+	accept_action(game, small_seat.seatid, action_type.SMALL_BLIND, small_blind, false)
 	table.insert(hand.ingame_seats, small_seat)
 
 	local big_blind = game.option.big_blind
 	local big_seat = table.remove(hand.ingame_seats, 1)
-	apply_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
+	accept_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
 	table.insert(hand.ingame_seats, big_seat)
 
 	hand.incall_count = 1
@@ -299,59 +309,101 @@ function on_blind_action( game )
 end
 
 function on_bet_action( game, player, chips )
-	if chips <= 0 then
+	local hand = game.current
+	if hand.first_bet > 0 then
+		return errno.ACTION_ERROR
+	end
+
+	if chips <= 0 or chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
-	apply_action(game, player.seatid, action_type.BET, chips, true)
+	accept_action(game, player.seatid, action_type.BET, chips, true)
+	hand.first_bet = chips
+	hand.max_raise = chips
+	hand.incall_count = 1
 	return errno.SUCCESS
 end
 
 function on_call_action( game, player, chips )
 	local hand = game.current
-	if chips <= 0 then
+	if hand.first_bet <= 0 then
+		return errno.ACTION_ERROR
+	end
+
+	if chips ~= hand.max_raise or chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
-	apply_action(game, player.seatid, action_type.CALL, chips, true)
-
+	accept_action(game, player.seatid, action_type.CALL, chips, true)
 	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
 
 function on_fold_action( game, player, chips )
-	apply_action(game, player.seatid, action_type.FOLD, 0, true)
+	local hand = game.current
+	accept_action(game, player.seatid, action_type.FOLD, 0, true)
+	hand.ingame_seats[1].is_fold = true
+	hand.ingame_count = hand.ingame_count - 1
 	return errno.SUCCESS
 end
 
 function on_check_action( game, player, chips )
-	apply_action(game, player.seatid, action_type.CHECK, 0, true)
+	local hand = game.current
+	if hand.first_bet > 0 then
+		return errno.ACTION_ERROR
+	end
+
+	accept_action(game, player.seatid, action_type.CHECK, 0, true)
+	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
 
 function on_raise_action( game, player, chips )
-	if chips <= 0 then
+	local hand = game.current
+	if hand.first_bet <= 0 or hand.max_raise > hand.first_bet then
+		return errno.ACTION_ERROR
+	end
+
+	if chips <= hand.max_raise or chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
-	apply_action(game, player.seatid, action_type.RAISE, chips, true)
+	accept_action(game, player.seatid, action_type.RAISE, chips, true)
+	hand.max_raise = chips
+	hand.incall_count = 1
 	return errno.SUCCESS
 end
 
 function on_reraise_action( game, player, chips )
-	if chips <= 0 then
+	local hand = game.current
+	if hand.first_bet <= 0 or hand.max_raise <= hand.first_bet then
+		return errno.ACTION_ERROR
+	end
+
+	if chips <= hand.max_raise or chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
-	apply_action(game, player.seatid, action_type.RERAISE, chips, true)
+	accept_action(game, player.seatid, action_type.RERAISE, chips, true)
+	hand.max_raise = chips
+	hand.incall_count = 1
 	return errno.SUCCESS
 end
 
 function on_allin_action( game, player, chips )
-	if chips <= 0 then
+	local hand = game.current
+	if chips <= 0 or chips ~= player.chips then
 		return errno.PARAM_ERROR
 	end
 
-	apply_action(game, player.seatid, action_type.ALL_IN, chips, true)
+	accept_action(game, player.seatid, action_type.ALL_IN, chips, true)
+	hand.ingame_seats[1].is_allin = true
+	if chips > hand.max_raise then
+		hand.max_raise = chips
+		hand.incall_count = 1
+	else
+		hand.incall_count = hand.incall_count + 1
+	end
 	return errno.SUCCESS
 end

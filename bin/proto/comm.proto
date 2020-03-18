@@ -9,9 +9,10 @@ enum errno {
     CONFLICT = 5;
     PRIVILEGE = 6;
     DATA_ERROR = 7;
-    PARAM_ERROR = 8;
-    NEED_RETRY = 9;
-    NOT_FOUND = 10;
+	PARAM_ERROR = 8;
+	ACTION_ERROR = 9;
+    NEED_RETRY = 10;
+    NOT_FOUND = 11;
 
     TEXAS_HAS_SEAT = 101;
     TEXAS_SEAT_USED = 102;
