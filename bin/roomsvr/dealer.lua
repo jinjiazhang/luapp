@@ -13,7 +13,7 @@ function tick_timeout( game )
 		if app.mstime() - hand.init_time >= 3000 then
 			hand.status = texas_status.PREFLOP
 			hand.action_time = app.mstime()
-			hand.action_seatid = 0
+			hand.action_seatid = hand.ingame_seats[1].seatid
 			notify_cur_turn(game)
 		end
 	elseif hand.status == texas_status.SETTLING then
@@ -22,11 +22,11 @@ function tick_timeout( game )
 			finish_cur_hand(game)
 		end
 	else
-		if hand.action_seatid == hand.ingame_seats[1].seatid then
+		if hand.action_seatid == 0 then
 			round_move_turn(game)
-			notify_cur_turn(game)
 			hand.action_time = app.mstime()
-			hand.action_seatid = 0
+			hand.action_seatid = hand.ingame_seats[1].seatid
+			notify_cur_turn(game)
 		end
 
 		if app.mstime() - hand.action_time >= 15000 then
@@ -168,7 +168,7 @@ function apply_action( game, seatid, type, chips, notify)
 	}
 	table.insert(round.actions, action)
 	hand.action_time = app.mstime()
-	hand.action_seatid = seatid
+	hand.action_seatid = 0
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -241,12 +241,8 @@ end
 
 function on_proc_action( game, player, type, chips )
 	local hand = game.current
-	if not hand or hand.status < texas_status.PREFLOP or hand.status > texas_status.RIVER then
-		return errno.TEXAS_STATUS_ERROR
-	end
-
-	local cur_turn = hand.ingame_seats[1]
-	if player.roleid ~= cur_turn.roleid then
+	log_info("on_proc_action", player.roleid, hand.action_seatid)
+	if player.seatid ~= hand.action_seatid then
 		return errno.TEXAS_TURN_ERROR
 	end
 
