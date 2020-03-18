@@ -184,6 +184,7 @@ function net.cs_texas_action_req( roleid, hand_idx, round_idx, act_type, act_chi
 		return
 	end
 
+	--[[ disable for robot test
 	local hand = game.current
 	if not hand or hand.index ~= hand_idx then
 		airport.call_client(roleid, "cs_texas_action_rsp", errno.PARAM_ERROR)
@@ -195,6 +196,7 @@ function net.cs_texas_action_req( roleid, hand_idx, round_idx, act_type, act_chi
 		airport.call_client(roleid, "cs_texas_action_rsp", errno.PARAM_ERROR)
 		return
 	end
+	]]--
 
 	local result = dealer.on_proc_action(game, player, act_type, act_chips)
 	airport.call_client(roleid, "cs_texas_action_rsp", result)

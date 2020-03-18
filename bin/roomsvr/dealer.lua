@@ -13,6 +13,7 @@ function tick_timeout( game )
 		if app.mstime() - hand.init_time >= 3000 then
 			hand.status = texas_status.PREFLOP
 			hand.action_time = app.mstime()
+			hand.action_seatid = 0
 			notify_cur_turn(game)
 		end
 	elseif hand.status == texas_status.SETTLING then
@@ -21,6 +22,13 @@ function tick_timeout( game )
 			finish_cur_hand(game)
 		end
 	else
+		if hand.action_seatid == hand.ingame_seats[1].seatid then
+			round_move_turn(game)
+			notify_cur_turn(game)
+			hand.action_time = app.mstime()
+			hand.action_seatid = 0
+		end
+
 		if app.mstime() - hand.action_time >= 15000 then
 			on_timeout_action(game)
 		end
@@ -38,8 +46,9 @@ function start_new_hand( game )
 
 	hand.status = texas_status.INIT
 	hand.init_time = app.mstime()
-	hand.action_time = 0
 	hand.settle_time = 0
+	hand.action_time = 0
+	hand.action_seatid = 0
 
 	hand.stock_cards = shuffle_card()
 	hand.shared_cards = {}
@@ -48,7 +57,7 @@ function start_new_hand( game )
 	hand.ingame_count = #hand.ingame_seats
 	hand.incall_count = 0
 
-	start_new_round(game)
+	start_new_round(game, false)
 	on_ante_action(game)
 	on_blind_action(game)
 	game.broadcast(0,"cs_texas_hand_ntf", game.roomid, hand)
@@ -92,13 +101,17 @@ function init_ingame_seats( game )
 	end
 end
 
-function start_new_round( game )
+function start_new_round( game, notify )
 	local hand = game.current
 	local round = proto.create("texas_round")
 	round.index = #hand.rounds + 1
 	round.game_time = app.mstime() - hand.init_time
 	hand.current = round
 	table.insert(hand.rounds, round)
+
+	if notify then
+		game.broadcast(0, "cs_texas_round_ntf", game.roomid, hand.index, round)
+	end
 end
 
 function shuffle_card( )
@@ -155,6 +168,7 @@ function apply_action( game, seatid, type, chips, notify)
 	}
 	table.insert(round.actions, action)
 	hand.action_time = app.mstime()
+	hand.action_seatid = seatid
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -192,22 +206,21 @@ function round_move_turn( game )
 	seat_move_turn(game)
 
 	if hand.incall_count < hand.ingame_count then
-		notify_cur_turn(game)
 		return
 	end
 
 	-- finish current round
 	if hand.status == texas_status.PREFLOP then
 		hand.status = texas_status.FLOP
-		start_new_round(game)
+		start_new_round(game, true)
 		deal_shared_card(game, 3)
 	elseif hand.status == texas_status.FLOP then
 		hand.status = texas_status.TURN
-		start_new_round(game)
+		start_new_round(game, true)
 		deal_shared_card(game, 1)
 	elseif hand.status == texas_status.TURN then
 		hand.status = texas_status.RIVER
-		start_new_round(game)
+		start_new_round(game, true)
 		deal_shared_card(game, 1)
 	elseif hand.status == texas_status.RIVER then
 		hand.status = texas_status.SETTLING
@@ -215,8 +228,8 @@ function round_move_turn( game )
 		-- todo settlement
 	end
 
+	-- reset for new round
 	hand.incall_count = 0
-	hand.ingame_count = 0
 
 	while hand.ingame_seats[1].seatid ~= hand.button do
 		local seat = table.remove(hand.ingame_seats, 1)
@@ -224,7 +237,6 @@ function round_move_turn( game )
 	end
 
 	seat_move_turn(game)
-	notify_cur_turn(game)
 end
 
 function on_proc_action( game, player, type, chips )
@@ -271,6 +283,7 @@ function on_ante_action( game )
 	for _, seat in ipairs(hand.ingame_seats) do
 		apply_action(game, seat.seatid, action_type.ANTE, ante_chips, false)
 	end
+	return errno.SUCCESS
 end
 
 function on_blind_action( game )
@@ -286,6 +299,7 @@ function on_blind_action( game )
 	table.insert(hand.ingame_seats, big_seat)
 
 	hand.incall_count = 1
+	return errno.SUCCESS
 end
 
 function on_bet_action( game, player, chips )
@@ -306,7 +320,6 @@ function on_call_action( game, player, chips )
 	apply_action(game, player.seatid, action_type.CALL, chips, true)
 
 	hand.incall_count = hand.incall_count + 1
-	round_move_turn(game)
 	return errno.SUCCESS
 end
 

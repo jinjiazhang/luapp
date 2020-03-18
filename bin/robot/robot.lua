@@ -101,16 +101,17 @@ function texas_flow( openid, token )
 	end
 
 	local roomid, hand = notify.wait_for_notify("texas_hand")
-	log_info("texas_hand", roomid, app.tostring(hand), my_seatid)
+	log_info("texas_hand", roomid, app.tostring(hand))
 
 	repeat
 		local roomid, hand_idx, seatid = notify.wait_for_notify("texas_turn")
-		log_info("texas_turn", roomid, hand_idx, seatid)
 		if seatid == my_seatid then
-			io.stdout:write("your turn: ")
-			local input = io.stdin:read()
-			local result = client.cs_texas_action_req(1, 1, action_type.CALL, tonumber(input))
-			log_info("cs_texas_action_req", result)
+			repeat
+				io.stdout:write("your turn: ")
+				local input = io.stdin:read()
+				local result = client.cs_texas_action_req(0, 0, action_type.CALL, tonumber(input))
+				log_info("cs_texas_action_req", result)
+			until (result == 0)
 		end	
 	until (seatid == 0)
 
