@@ -1,6 +1,4 @@
 banker = import("roomsvr/texas_banker.lua")
--- todo1: all player allin
--- todo2: second times call
 
 function tick_game( game )
 	if not game.current then
@@ -439,9 +437,7 @@ function on_allin_action( game, player, chips )
 	hand.ingame_seats[1].is_allin = true
 	if chips > hand.last_raise then
 		hand.last_raise = chips
-		hand.incall_count = 1
-	else
-		hand.incall_count = hand.incall_count + 1
+		hand.incall_count = 0
 	end
 	return errno.SUCCESS
 end
