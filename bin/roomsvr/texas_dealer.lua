@@ -180,6 +180,12 @@ function accept_action( game, seatid, type, chips, notify)
 	hand.action_time = app.mstime()
 	hand.action_seatid = 0
 
+	local action_names = {
+		"ANTE", "SMALL_BLIND", "BIG_BLIND", "BET", "CALL", 
+		"FOLD", "CHECK", "RAISE", "RE_RAISE", "ALL_IN", 
+	}
+	log_info("accept_action", seatid, action_names[type], chips, hand.round_chips[seatid])
+
 	if type == action_type.ANTE then
 		-- todo: cost chips
 	elseif hand.round_chips[seatid] < chips then
@@ -363,8 +369,8 @@ end
 
 function on_fold_action( game, player, chips )
 	local hand = game.current
-	local bet_chips = chips - hand.round_chips[player.seatid]
-	accept_action(game, player.seatid, action_type.FOLD, bet_chips, true)
+	chips = hand.round_chips[player.seatid]
+	accept_action(game, player.seatid, action_type.FOLD, chips, true)
 	hand.ingame_seats[1].is_fold = true
 	hand.ingame_count = hand.ingame_count - 1
 	return errno.SUCCESS
@@ -373,11 +379,11 @@ end
 function on_check_action( game, player, chips )
 	local hand = game.current
 	local bet_chips = chips - hand.round_chips[player.seatid]
-	if chips ~= hand.last_raise or bet_chips ~= hand.last_raise then
+	if chips ~= hand.last_raise or bet_chips ~= 0 then
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.CHECK, bet_chips, true)
+	accept_action(game, player.seatid, action_type.CHECK, chips, true)
 	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
