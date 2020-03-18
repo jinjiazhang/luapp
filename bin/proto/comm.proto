@@ -114,6 +114,14 @@ message texas_player {
 	int64 chips = 7;
 }
 
+message texas_seat {
+	int32 seatid = 1;
+	int64 roleid = 2;
+	int32 card1 = 3;
+	int32 card2 = 4;
+	int32 show_flag = 5;
+}
+
 enum action_type {
 	TIMEOUT = 0;
 	ANTE = 1;
@@ -146,6 +154,7 @@ message texas_hand {
 	int32 index = 1;
 	int32 button = 2;
 	int32 start_time = 3;
+	repeated int32 shared_cards = 4;
 	repeated texas_round rounds = 5;
 }
 
@@ -156,17 +165,10 @@ message texas_detail {
 	}
 }
 
-message texas_hole {
-	int32 seatid = 1;
-	int32 card1 = 2;
-	int32 card2 = 3;
-	int32 show_flag = 4;
+message texas_brief {
+
 }
 
 message texas_record {
-	int64 roomid = 1;
-	texas_hand hand = 2;
-	repeated int32 shared_cards = 3;
-	repeated texas_hole hole_cards = 4;
-	repeated texas_player players = 5;
+
 }
