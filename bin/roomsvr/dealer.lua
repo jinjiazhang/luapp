@@ -8,7 +8,23 @@ function tick_game( game )
 end
 
 function tick_timeout( game )
-
+	local hand = game.current
+	if hand.status == texas_status.INIT then
+		if app.mstime() - hand.init_time >= 3000 then
+			hand.status = texas_status.PREFLOP
+			hand.action_time = app.mstime()
+			notify_cur_turn(game)
+		end
+	elseif hand.status == texas_status.SETTLING then
+		if app.mstime() - hand.settle_time >= 5000 then
+			hand.status = texas_status.FINISH
+			finish_cur_hand(game)
+		end
+	else
+		if app.mstime() - hand.action_time >= 15000 then
+			on_timeout_action(game)
+		end
+	end
 end
 
 function start_new_hand( game )
@@ -20,11 +36,17 @@ function start_new_hand( game )
 	game.current = hand
 	table.insert(game.hands, hand)
 
+	hand.status = texas_status.INIT
+	hand.init_time = app.mstime()
+	hand.action_time = 0
+	hand.settle_time = 0
+
 	hand.stock_cards = shuffle_card()
 	hand.shared_cards = {}
 	hand.ingame_seats = {}
-	hand.ingame_count = 0
 	init_ingame_seats(game)
+	hand.ingame_count = #hand.ingame_seats
+	hand.incall_count = 0
 
 	start_new_round(game)
 	on_ante_action(game)
@@ -56,7 +78,6 @@ function init_ingame_seats( game )
 		table.insert(deal_order, seatid)
 	end
 
-	hand.ingame_count = #deal_order
 	for _, seatid in ipairs(deal_order) do
 		local player = game.seat_table[seatid]
 		local seat = proto.create("texas_seat")
@@ -65,6 +86,8 @@ function init_ingame_seats( game )
 		seat.card1 = 0
 		seat.card2 = 0
 		seat.show_flag = 0
+		seat.is_fold = false
+		seat.is_allin = false
 		table.insert(hand.ingame_seats, seat)
 	end
 end
@@ -73,7 +96,7 @@ function start_new_round( game )
 	local hand = game.current
 	local round = proto.create("texas_round")
 	round.index = #hand.rounds + 1
-	round.game_time = app.mstime() - hand.start_time * 1000
+	round.game_time = app.mstime() - hand.init_time
 	hand.current = round
 	table.insert(hand.rounds, round)
 end
@@ -111,12 +134,14 @@ function deal_shared_card( game, count )
 	local hand = game.current
 	local round = hand.current
 	local cards = hand.stock_cards
+	local deal_cards = {}
 	for i = 1, count do
 		local card = table.remove(cards)
-		table.insert(round.cards, card)
+		table.insert(deal_cards, card)
 		table.insert(hand.shared_cards, card)
-		game.broadcast(0, "cs_texas_deal_ntf", game.roomid, hand.index, 0, deal_cards)
 	end
+
+	game.broadcast(0, "cs_texas_deal_ntf", game.roomid, hand.index, 0, deal_cards)
 end
 
 function apply_action( game, seatid, type, chips, notify)
@@ -124,18 +149,95 @@ function apply_action( game, seatid, type, chips, notify)
 	local round = hand.current
 	local action = {
 		seatid = seatid,
-		game_time = app.mstime() - hand.start_time * 1000,
+		game_time = app.mstime() - hand.init_time,
 		act_type = type,
 		act_chips = chips
 	}
 	table.insert(round.actions, action)
+	hand.action_time = app.mstime()
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
 	end
 end
 
+function notify_cur_turn( game )
+	local hand = game.current
+	if hand.status >= texas_status.SETTLING then
+		game.broadcast(0, "cs_texas_turn_ntf", game.roomid, hand.index, 0)
+	else
+		local trun_seat = hand.ingame_seats[1]
+		game.broadcast(0, "cs_texas_turn_ntf", game.roomid, hand.index, trun_seat.seatid)
+	end
+end
+
+function seat_move_turn( game )
+	local hand = game.current
+	for times = 1, #hand.ingame_seats do
+		local seat = table.remove(hand.ingame_seats, 1)
+		table.insert(hand.ingame_seats, small_seat)
+		
+		if seat.is_allin then
+			hand.incall_count = hand.incall_count + 1
+		end
+		
+		if not seat.is_fold then
+			break
+		end
+	end
+end
+
+function round_move_turn( game )
+	local hand = game.current
+	seat_move_turn(game)
+
+	if hand.incall_count <= hand.ingame_count then
+		notify_cur_turn(game)
+		return
+	end
+
+	-- finish current round
+	if hand.status == texas_status.PREFLOP then
+		hand.status = texas_status.FLOP
+		start_new_round(game)
+		deal_shared_card(game, 3)
+	elseif hand.status == texas_status.FLOP then
+		hand.status = texas_status.TURN
+		start_new_round(game)
+		deal_shared_card(game, 1)
+	elseif hand.status == texas_status.TURN then
+		hand.status = texas_status.RIVER
+		start_new_round(game)
+		deal_shared_card(game, 1)
+	elseif hand.status == texas_status.RIVER then
+		hand.status = texas_status.SETTLING
+		hand.settle_time = app.mstime()
+		-- todo settlement
+	end
+
+	hand.incall_count = 0
+	hand.ingame_count = 0
+
+	while hand.ingame_seats[1].seatid ~= hand.button do
+		local seat = table.remove(hand.ingame_seats, 1)
+		table.insert(hand.ingame_seats, seat)
+	end
+
+	seat_move_turn(game)
+	notify_cur_turn(game)
+end
+
 function on_proc_action( game, player, type, chips )
+	local hand = game.current
+	if not hand or hand.status < texas_status.PREFLOP or hand.status > texas_status.RIVER then
+		return errno.TEXAS_STATUS_ERROR
+	end
+
+	local cur_turn = hand.ingame_seats[1]
+	if player.roleid ~= cur_turn.roleid then
+		return errno.TEXAS_TURN_ERROR
+	end
+
 	if type == action_type.BET then
 		return on_bet_action(game, player, chips)
 	elseif type == action_type.CALL then
@@ -153,6 +255,10 @@ function on_proc_action( game, player, type, chips )
 	else
 		return errno.PARAM_ERROR
 	end
+end
+
+function on_timeout_action( game )
+
 end
 
 function on_ante_action( game )

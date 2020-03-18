@@ -101,8 +101,10 @@ function texas_flow( openid, token )
 	local roomid, hand = notify.wait_for_notify("texas_hand")
 	log_info("texas_hand", roomid, app.tostring(hand))
 
-	local roomid, hand_idx, seatid, cards = notify.wait_for_notify("texas_deal")
-	log_info("texas_deal", roomid, hand_idx, seatid, app.tostring(cards))
+	repeat
+		local roomid, hand_idx, seatid = notify.wait_for_notify("cs_texas_turn_ntf")
+		log_info("texas_turn", roomid, hand_idx, seatid)
+	until (seatid == 0)
 
 	log_info("test texas_flow finish!")
 end

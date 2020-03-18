@@ -65,3 +65,8 @@ function net.cs_texas_deal_ntf( roomid, hand_idx, seatid, cards )
 	log_info("cs_texas_deal_ntf", roomid, hand_idx, seatid, cards)
 	on_recv_notify("texas_deal", roomid, hand_idx, seatid, cards)
 end
+
+function net.cs_texas_turn_ntf( roomid, hand_idx, seatid )
+	log_info("cs_texas_turn_ntf", roomid, hand_idx, seatid)
+	on_recv_notify("texas_turn", roomid, hand_idx, seatid)
+end

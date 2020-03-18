@@ -202,6 +202,12 @@ message cs_texas_round_ntf {
 	texas_round round = 3;
 }
 
+message cs_texas_turn_ntf {
+	int64 roomid = 1;
+	int32 hand_idx = 2;
+	int32 seatid = 3;
+}
+
 message cs_texas_action_req {
 	int32 hand_idx = 1;
 	int32 round_idx = 2;
