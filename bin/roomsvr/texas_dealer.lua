@@ -1,4 +1,6 @@
 banker = import("roomsvr/texas_banker.lua")
+-- todo1: all player allin
+-- todo2: second times call
 
 function tick_game( game )
 	if not game.current then
@@ -257,6 +259,9 @@ function on_proc_action( game, player, type, chips )
 		return errno.TEXAS_TURN_ERROR
 	end
 
+	-- for robot test
+	type = revise_action_type(game, player, chips)
+
 	if type == action_type.BET then
 		return on_bet_action(game, player, chips)
 	elseif type == action_type.CALL then
@@ -407,4 +412,29 @@ function on_allin_action( game, player, chips )
 		hand.incall_count = hand.incall_count + 1
 	end
 	return errno.SUCCESS
+end
+
+function revise_action_type( game, player, chips )
+	local hand = game.current
+	if chips < 0 then
+		return action_type.FOLD
+	elseif chips == 0 then
+		return action_type.CHECK
+	elseif chips == player.chips then
+		return action_type.ALL_IN
+	elseif chips == hand.max_raise then
+		return action_type.CALL
+	elseif chips > hand.max_raise then
+		if hand.first_bet == 0 then
+			return action_type.BET
+		else
+			if hand.max_raise == hand.first_bet then
+				return action_type.RAISE
+			else
+				return action_type.RERAISE
+			end
+		end
+	else
+		return action.FOLD
+	end
 end
