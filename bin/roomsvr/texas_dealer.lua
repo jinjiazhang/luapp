@@ -214,13 +214,13 @@ function seat_move_turn( game )
 		local seat = table.remove(hand.ingame_seats, 1)
 		table.insert(hand.ingame_seats, seat)
 		
-		local next_seat = hand.ingame_seats[1]
-		if next_seat.is_allin then
-			hand.incall_count = hand.incall_count + 1
-		end
-		
+		local next_seat = hand.ingame_seats[1]		
 		if not next_seat.is_fold then
-			break
+			if next_seat.is_allin then
+				hand.incall_count = hand.incall_count + 1
+			else
+				break
+			end
 		end
 	end
 end
