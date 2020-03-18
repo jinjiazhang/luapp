@@ -180,19 +180,20 @@ function accept_action( game, seatid, type, chips, notify)
 	hand.action_time = app.mstime()
 	hand.action_seatid = 0
 
+	local player = game.seat_table[seatid]
+	if type == action_type.ANTE then
+		player.chips = player.chips - chips
+	elseif hand.round_chips[seatid] < chips then
+		local bet_chips = chips - hand.round_chips[seatid]
+		player.chips = player.chips - bet_chips
+		hand.round_chips[seatid] = chips
+	end
+	
 	local action_names = {
 		"ANTE", "SMALL_BLIND", "BIG_BLIND", "BET", "CALL", 
 		"FOLD", "CHECK", "RAISE", "RE_RAISE", "ALL_IN", 
 	}
-	log_info("accept_action", seatid, action_names[type], chips, hand.round_chips[seatid])
-
-	if type == action_type.ANTE then
-		-- todo: cost chips
-	elseif hand.round_chips[seatid] < chips then
-		local bet_chips = chips - hand.round_chips[seatid]
-		hand.round_chips[seatid] = chips
-		-- todo: cost chips
-	end
+	log_info("accept_action", seatid, action_names[type], chips, hand.round_chips[seatid], player.chips)
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -279,6 +280,11 @@ function on_proc_action( game, player, type, chips )
 
 	-- for robot test
 	type = revise_action_type(game, player, chips)
+	local action_names = {
+		"ANTE", "SMALL_BLIND", "BIG_BLIND", "BET", "CALL", 
+		"FOLD", "CHECK", "RAISE", "RE_RAISE", "ALL_IN", 
+	}
+	log_info("proc_action", player.seatid, action_names[type], chips, hand.round_chips[player.seatid], player.chips)
 
 	if type == action_type.BET then
 		return on_bet_action(game, player, chips)
@@ -442,12 +448,12 @@ end
 
 function revise_action_type( game, player, chips )
 	local hand = game.current
-	local bet_chips = hand.round_chips[player.seatid]
+	local in_chips = hand.round_chips[player.seatid]
 	if chips < 0 then
 		return action_type.FOLD
-	elseif chips == bet_chips then
+	elseif chips == in_chips then
 		return action_type.CHECK
-	elseif chips == player.chips then
+	elseif chips == in_chips + player.chips then
 		return action_type.ALL_IN
 	elseif chips == hand.last_raise then
 		return action_type.CALL
