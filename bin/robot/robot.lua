@@ -49,7 +49,8 @@ function create_room_flow( role )
 	check_result("cs_create_room_req", result)
 
 	local game = room.game.texas
-	local result, player = client.cs_texas_sitdown_req(1)
+	local seatid = #game.players + 1
+	local result, player = client.cs_texas_sitdown_req(seatid)
 	log_info("cs_texas_sitdown_req", result)
 	check_result("cs_texas_sitdown_req", result)
 	table.insert(game.players, player)
@@ -60,7 +61,7 @@ function create_room_flow( role )
 	local result = client.cs_texas_start_req()
 	log_info("cs_texas_start_req", result)
 	check_result("cs_texas_start_req", result)
-	return room
+	return seatid
 end
 
 function enter_room_flow( role, roomid, roomkey )
@@ -82,7 +83,7 @@ function enter_room_flow( role, roomid, roomkey )
 	if not game.current then
 		notify.wait_for_notify("texas_start")
 	end
-	return room
+	return seatid
 end
 
 function texas_flow( openid, token )
@@ -91,19 +92,26 @@ function texas_flow( openid, token )
 	log_info("cs_fetch_room_req", result, app.tostring(room_list))
 	check_result("cs_fetch_room_req", result)
 
+	local my_seatid = 0
 	if #room_list == 0 then
-		create_room_flow(role)
+		my_seatid = create_room_flow(role)
 	else
 		local info = room_list[1]
-		enter_room_flow(role, info.roleid, info.roomkey)
+		my_seatid = enter_room_flow(role, info.roleid, info.roomkey)
 	end
 
 	local roomid, hand = notify.wait_for_notify("texas_hand")
-	log_info("texas_hand", roomid, app.tostring(hand))
+	log_info("texas_hand", roomid, app.tostring(hand), my_seatid)
 
 	repeat
-		local roomid, hand_idx, seatid = notify.wait_for_notify("cs_texas_turn_ntf")
+		local roomid, hand_idx, seatid = notify.wait_for_notify("texas_turn")
 		log_info("texas_turn", roomid, hand_idx, seatid)
+		if seatid == my_seatid then
+			io.stdout:write("your turn: ")
+			local input = io.stdin:read()
+			local result = client.cs_texas_action_req(1, 1, action_type.CALL, tonumber(input))
+			log_info("cs_texas_action_req", result)
+		end	
 	until (seatid == 0)
 
 	log_info("test texas_flow finish!")

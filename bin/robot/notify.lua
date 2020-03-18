@@ -61,6 +61,16 @@ function net.cs_texas_hand_ntf( roomid, hand )
 	on_recv_notify("texas_hand", roomid, hand)
 end
 
+function net.cs_texas_round_ntf( roomid, hand_idx, round )
+	log_info("cs_texas_round_ntf", roomid, hand_idx, round)
+	on_recv_notify("texas_round", roomid, hand_idx, round)
+end
+
+function net.cs_texas_action_ntf( roomid, hand_idx, round_idx, action )
+	log_info("cs_texas_action_ntf", roomid, hand_idx, round_idx, action)
+	on_recv_notify("texas_action", roomid, hand_idx, round_idx, action)
+end
+
 function net.cs_texas_deal_ntf( roomid, hand_idx, seatid, cards )
 	log_info("cs_texas_deal_ntf", roomid, hand_idx, seatid, cards)
 	on_recv_notify("texas_deal", roomid, hand_idx, seatid, cards)

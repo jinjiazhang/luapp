@@ -175,7 +175,7 @@ function seat_move_turn( game )
 	local hand = game.current
 	for times = 1, #hand.ingame_seats do
 		local seat = table.remove(hand.ingame_seats, 1)
-		table.insert(hand.ingame_seats, small_seat)
+		table.insert(hand.ingame_seats, seat)
 		
 		if seat.is_allin then
 			hand.incall_count = hand.incall_count + 1
@@ -191,7 +191,7 @@ function round_move_turn( game )
 	local hand = game.current
 	seat_move_turn(game)
 
-	if hand.incall_count <= hand.ingame_count then
+	if hand.incall_count < hand.ingame_count then
 		notify_cur_turn(game)
 		return
 	end
@@ -284,6 +284,8 @@ function on_blind_action( game )
 	local big_seat = table.remove(hand.ingame_seats, 1)
 	apply_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
 	table.insert(hand.ingame_seats, big_seat)
+
+	hand.incall_count = 1
 end
 
 function on_bet_action( game, player, chips )
@@ -296,11 +298,15 @@ function on_bet_action( game, player, chips )
 end
 
 function on_call_action( game, player, chips )
+	local hand = game.current
 	if chips <= 0 then
 		return errno.PARAM_ERROR
 	end
 
 	apply_action(game, player.seatid, action_type.CALL, chips, true)
+
+	hand.incall_count = hand.incall_count + 1
+	round_move_turn(game)
 	return errno.SUCCESS
 end
 
