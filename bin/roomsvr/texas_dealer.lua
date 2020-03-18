@@ -56,6 +56,7 @@ function start_new_hand( game )
 	hand.stock_cards = shuffle_card()
 	hand.shared_cards = {}
 	hand.ingame_seats = {}
+	hand.round_chips = {}
 	init_ingame_seats(game)
 	hand.ingame_count = #hand.ingame_seats
 	hand.incall_count = 0
@@ -113,7 +114,10 @@ function start_new_round( game, notify )
 	table.insert(hand.rounds, round)
 
 	hand.first_bet = 0
-	hand.max_raise = 0
+	hand.last_raise = 0
+	for _, seat in ipairs(hand.ingame_seats) do
+		hand.round_chips[seat.seatid] = 0
+	end
 
 	if notify then
 		game.broadcast(0, "cs_texas_round_ntf", game.roomid, hand.index, round)
@@ -175,6 +179,14 @@ function accept_action( game, seatid, type, chips, notify)
 	table.insert(round.actions, action)
 	hand.action_time = app.mstime()
 	hand.action_seatid = 0
+
+	if type == action_type.ANTE then
+		-- todo: cost chips
+	elseif hand.round_chips[seatid] < chips then
+		local bet_chips = chips - hand.round_chips[seatid]
+		hand.round_chips[seatid] = chips
+		-- todo: cost chips
+	end
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -302,15 +314,16 @@ function on_blind_action( game )
 	local hand = game.current
 	local small_blind = game.option.small_blind
 	local small_seat = table.remove(hand.ingame_seats, 1)
-	accept_action(game, small_seat.seatid, action_type.SMALL_BLIND, small_blind, false)
 	table.insert(hand.ingame_seats, small_seat)
+	accept_action(game, small_seat.seatid, action_type.SMALL_BLIND, small_blind, false)
 
 	local big_blind = game.option.big_blind
 	local big_seat = table.remove(hand.ingame_seats, 1)
-	accept_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
 	table.insert(hand.ingame_seats, big_seat)
+	accept_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
 
-	hand.incall_count = 1
+	hand.first_bet = game.option.big_blind
+	hand.last_raise = game.option.big_blind
 	return errno.SUCCESS
 end
 
@@ -320,13 +333,14 @@ function on_bet_action( game, player, chips )
 		return errno.ACTION_ERROR
 	end
 
-	if chips <= 0 or chips >= player.chips then
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips <= 0 or bet_chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
 	accept_action(game, player.seatid, action_type.BET, chips, true)
 	hand.first_bet = chips
-	hand.max_raise = chips
+	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
 end
@@ -337,7 +351,8 @@ function on_call_action( game, player, chips )
 		return errno.ACTION_ERROR
 	end
 
-	if chips ~= hand.max_raise or chips >= player.chips then
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips ~= hand.last_raise or bet_chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
@@ -348,7 +363,8 @@ end
 
 function on_fold_action( game, player, chips )
 	local hand = game.current
-	accept_action(game, player.seatid, action_type.FOLD, 0, true)
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	accept_action(game, player.seatid, action_type.FOLD, bet_chips, true)
 	hand.ingame_seats[1].is_fold = true
 	hand.ingame_count = hand.ingame_count - 1
 	return errno.SUCCESS
@@ -356,57 +372,61 @@ end
 
 function on_check_action( game, player, chips )
 	local hand = game.current
-	if hand.first_bet > 0 then
-		return errno.ACTION_ERROR
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips ~= hand.last_raise or bet_chips ~= hand.last_raise then
+		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.CHECK, 0, true)
+	accept_action(game, player.seatid, action_type.CHECK, bet_chips, true)
 	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
 
 function on_raise_action( game, player, chips )
 	local hand = game.current
-	if hand.first_bet <= 0 or hand.max_raise > hand.first_bet then
+	if hand.first_bet <= 0 or hand.last_raise > hand.first_bet then
 		return errno.ACTION_ERROR
 	end
 
-	if chips <= hand.max_raise or chips >= player.chips then
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips <= hand.last_raise or bet_chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
 	accept_action(game, player.seatid, action_type.RAISE, chips, true)
-	hand.max_raise = chips
+	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
 end
 
 function on_reraise_action( game, player, chips )
 	local hand = game.current
-	if hand.first_bet <= 0 or hand.max_raise <= hand.first_bet then
+	if hand.first_bet <= 0 or hand.last_raise <= hand.first_bet then
 		return errno.ACTION_ERROR
 	end
 
-	if chips <= hand.max_raise or chips >= player.chips then
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips <= hand.last_raise or bet_chips >= player.chips then
 		return errno.PARAM_ERROR
 	end
 
 	accept_action(game, player.seatid, action_type.RERAISE, chips, true)
-	hand.max_raise = chips
+	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
 end
 
 function on_allin_action( game, player, chips )
 	local hand = game.current
-	if chips <= 0 or chips ~= player.chips then
+	local bet_chips = chips - hand.round_chips[player.seatid]
+	if chips <= 0 or bet_chips ~= player.chips then
 		return errno.PARAM_ERROR
 	end
 
 	accept_action(game, player.seatid, action_type.ALL_IN, chips, true)
 	hand.ingame_seats[1].is_allin = true
-	if chips > hand.max_raise then
-		hand.max_raise = chips
+	if chips > hand.last_raise then
+		hand.last_raise = chips
 		hand.incall_count = 1
 	else
 		hand.incall_count = hand.incall_count + 1
@@ -416,19 +436,20 @@ end
 
 function revise_action_type( game, player, chips )
 	local hand = game.current
+	local bet_chips = chips - hand.round_chips[player.seatid]
 	if chips < 0 then
 		return action_type.FOLD
-	elseif chips == 0 then
+	elseif chips == bet_chips then
 		return action_type.CHECK
 	elseif chips == player.chips then
 		return action_type.ALL_IN
-	elseif chips == hand.max_raise then
+	elseif chips == hand.last_raise then
 		return action_type.CALL
-	elseif chips > hand.max_raise then
+	elseif chips > hand.last_raise then
 		if hand.first_bet == 0 then
 			return action_type.BET
 		else
-			if hand.max_raise == hand.first_bet then
+			if hand.last_raise == hand.first_bet then
 				return action_type.RAISE
 			else
 				return action_type.RERAISE
