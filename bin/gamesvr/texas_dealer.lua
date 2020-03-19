@@ -44,12 +44,12 @@ function tick_after_action( game )
 
 	seat_move_turn(game)
 	
-	if hand.incall_count == hand.ingame_count then
+	if hand.incall_count == hand.ingame_count or hand.ingame_count == hand.allin_count then
 		round_move_turn(game)
 		return
 	end
 
-	if hand.ingame_count - hand.allin_count <= 1 then
+	if hand.ingame_count - hand.allin_count == 1 then
 		local action_seatid = hand.ingame_seats[1].seatid
 		if hand.round_chips[action_seatid] >= hand.last_raise then
 			round_move_turn(game)
