@@ -4,6 +4,7 @@ card_names = {
     'A♣', '2♣', '3♣', '4♣', '5♣', '6♣', '7♣', '8♣', '9♣', '10♣', 'J♣', 'Q♣', 'K♣',
     'A♦', '2♦', '3♦', '4♦', '5♦', '6♦', '7♦', '8♦', '9♦', '10♦', 'J♦', 'Q♦', 'K♦',
 }
+
 combs_7_5 = {
     {1, 2, 3, 4, 5}, {1, 2, 3, 4, 6}, {1, 2, 3, 4, 7},
     {1, 2, 3, 5, 6}, {1, 2, 3, 5, 7}, {1, 2, 3, 6, 7},
@@ -14,7 +15,7 @@ combs_7_5 = {
     {2, 3, 5, 6, 7}, {2, 4, 5, 6, 7}, {3, 4, 5, 6, 7},
 }
 
-texas_pattern = {
+texas_pattern = texas_pattern or {
     ["HIGH_CARD"]           = 1,
     ["ONE_PAIR"]            = 2,
     ["TWO_PAIR"]            = 3,
@@ -25,19 +26,6 @@ texas_pattern = {
     ["FOUR"]                = 8,
     ["STRAIGHT_FLUSH"]      = 9,
     ["ROYAL_FLUSH"]         = 10,
-}
-
-pattern_name = {
-    "HIGH_CARD",
-    "ONE_PAIR",
-    "TWO_PAIR",
-    "THREE",
-    "STRAIGHT",
-    "FLUSH",
-    "FULLHOUSE",
-    "FOUR",
-    "STRAIGHT_FLUSH",
-    "ROYAL_FLUSH",
 }
 
 function card_color( card )
@@ -62,9 +50,9 @@ function calc_score_7( cards )
     local max_score = 0
     local max_cards = nil
 
-    for _, comb in pairs(combs_7_5) do
+    for _, comb in ipairs(combs_7_5) do
         local selected = {}
-        for _, index in pairs(comb) do
+        for _, index in ipairs(comb) do
             table.insert(selected, cards[index])
         end
 
@@ -162,7 +150,7 @@ function calc_score_5( cards )
     end
 
     local pattern = 0
-    if isFlush and isStraight then
+    if is_flush and is_straight then
         if n5 == 10 then
             pattern = texas_pattern.ROYAL_FLUSH
         else
@@ -172,9 +160,9 @@ function calc_score_5( cards )
         pattern = texas_pattern.FOUR
     elseif d1 == 0 and d2 == 0 and d4 == 0 then
         pattern = texas_pattern.FULLHOUSE
-    elseif isFlush then
+    elseif is_flush then
         pattern = texas_pattern.FLUSH
-    elseif isStraight then
+    elseif is_straight then
         pattern = texas_pattern.STRAIGHT
     elseif d1 == 0 and d2 == 0 then
         pattern = texas_pattern.THREE
@@ -187,28 +175,4 @@ function calc_score_5( cards )
     end
     
     return (pattern << 20) | rank
-end
-
-function unit_test_calc(  )
-    local cards = {}
-    local card_count = #card_names
-    for i = 1, card_count do
-        table.insert(cards, i)
-    end
-
-    math.randomseed(os.time())
-    for i = 1, card_count do
-        local j = math.random(1, card_count)
-        cards[i], cards[j] = cards[j], cards[i]
-    end
-
-    for i = 8, card_count do
-        cards[i] = nil
-    end
-    
-    local score, max_cards = calc_score_7(cards)
-    print("orig card", card_string(cards))
-    print("max card", card_string(max_cards))
-    print("max score", score)
-    print("pattern  ", pattern_name[score >> 20])
 end
