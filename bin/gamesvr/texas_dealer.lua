@@ -44,7 +44,7 @@ function tick_after_action( game )
 
 	seat_move_turn(game)
 	
-	if hand.incall_count == hand.ingame_count or hand.ingame_count == hand.allin_count then
+	if hand.incall_count == hand.ingame_count or hand.allin_count == hand.ingame_count then
 		round_move_turn(game)
 		return
 	end
@@ -68,8 +68,8 @@ function start_new_hand( game )
 	hand.index = #game.hands + 1
 	hand.button = game.button
 	hand.start_time = app.time()
-	game.current = hand
 	table.insert(game.hands, hand)
+	game.current = hand
 
 	hand.status = texas_status.INIT
 	hand.init_time = app.mstime()
@@ -80,14 +80,16 @@ function start_new_hand( game )
 
 	hand.stock_cards = shuffle_card()
 	hand.shared_cards = {}
+	
+	hand.ingame_count = 0
 	hand.ingame_seats = {}
-	hand.round_chips = {}
 	init_ingame_seats(game)
-	hand.ingame_count = #hand.ingame_seats
+
 	hand.incall_count = 0
 	hand.allin_count = 0
-
+	hand.round_chips = {}
 	start_new_round(game, false)
+
 	on_ante_action(game)
 	on_blind_action(game)
 	game.broadcast(0,"cs_texas_hand_ntf", game.roomid, hand)
@@ -117,6 +119,7 @@ function init_ingame_seats( game )
 		table.insert(deal_order, seatid)
 	end
 
+	hand.ingame_count = #deal_order
 	for _, seatid in ipairs(deal_order) do
 		local player = game.seat_table[seatid]
 		local seat = proto.create("texas_seat")
@@ -136,11 +139,14 @@ function start_new_round( game, notify )
 	local round = proto.create("texas_round")
 	round.index = #hand.rounds + 1
 	round.game_time = app.mstime() - hand.init_time
-	hand.current = round
 	table.insert(hand.rounds, round)
+	hand.current = round
 
 	hand.first_bet = 0
 	hand.last_raise = 0
+	hand.incall_count = 0
+	hand.deal_time = app.mstime()
+
 	for _, seat in ipairs(hand.ingame_seats) do
 		hand.round_chips[seat.seatid] = 0
 	end
@@ -203,6 +209,7 @@ function accept_action( game, seatid, type, chips, notify)
 		act_chips = chips
 	}
 	table.insert(round.actions, action)
+
 	hand.action_time = 0
 	hand.action_seatid = 0
 
@@ -224,12 +231,8 @@ end
 
 function notify_cur_turn( game )
 	local hand = game.current
-	if hand.status >= texas_status.SETTLING then
-		game.broadcast(0, "cs_texas_turn_ntf", game.roomid, hand.index, 0)
-	else
-		local trun_seat = hand.ingame_seats[1]
-		game.broadcast(0, "cs_texas_turn_ntf", game.roomid, hand.index, trun_seat.seatid)
-	end
+	local trun_seat = hand.ingame_seats[1]
+	game.broadcast(0, "cs_texas_turn_ntf", game.roomid, hand.index, trun_seat.seatid)
 end
 
 function seat_move_turn( game )
@@ -271,16 +274,12 @@ function round_move_turn( game )
 	else
 		log_error("round_move_trun status error", hand.status)
 	end
-	
-	-- reset for new round
-	hand.deal_time = app.mstime()
-	hand.incall_count = 0
 
+	-- start from button
 	while hand.ingame_seats[1].seatid ~= hand.button do
 		local seat = table.remove(hand.ingame_seats, 1)
 		table.insert(hand.ingame_seats, seat)
 	end
-	-- seat_move_turn(game)
 end
 
 function on_proc_action( game, player, type, chips )
@@ -290,7 +289,7 @@ function on_proc_action( game, player, type, chips )
 		return errno.TEXAS_TURN_ERROR
 	end
 
-	-- for robot test
+	-- revise for robot test
 	type = revise_action_type(game, player, chips)
 	log_info("proc_action", player.seatid, action_type[type], chips, hand.round_chips[player.seatid], player.chips)
 
