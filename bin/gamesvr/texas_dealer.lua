@@ -4,11 +4,11 @@ function tick_game( game )
 	if not game.current then
 		start_new_hand(game)
 	else
-		tick_timeout(game)
+		tick_cur_hand(game)
 	end
 end
 
-function tick_timeout( game )
+function tick_cur_hand( game )
 	local hand = game.current
 	if hand.status == texas_status.INIT then
 		if app.mstime() - hand.init_time >= 3000 then
@@ -22,18 +22,44 @@ function tick_timeout( game )
 			hand.status = texas_status.FINISH
 			finish_cur_hand(game)
 		end
-	else
+	elseif app.mstime() - hand.deal_time >= 1000 then
 		if hand.action_seatid == 0 then
-			round_move_turn(game)
-			hand.action_time = app.mstime()
-			hand.action_seatid = hand.ingame_seats[1].seatid
-			notify_cur_turn(game)
-		end
-
-		if app.mstime() - hand.action_time >= 15000 then
-			on_timeout_action(game)
+			tick_after_action(game)
+		else
+			if app.mstime() - hand.action_time >= 15000 then
+				on_timeout_action(game)
+			end
 		end
 	end
+end
+
+function tick_after_action( game )
+	local hand = game.current
+	if hand.ingame_count == 1 then
+		hand.status = texas_status.SETTLING
+		hand.settle_time = app.mstime()
+		banker.settle_cur_hand(game)
+		return
+	end
+
+	seat_move_turn(game)
+	
+	if hand.incall_count == hand.ingame_count then
+		round_move_turn(game)
+		return
+	end
+
+	if hand.ingame_count - hand.allin_count <= 1 then
+		local action_seatid = hand.ingame_seats[1].seatid
+		if hand.round_chips[action_seatid] >= hand.last_raise then
+			round_move_turn(game)
+			return
+		end
+	end
+
+	hand.action_time = app.mstime()
+	hand.action_seatid = hand.ingame_seats[1].seatid
+	notify_cur_turn(game)
 end
 
 function start_new_hand( game )
@@ -47,6 +73,7 @@ function start_new_hand( game )
 
 	hand.status = texas_status.INIT
 	hand.init_time = app.mstime()
+	hand.deal_time = hand.init_time
 	hand.settle_time = 0
 	hand.action_time = 0
 	hand.action_seatid = 0
@@ -58,6 +85,7 @@ function start_new_hand( game )
 	init_ingame_seats(game)
 	hand.ingame_count = #hand.ingame_seats
 	hand.incall_count = 0
+	hand.allin_count = 0
 
 	start_new_round(game, false)
 	on_ante_action(game)
@@ -175,7 +203,7 @@ function accept_action( game, seatid, type, chips, notify)
 		act_chips = chips
 	}
 	table.insert(round.actions, action)
-	hand.action_time = app.mstime()
+	hand.action_time = 0
 	hand.action_seatid = 0
 
 	local player = game.seat_table[seatid]
@@ -223,47 +251,36 @@ end
 
 function round_move_turn( game )
 	local hand = game.current
-	if hand.ingame_count == 1 then
+	if hand.status == texas_status.RIVER then
 		hand.status = texas_status.SETTLING
 		hand.settle_time = app.mstime()
 		banker.settle_cur_hand(game)
 		return
 	end
 
-	seat_move_turn(game)
-	if hand.incall_count < hand.ingame_count then
-		return
-	end
-
-	-- finish current round
+	start_new_round(game, true)
 	if hand.status == texas_status.PREFLOP then
 		hand.status = texas_status.FLOP
-		start_new_round(game, true)
 		deal_shared_card(game, 3)
 	elseif hand.status == texas_status.FLOP then
 		hand.status = texas_status.TURN
-		start_new_round(game, true)
 		deal_shared_card(game, 1)
 	elseif hand.status == texas_status.TURN then
 		hand.status = texas_status.RIVER
-		start_new_round(game, true)
 		deal_shared_card(game, 1)
-	elseif hand.status == texas_status.RIVER then
-		hand.status = texas_status.SETTLING
-		hand.settle_time = app.mstime()
-		banker.settle_cur_hand(game)
-		return
+	else
+		log_error("round_move_trun status error", hand.status)
 	end
-
+	
 	-- reset for new round
+	hand.deal_time = app.mstime()
 	hand.incall_count = 0
 
 	while hand.ingame_seats[1].seatid ~= hand.button do
 		local seat = table.remove(hand.ingame_seats, 1)
 		table.insert(hand.ingame_seats, seat)
 	end
-
-	seat_move_turn(game)
+	-- seat_move_turn(game)
 end
 
 function on_proc_action( game, player, type, chips )
@@ -428,6 +445,7 @@ function on_allin_action( game, player, chips )
 
 	accept_action(game, player.seatid, action_type.ALL_IN, chips, true)
 	hand.ingame_seats[1].is_allin = true
+	hand.allin_count = hand.allin_count + 1
 	if chips > hand.last_raise then
 		hand.last_raise = chips
 		hand.incall_count = 1
