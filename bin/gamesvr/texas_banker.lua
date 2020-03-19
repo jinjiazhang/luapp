@@ -38,11 +38,11 @@ function complex_settle( game, incall_list )
         card_table[seat.seatid] = max_cards
     end
 
-    local prize_table = assign_prize(game, score_table)
+    local prize_table = complex_assign(game, score_table)
     return settle_prize(game, prize_table, card_table)
 end
 
-function assign_prize( game, score_table )
+function complex_assign( game, score_table )
     local hand = game.current
     local max_score = 0
     local winner_seatid = 0
