@@ -21,6 +21,10 @@ bool parse_enum(const EnumDescriptor* enum_desc, lua_State* L)
         lua_pushstring(L, value_desc->name().c_str());
         lua_pushinteger(L, value_desc->number());
         lua_settable(L, -3);
+
+        lua_pushinteger(L, value_desc->number());
+        lua_pushstring(L, value_desc->name().c_str());
+        lua_settable(L, -3);
     }
     lua_setglobal(L, enum_desc->name().c_str());
     return true;
