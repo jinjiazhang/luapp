@@ -89,7 +89,7 @@ function net.cs_texas_sitdown_req( roleid, seatid )
 		icon = role.icon,
 		gender = role.gender,
 		seatid = seatid,
-		chips = 1000,
+		chips = 0,
 	}
 
 	table.insert(game.players, player)

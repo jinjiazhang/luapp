@@ -85,9 +85,16 @@ function start_new_hand( game )
 	hand.ingame_seats = {}
 	init_ingame_seats(game)
 
+	hand.pot_chips = 0
+	hand.hand_chips = {}
+	hand.round_chips = {}
+	for _, seat in ipairs(hand.ingame_seats) do
+		hand.hand_chips[seat.seatid] = 0
+		hand.round_chips[seat.seatid] = 0
+	end
+
 	hand.incall_count = 0
 	hand.allin_count = 0
-	hand.round_chips = {}
 	start_new_round(game, false)
 
 	on_ante_action(game)
@@ -131,6 +138,9 @@ function init_ingame_seats( game )
 		seat.is_fold = false
 		seat.is_allin = false
 		table.insert(hand.ingame_seats, seat)
+
+		-- just for robot test
+		player.chips = 100 * seatid
 	end
 end
 
@@ -146,10 +156,6 @@ function start_new_round( game, notify )
 	hand.last_raise = 0
 	hand.incall_count = 0
 	hand.deal_time = app.mstime()
-
-	for _, seat in ipairs(hand.ingame_seats) do
-		hand.round_chips[seat.seatid] = 0
-	end
 
 	if notify then
 		game.broadcast(0, "cs_texas_round_ntf", game.roomid, hand.index, round)
@@ -213,16 +219,18 @@ function accept_action( game, seatid, type, chips, notify)
 	hand.action_time = 0
 	hand.action_seatid = 0
 
+
 	local player = game.seat_table[seatid]
-	if type == action_type.ANTE then
-		player.chips = player.chips - chips
-	elseif hand.round_chips[seatid] < chips then
-		local bet_chips = chips - hand.round_chips[seatid]
-		player.chips = player.chips - bet_chips
+	local bet_chips = chips - hand.round_chips[seatid]
+	player.chips = player.chips - bet_chips
+	hand.pot_chips = hand.pot_chips + bet_chips
+	hand.hand_chips[seatid] = hand.hand_chips[seatid] + bet_chips
+	
+	if type ~= action_type.ANTE then
 		hand.round_chips[seatid] = chips
 	end
 	
-	log_info("accept_action", seatid, action_type[type], chips, hand.round_chips[seatid], player.chips)
+	log_info("accept_action", seatid, action_type[type], chips, player.chips)
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -273,6 +281,10 @@ function round_move_turn( game )
 		deal_shared_card(game, 1)
 	else
 		log_error("round_move_trun status error", hand.status)
+	end
+
+	for _, seat in ipairs(hand.ingame_seats) do
+		hand.round_chips[seat.seatid] = 0
 	end
 
 	-- start from button
