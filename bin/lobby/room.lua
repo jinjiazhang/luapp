@@ -27,8 +27,8 @@ function net.cs_create_room_req( ss, name, mode, option )
 	airport.call_listsvr_hash(mode, "ss_assign_room_req", ss.roleid, name, mode, option)
 end
 
-function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, rsvrid)
-	log_debug("ss_assign_room_rsp", svrid, roleid, name, mode, option, roomid, roomkey, rsvrid)
+function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, gsvrid)
+	log_debug("ss_assign_room_rsp", svrid, roleid, name, mode, option, roomid, roomkey, gsvrid)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
 		log_warn("ss_assign_room_rsp ss not exist", roleid)
@@ -40,7 +40,7 @@ function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, room
 		return
 	end
 
-	airport.call_roomsvr(rsvrid, "ss_create_room_req", ss.role, roomid, roomkey, name, mode, option)
+	airport.call_gamesvr(gsvrid, "ss_create_room_req", ss.role, roomid, roomkey, name, mode, option)
 end
 
 function net.ss_create_room_rsp( svrid, result, roleid, room )
@@ -70,8 +70,8 @@ function net.cs_enter_room_req( ss, roomid, roomkey )
 	airport.call_listsvr_hash(0, "ss_search_room_req", ss.roleid, roomid, roomkey)
 end
 
-function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, rsvrid )
-	log_debug("ss_search_room_rsp", svrid, roleid, roomid, roomkey, rsvrid)
+function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, gsvrid )
+	log_debug("ss_search_room_rsp", svrid, roleid, roomid, roomkey, gsvrid)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
 		log_warn("ss_assign_room_rsp ss not exist", roleid)
@@ -83,7 +83,7 @@ function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, rsvrid 
 		return
 	end
 
-	airport.call_roomsvr(rsvrid, "ss_enter_room_req", ss.role, roomid, roomkey)
+	airport.call_gamesvr(gsvrid, "ss_enter_room_req", ss.role, roomid, roomkey)
 end
 
 function net.ss_enter_room_rsp( svrid, result, roleid, room )
@@ -111,7 +111,7 @@ function net.cs_leave_room_req( ss, roomid )
 	local roleid = ss.role.roleid
 	local gaming = ss.role.gaming
 	assert(roomid == gaming.roomid)
-	airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", roleid, gaming.roomid, reason_type.LEAVE_ROOM)
+	airport.call_gamesvr(gaming.gsvrid, "ss_leave_room_req", roleid, gaming.roomid, reason_type.LEAVE_ROOM)
 end
 
 function net.ss_leave_room_rsp( svrid, result, roleid, roomid, reason )
@@ -139,7 +139,7 @@ function net.cs_dismiss_room_req( ss, roomid )
 	local roleid = ss.role.roleid
 	local gaming = ss.role.gaming
 	assert(roomid == gaming.roomid)
-	airport.call_roomsvr(gaming.rsvrid, "ss_dismiss_room_req", roleid, gaming.roomid, reason_type.DISMISS_ROOM)
+	airport.call_gamesvr(gaming.gsvrid, "ss_dismiss_room_req", roleid, gaming.roomid, reason_type.DISMISS_ROOM)
 end
 
 function net.ss_dismiss_room_rsp( svrid, result, roleid, roomid, reason )

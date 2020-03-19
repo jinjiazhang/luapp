@@ -109,7 +109,7 @@ message ss_assign_room_rsp {
 	game_opt option = 5;
 	int64 roomid = 6;
 	int32 roomkey = 7;
-	int32 rsvrid = 8;
+	int32 gsvrid = 8;
 }
 
 message ss_create_room_req {
@@ -140,7 +140,7 @@ message ss_search_room_rsp {
 	int64 roleid = 2;
 	int64 roomid = 3;
 	int32 roomkey = 4;
-	int32 rsvrid = 5;
+	int32 gsvrid = 5;
 }
 
 message ss_enter_room_req {

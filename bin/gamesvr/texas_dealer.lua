@@ -1,4 +1,4 @@
-banker = import("roomsvr/texas_banker.lua")
+banker = import("gamesvr/texas_banker.lua")
 
 function tick_game( game )
 	if not game.current then

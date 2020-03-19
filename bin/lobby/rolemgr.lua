@@ -37,31 +37,31 @@ end
 
 function is_gaming( role )
 	local gaming = role.gaming
-	return gaming.rsvrid > 0 and gaming.roomid > 0
+	return gaming.gsvrid > 0 and gaming.roomid > 0
 end
 
 function leave_room( role, reason )
 	local gaming = role.gaming
-	if gaming.rsvrid > 0 and gaming.roomid > 0 then
-		airport.call_roomsvr(gaming.rsvrid, "ss_leave_room_req", role.roleid, gaming.roomid, reason)
+	if gaming.gsvrid > 0 and gaming.roomid > 0 then
+		airport.call_gamesvr(gaming.gsvrid, "ss_leave_room_req", role.roleid, gaming.roomid, reason)
 	end
 end
 
-function on_enter_room( role, rsvrid, room )
+function on_enter_room( role, gsvrid, room )
 	role.gaming.roomid = room.roomid
-	role.gaming.rsvrid = rsvrid
+	role.gaming.gsvrid = gsvrid
 	role.gaming.mode = room.mode
 end
 
 function on_leave_room( role, roomid, reason )
 	role.gaming.roomid = 0
-	role.gaming.rsvrid = 0
+	role.gaming.gsvrid = 0
 	role.gaming.mode = 0
 end
 
 function on_room_dismiss( role, roomid, reason )
 	role.gaming.roomid = 0
-	role.gaming.rsvrid = 0
+	role.gaming.gsvrid = 0
 	role.gaming.mode = 0
 end
 

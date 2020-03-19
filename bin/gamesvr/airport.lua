@@ -83,12 +83,12 @@ function call_lobby( lobbyid, ... )
 	_airport.call_target(lobbyid, ...)
 end
 
-function call_roomsvr( rsvrid, ... )
-	if get_func_id(rsvrid) ~= service.ROOMSVR then
-		log_error("airport.call_roomsvr funcid error", rsvrid)
+function call_gamesvr( gsvrid, ... )
+	if get_func_id(gsvrid) ~= service.GAMESVR then
+		log_error("airport.call_gamesvr funcid error", gsvrid)
 		return
 	end
-	_airport.call_target(rsvrid, ...)
+	_airport.call_target(gsvrid, ...)
 end
 
 function call_listsvr( lsvrid, ... )

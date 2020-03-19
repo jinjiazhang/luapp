@@ -1,9 +1,9 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
 config = import("config/config.lua")
-dbagent = import("roomsvr/dbagent.lua")
-airport = import("roomsvr/airport.lua")
-roommgr = import("roomsvr/roommgr.lua")
+dbagent = import("gamesvr/dbagent.lua")
+airport = import("gamesvr/airport.lua")
+roommgr = import("gamesvr/roommgr.lua")
 
 app.init = function ( ... )
 	config.init()

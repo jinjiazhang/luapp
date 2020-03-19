@@ -29,7 +29,7 @@ message tb_account {
 
 message role_gaming {
     int64 roomid = 1;
-    int32 rsvrid = 2;
+    int32 gsvrid = 2;
     game_mode mode = 3;
 }
 

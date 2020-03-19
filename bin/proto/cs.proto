@@ -19,7 +19,7 @@ message cs_role {
     int32 register = 8;
     int32 online = 9;
     int32 offline = 10;
-    int32 rsvrid = 11;
+    int32 gsvrid = 11;
     int64 roomid = 12;
 }
 
