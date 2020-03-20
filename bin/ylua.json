@@ -37,6 +37,7 @@
         "sqlpool",
         "rdsclient",
         "copool",
+
         "dbimpl",
         "rolemgr",
         "roommgr",
@@ -60,7 +61,6 @@
         4, 11
     ],
     "IgnoreFileOrFloder": [
-        "lobby/one.lua",
         "proto/",
         "config/",
         "output/"
