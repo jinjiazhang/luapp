@@ -48,10 +48,6 @@ function create_room_flow( role )
 	log_info("cs_create_room_req", result, app.tostring(room))
 	check_result("cs_create_room_req", result)
 
-	local result, room = client.cs_reenter_room_req(room.roomid)
-	log_info("cs_reenter_room_req", result, app.tostring(room))
-	check_result("cs_reenter_room_req", result)
-
 	local game = room.game.texas
 	local seatid = #game.players + 1
 	local result, player = client.cs_texas_sitdown_req(seatid)

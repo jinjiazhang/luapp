@@ -48,7 +48,7 @@ function on_closed( number, errno )
 end
 
 function on_message( number, msg_name, ... )
-	log_info("client.on_message", number, msg_name, ...)
+	log_debug(msg_name, ...)
 	if string.find(msg_name, "rsp$") then
 		local flowid = last_recv_flowid + 1
 		last_recv_flowid = flowid
