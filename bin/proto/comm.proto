@@ -131,7 +131,7 @@ enum texas_rank {
     ROYAL_FLUSH = 10;
 }
 
-enum action_type {
+enum texas_act {
 	TIMEOUT = 0;
 	ANTE = 1;
 	SMALL_BLIND = 2;
@@ -148,7 +148,7 @@ enum action_type {
 message texas_action {
 	int32 seatid = 1;
 	int32 game_time = 2;
-	action_type act_type = 3;
+	texas_act act_type = 3;
 	int64 act_chips = 4;
 }
 

@@ -211,7 +211,7 @@ message cs_texas_turn_ntf {
 message cs_texas_action_req {
 	int32 hand_idx = 1;
 	int32 round_idx = 2;
-	action_type act_type = 3;
+	texas_act act_type = 3;
 	int64 act_chips = 4;
 }
 

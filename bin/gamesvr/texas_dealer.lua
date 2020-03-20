@@ -222,11 +222,11 @@ function accept_action( game, seatid, type, chips, notify)
 	hand.pot_chips = hand.pot_chips + bet_chips
 	hand.hand_chips[seatid] = hand.hand_chips[seatid] + bet_chips
 	
-	if type ~= action_type.ANTE then
+	if type ~= texas_act.ANTE then
 		hand.round_chips[seatid] = chips
 	end
 	
-	log_info("accept_action", seatid, action_type[type], chips, player.chips)
+	log_info("accept_action", seatid, texas_act[type], chips, player.chips)
 
 	if notify then
 		game.broadcast(0, "cs_texas_action_ntf", game.roomid, hand.index, round.index, action)
@@ -298,22 +298,22 @@ function on_proc_action( game, player, type, chips )
 	end
 
 	-- revise for robot test
-	type = revise_action_type(game, player, chips)
-	log_info("proc_action", player.seatid, action_type[type], chips, hand.round_chips[player.seatid], player.chips)
+	type = revise_texas_act(game, player, chips)
+	log_info("proc_action", player.seatid, texas_act[type], chips, hand.round_chips[player.seatid], player.chips)
 
-	if type == action_type.BET then
+	if type == texas_act.BET then
 		return on_bet_action(game, player, chips)
-	elseif type == action_type.CALL then
+	elseif type == texas_act.CALL then
 		return on_call_action(game, player, chips)
-	elseif type == action_type.FOLD then
+	elseif type == texas_act.FOLD then
 		return on_fold_action(game, player, chips)
-	elseif type == action_type.CHECK then
+	elseif type == texas_act.CHECK then
 		return on_check_action(game, player, chips)
-	elseif type == action_type.RAISE then
+	elseif type == texas_act.RAISE then
 		return on_raise_action(game, player, chips)
-	elseif type == action_type.RE_RAISE then
+	elseif type == texas_act.RE_RAISE then
 		return on_reraise_action(game, player, chips)
-	elseif type == action_type.ALL_IN then
+	elseif type == texas_act.ALL_IN then
 		return on_allin_action(game, player, chips)
 	else
 		return errno.PARAM_ERROR
@@ -332,7 +332,7 @@ function on_ante_action( game )
 
 	local hand = game.current
 	for _, seat in ipairs(hand.ingame_seats) do
-		accept_action(game, seat.seatid, action_type.ANTE, ante_chips, false)
+		accept_action(game, seat.seatid, texas_act.ANTE, ante_chips, false)
 	end
 	return errno.SUCCESS
 end
@@ -342,12 +342,12 @@ function on_blind_action( game )
 	local small_blind = game.option.small_blind
 	local small_seat = table.remove(hand.ingame_seats, 1)
 	table.insert(hand.ingame_seats, small_seat)
-	accept_action(game, small_seat.seatid, action_type.SMALL_BLIND, small_blind, false)
+	accept_action(game, small_seat.seatid, texas_act.SMALL_BLIND, small_blind, false)
 
 	local big_blind = game.option.big_blind
 	local big_seat = table.remove(hand.ingame_seats, 1)
 	table.insert(hand.ingame_seats, big_seat)
-	accept_action(game, big_seat.seatid, action_type.BIG_BLIND, big_blind, false)
+	accept_action(game, big_seat.seatid, texas_act.BIG_BLIND, big_blind, false)
 
 	hand.first_bet = game.option.big_blind
 	hand.last_raise = game.option.big_blind
@@ -365,7 +365,7 @@ function on_bet_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.BET, chips, true)
+	accept_action(game, player.seatid, texas_act.BET, chips, true)
 	hand.first_bet = chips
 	hand.last_raise = chips
 	hand.incall_count = 1
@@ -383,7 +383,7 @@ function on_call_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.CALL, chips, true)
+	accept_action(game, player.seatid, texas_act.CALL, chips, true)
 	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
@@ -391,7 +391,7 @@ end
 function on_fold_action( game, player, chips )
 	local hand = game.current
 	chips = hand.round_chips[player.seatid]
-	accept_action(game, player.seatid, action_type.FOLD, chips, true)
+	accept_action(game, player.seatid, texas_act.FOLD, chips, true)
 	hand.ingame_seats[1].is_fold = true
 	hand.ingame_count = hand.ingame_count - 1
 	return errno.SUCCESS
@@ -404,7 +404,7 @@ function on_check_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.CHECK, chips, true)
+	accept_action(game, player.seatid, texas_act.CHECK, chips, true)
 	hand.incall_count = hand.incall_count + 1
 	return errno.SUCCESS
 end
@@ -420,7 +420,7 @@ function on_raise_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.RAISE, chips, true)
+	accept_action(game, player.seatid, texas_act.RAISE, chips, true)
 	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
@@ -437,7 +437,7 @@ function on_reraise_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.RE_RAISE, chips, true)
+	accept_action(game, player.seatid, texas_act.RE_RAISE, chips, true)
 	hand.last_raise = chips
 	hand.incall_count = 1
 	return errno.SUCCESS
@@ -450,7 +450,7 @@ function on_allin_action( game, player, chips )
 		return errno.PARAM_ERROR
 	end
 
-	accept_action(game, player.seatid, action_type.ALL_IN, chips, true)
+	accept_action(game, player.seatid, texas_act.ALL_IN, chips, true)
 	hand.ingame_seats[1].is_allin = true
 	hand.allin_count = hand.allin_count + 1
 	if chips > hand.last_raise then
@@ -462,28 +462,28 @@ function on_allin_action( game, player, chips )
 	return errno.SUCCESS
 end
 
-function revise_action_type( game, player, chips )
+function revise_texas_act( game, player, chips )
 	local hand = game.current
 	local in_chips = hand.round_chips[player.seatid]
 	if chips < 0 then
-		return action_type.FOLD
+		return texas_act.FOLD
 	elseif chips == in_chips then
-		return action_type.CHECK
+		return texas_act.CHECK
 	elseif chips == in_chips + player.chips then
-		return action_type.ALL_IN
+		return texas_act.ALL_IN
 	elseif chips == hand.last_raise then
-		return action_type.CALL
+		return texas_act.CALL
 	elseif chips > hand.last_raise then
 		if hand.first_bet == 0 then
-			return action_type.BET
+			return texas_act.BET
 		else
 			if hand.last_raise == hand.first_bet then
-				return action_type.RAISE
+				return texas_act.RAISE
 			else
-				return action_type.RE_RAISE
+				return texas_act.RE_RAISE
 			end
 		end
 	else
-		return action_type.FOLD
+		return texas_act.FOLD
 	end
 end

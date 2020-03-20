@@ -109,7 +109,7 @@ function texas_flow( openid, token )
 			repeat
 				io.stdout:write("your turn: ")
 				local input = io.stdin:read()
-				local result = client.cs_texas_action_req(0, 0, action_type.CALL, tonumber(input))
+				local result = client.cs_texas_action_req(0, 0, texas_act.CALL, tonumber(input))
 				log_info("cs_texas_action_req", result)
 			until (result == 0)
 		end	
