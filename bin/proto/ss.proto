@@ -157,6 +157,19 @@ message ss_enter_room_rsp {
 	}
 }
 
+message ss_reenter_room_req {
+	room_role role = 1;
+	int64 roomid = 2;
+}
+
+message ss_reenter_room_rsp {
+	errno result = 1;
+	int64 roleid = 2;
+	oneof oneof_room {
+		room_detail room = 3;
+	}
+}
+
 message ss_leave_room_req {
 	int64 roleid = 1;
 	int64 roomid = 2;

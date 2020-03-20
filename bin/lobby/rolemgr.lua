@@ -54,9 +54,11 @@ function on_enter_room( role, gsvrid, room )
 end
 
 function on_leave_room( role, roomid, reason )
-	role.gaming.roomid = 0
-	role.gaming.gsvrid = 0
-	role.gaming.mode = 0
+	if reason ~= reason_type.ROLE_OFFLINE then
+		role.gaming.roomid = 0
+		role.gaming.gsvrid = 0
+		role.gaming.mode = 0
+	end
 end
 
 function on_room_dismiss( role, roomid, reason )

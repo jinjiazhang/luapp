@@ -100,6 +100,36 @@ function net.ss_enter_room_rsp( svrid, result, roleid, room )
 	ss.cs_enter_room_rsp(result, room)
 end
 
+function net.cs_reenter_room_req( ss, roomid )
+	log_debug("cs_reenter_room_req", ss.roleid, roomid)
+	if not rolemgr.is_gaming(ss.role) then
+		log_warn("cs_reenter_room_req not gaming", roleid)
+		ss.cs_reenter_room_rsp(errno.NOT_FOUND)
+		return
+	end
+	
+	local roleid = ss.role.roleid
+	local gaming = ss.role.gaming
+	assert(roomid == gaming.roomid)
+	airport.call_gamesvr(gaming.gsvrid, "ss_reenter_room_req", ss.role, gaming.roomid)
+end
+
+function net.ss_reenter_room_rsp( svrid, result, roleid, room )
+	log_debug("ss_reenter_room_rsp", svrid, result, roleid, room)
+	local ss = ssmgr.find_by_roleid(roleid)
+	if not ss then
+		log_warn("ss_reenter_room_rsp ss not exist", roleid)
+		return
+	end
+
+	if result == errno.SUCCESS then
+		rolemgr.on_enter_room(ss.role, svrid, room)
+	else
+		rolemgr.on_leave_room(ss.role, roomid, reason_type.REENTER_ROOM)
+	end
+	ss.cs_reenter_room_rsp(result, room)
+end
+
 function net.cs_leave_room_req( ss, roomid )
 	log_debug("cs_leave_room_req", ss.roleid, roomid)
 	if not rolemgr.is_gaming(ss.role) then

@@ -43,7 +43,7 @@ enum room_status {
 }
 
 enum reason_type {
-	NOTHING = 0;
+	NO_REASON = 0;
 	CREATE_ROOM = 1;
 	ENTER_ROOM = 2;
 	LEAVE_ROOM = 3;
@@ -118,7 +118,7 @@ enum texas_status {
 }
 
 enum texas_rank {
-	NOTHING = 0;
+	NO_RANK = 0;
     HIGH_CARD = 1;
     ONE_PAIR = 2;
     TWO_PAIR = 3;

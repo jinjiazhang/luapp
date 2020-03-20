@@ -100,6 +100,17 @@ message cs_enter_room_ntf {
 	room_role viewer = 2;
 }
 
+message cs_reenter_room_req {
+	int64 roomid = 1;
+}
+
+message cs_reenter_room_rsp {
+	errno result = 1;
+	oneof oneof_room {
+		room_detail room = 2;
+	}
+}
+
 message cs_leave_room_req {
 	int64 roomid = 1;
 }

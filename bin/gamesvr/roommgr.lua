@@ -56,7 +56,7 @@ function create_room( roomid, roomkey, roleid, name, mode, option )
 	return room
 end
 
-function enter_room( room, role )
+function enter_room( room, role, reason )
 	if room.viewer_table[role.roleid] then
 		log_error("roommgr.enter_room role already exist", role.roleid)
 		return errno.CONFLICT
@@ -67,11 +67,11 @@ function enter_room( room, role )
 
 	table.insert(room.viewers, role)
 	room.viewer_table[role.roleid] = role
-	room:on_enter_room(role.roleid)
+	room:on_enter_room(role.roleid, reason)
 	return errno.SUCCESS
 end
 
-function leave_room( room, roleid )
+function leave_room( room, roleid, reason )
 	if not room.viewer_table[roleid] then
 		log_error("roommgr.leave_room role not exist", roleid)
 		return errno.DATA_ERROR
@@ -84,7 +84,7 @@ function leave_room( room, roleid )
 		end
 	end
 
-	room:on_leave_room(roleid)
+	room:on_leave_room(roleid, reason)
 	room.viewer_table[roleid] = nil
 	roleid_room_table[role.roleid] = nil
 	airport.unreg_role(service.GAMESVR, role.roleid)
@@ -144,7 +144,7 @@ function net.ss_create_room_req( svrid, role, roomid, roomkey, name, mode, optio
 		return
 	end
 
-	local result = enter_room(room, role)
+	local result = enter_room(room, role, reason_type.CREATE_ROOM)
 	if result ~= errno.SUCCESS then
 		airport.call_lobby(svrid, "ss_create_room_rsp", result, role.roleid)
 		return
@@ -162,7 +162,7 @@ function net.ss_enter_room_req( svrid, role, roomid, roomkey )
 		return
 	end
 
-	local result = enter_room(room, role)
+	local result = enter_room(room, role, reason_type.ENTER_ROOM)
 	if result ~= errno.SUCCESS then
 		airport.call_lobby(svrid, "ss_enter_room_rsp", result, role.roleid)
 		return
@@ -172,6 +172,26 @@ function net.ss_enter_room_req( svrid, role, roomid, roomkey )
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
 	airport.call_lobby(svrid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
+end
+
+function net.ss_reenter_room_req( svrid, role, roomid, roomkey )
+	log_debug("ss_reenter_room_req", svrid, role, roomid, roomkey)
+	local room = find_by_roomid(roomid)
+	if not room then
+		airport.call_lobby(svrid, "ss_reenter_room_rsp", errno.NOT_FOUND, role.roleid)
+		return
+	end
+
+	local result = enter_room(room, role, reason_type.REENTER_ROOM)
+	if result ~= errno.SUCCESS then
+		airport.call_lobby(svrid, "ss_reenter_room_rsp", result, role.roleid)
+		return
+	end
+
+	refresh_listsvr(roomid, room)
+	local viewer = room.viewer_table[role.roleid]
+	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
+	airport.call_lobby(svrid, "ss_reenter_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
 function net.ss_leave_room_req( svrid, roleid, roomid, reason )

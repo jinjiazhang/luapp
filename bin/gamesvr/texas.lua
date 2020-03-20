@@ -19,11 +19,11 @@ function on_create_room( room )
 	room.game.texas = game
 end
 
-function on_enter_room( room, roleid )
+function on_enter_room( room, roleid, reason )
 	-- log_info("on_enter_room", room.roomid, roleid)
 end
 
-function on_leave_room( room, roleid )
+function on_leave_room( room, roleid, reason )
 	-- log_info("on_leave_room", room.roomid, roleid)
 end
 
