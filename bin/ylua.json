@@ -1,0 +1,74 @@
+{
+    "BaseDir":"./",
+    "ProjectFiles":[
+        "router/main.lua",
+        "dbagent/main.lua",
+        "listsvr/main.lua",
+        "gamesvr/main.lua",
+        "lobby/main.lua",
+        "robot/main.lua"
+    ],
+    "IgnoreModules":[
+        "_ENV",
+        "app", 
+        "net",
+        "route",
+        "mongo",
+        "redis",
+        "mysql",
+        "proto",
+        "import",
+        "config",
+
+        "errno",
+        "service",
+        "game_mode",
+        "room_status",
+        "reason_type",
+        "texas_status",
+        "texas_rank",
+        "texas_act",
+        
+        "client",
+        "server",
+        "airport",
+        "dbagent",
+        "mongodb",
+        "sqlpool",
+        "rdsclient",
+        "copool",
+        "dbimpl",
+        "rolemgr",
+        "roommgr",
+        "ssmgr",
+        "texas",
+        "unique",
+        "assign",
+        "notify",
+        
+        "log_error",
+        "log_warn",
+        "log_info",
+        "log_debug"
+    ],
+    "IgnoreFileVars": [
+    ],
+    "IgnoreReadFiles": [
+        "config/config.lua"
+    ],
+    "IgnoreErrorTypes": [
+        4, 11
+    ],
+    "IgnoreFileOrFloder": [
+        "lobby/one.lua",
+        "proto/",
+        "config/",
+        "output/"
+    ],
+    "IgnoreFileErr": [
+    
+    ],
+    "ProtocolVars": [
+        
+    ]
+}

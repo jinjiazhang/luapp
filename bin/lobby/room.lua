@@ -18,7 +18,7 @@ end
 function net.cs_create_room_req( ss, name, mode, option )
 	log_debug("cs_create_room_req", ss.roleid, name, mode, option)
 	if rolemgr.is_gaming(ss.role) then
-		log_warn("cs_create_room_req room exist", roleid)
+		log_warn("cs_create_room_req room exist", ss.roleid)
 		ss.cs_create_room_rsp(errno.NEED_RETRY)
 		rolemgr.leave_room(ss.role, reason_type.CREATE_ROOM)
 		return
@@ -60,7 +60,7 @@ end
 function net.cs_enter_room_req( ss, roomid, roomkey )
 	log_debug("cs_enter_room_req", ss.roleid, roomid, roomkey)
 	if rolemgr.is_gaming(ss.role) then
-		log_warn("cs_enter_room_req room exist", roleid)
+		log_warn("cs_enter_room_req room exist", ss.roleid)
 		ss.cs_enter_room_rsp(errno.NEED_RETRY)
 		rolemgr.leave_room(ss.role, reason_type.ENTER_ROOM)
 		return
@@ -103,7 +103,7 @@ end
 function net.cs_reenter_room_req( ss, roomid )
 	log_debug("cs_reenter_room_req", ss.roleid, roomid)
 	if not rolemgr.is_gaming(ss.role) then
-		log_warn("cs_reenter_room_req not gaming", roleid)
+		log_warn("cs_reenter_room_req not gaming", ss.roleid)
 		ss.cs_reenter_room_rsp(errno.NOT_FOUND)
 		return
 	end
@@ -125,6 +125,7 @@ function net.ss_reenter_room_rsp( svrid, result, roleid, room )
 	if result == errno.SUCCESS then
 		rolemgr.on_enter_room(ss.role, svrid, room)
 	else
+		local roomid = ss.role.gaming.roomid
 		rolemgr.on_leave_room(ss.role, roomid, reason_type.REENTER_ROOM)
 	end
 	ss.cs_reenter_room_rsp(result, room)
@@ -133,7 +134,7 @@ end
 function net.cs_leave_room_req( ss, roomid )
 	log_debug("cs_leave_room_req", ss.roleid, roomid)
 	if not rolemgr.is_gaming(ss.role) then
-		log_warn("cs_leave_room_req not gaming", roleid)
+		log_warn("cs_leave_room_req not gaming", ss.roleid)
 		ss.cs_leave_room_rsp(errno.SUCCESS)
 		return
 	end
@@ -161,7 +162,7 @@ end
 function net.cs_dismiss_room_req( ss, roomid )
 	log_debug("cs_dismiss_room_req", ss.roleid, roomid)
 	if not rolemgr.is_gaming(ss.role) then
-		log_warn("cs_dismiss_room_req not gaming", roleid)
+		log_warn("cs_dismiss_room_req not gaming", ss.roleid)
 		ss.cs_dismiss_room_rsp(errno.SUCCESS)
 		return
 	end

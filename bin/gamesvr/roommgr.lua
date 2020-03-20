@@ -86,8 +86,8 @@ function leave_room( room, roleid, reason )
 
 	room:on_leave_room(roleid, reason)
 	room.viewer_table[roleid] = nil
-	roleid_room_table[role.roleid] = nil
-	airport.unreg_role(service.GAMESVR, role.roleid)
+	roleid_room_table[roleid] = nil
+	airport.unreg_role(service.GAMESVR, roleid)
 	return errno.SUCCESS
 end
 
