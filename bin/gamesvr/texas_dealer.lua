@@ -17,7 +17,7 @@ function tick_cur_hand( game )
 			hand.action_seatid = hand.ingame_seats[1].seatid
 			notify_cur_turn(game)
 		end
-	elseif hand.status == texas_status.SETTLING then
+	elseif hand.status == texas_status.SHOWDOWN then
 		if app.mstime() - hand.settle_time >= 5000 then
 			hand.status = texas_status.FINISH
 			finish_cur_hand(game)
@@ -36,7 +36,7 @@ end
 function tick_after_action( game )
 	local hand = game.current
 	if hand.ingame_count == 1 then
-		hand.status = texas_status.SETTLING
+		hand.status = texas_status.SHOWDOWN
 		hand.settle_time = app.mstime()
 		banker.settle_cur_hand(game)
 		return
@@ -259,7 +259,7 @@ end
 function round_move_turn( game )
 	local hand = game.current
 	if hand.status == texas_status.RIVER then
-		hand.status = texas_status.SETTLING
+		hand.status = texas_status.SHOWDOWN
 		hand.settle_time = app.mstime()
 		banker.settle_cur_hand(game)
 		return

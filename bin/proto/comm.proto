@@ -107,32 +107,28 @@ message room_detail {
 	game_detail game = 16;
 }
 
-message texas_player {
-	int64 roleid = 1;
-	string openid = 2;
-	string name = 3;
-	string icon = 4;
-	int32 gender = 5;
-	int32 seatid = 6;
-	int64 chips = 7;
-}
-
-message texas_seat {
-	int32 seatid = 1;
-	int64 roleid = 2;
-	int32 card1 = 3;
-	int32 card2 = 4;
-	int32 show_flag = 5;
-}
-
 enum texas_status {
 	INIT = 0;
 	PREFLOP = 1;
 	FLOP = 2;
 	TURN = 3;
 	RIVER = 4;
-	SETTLING = 5;
+	SHOWDOWN = 5;
 	FINISH = 6;
+}
+
+enum texas_rank {
+	NOTHING = 0;
+    HIGH_CARD = 1;
+    ONE_PAIR = 2;
+    TWO_PAIR = 3;
+    THREE = 4;
+    STRAIGHT = 5;
+    FLUSH = 6;
+    FULLHOUSE = 7;
+    FOUR = 8;
+    STRAIGHT_FLUSH = 9;
+    ROYAL_FLUSH = 10;
 }
 
 enum action_type {
@@ -168,6 +164,24 @@ message texas_hand {
 	int32 start_time = 3;
 	repeated int32 shared_cards = 4;
 	repeated texas_round rounds = 5;
+}
+
+message texas_player {
+	int64 roleid = 1;
+	string openid = 2;
+	string name = 3;
+	string icon = 4;
+	int32 gender = 5;
+	int32 seatid = 6;
+	int64 chips = 7;
+}
+
+message texas_seat {
+	int32 seatid = 1;
+	int64 roleid = 2;
+	int32 card1 = 3;
+	int32 card2 = 4;
+	int32 show_flag = 5;
 }
 
 message texas_detail {

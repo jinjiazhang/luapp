@@ -15,7 +15,7 @@ combs_7_5 = {
     {2, 3, 5, 6, 7}, {2, 4, 5, 6, 7}, {3, 4, 5, 6, 7},
 }
 
-texas_pattern = texas_pattern or {
+texas_rank = texas_rank or {
     ["HIGH_CARD"]           = 1,
     ["ONE_PAIR"]            = 2,
     ["TWO_PAIR"]            = 3,
@@ -140,39 +140,39 @@ function calc_score_5( cards )
     local d3 = n3 - n4
     local d4 = n4 - n5
 
-    local rank = (n1 << 16) | (n2 << 12) | (n3 << 8) | (n4 << 4) | n5
+    local score = (n1 << 16) | (n2 << 12) | (n3 << 8) | (n4 << 4) | n5
     local is_flush = c1 == c2 and c2 == c3 and c3 == c4 and c4 == c5
     local is_straight = d1 == 1 and d2 == 1 and d3 == 1 and d4 == 1
 
     if n1 == 14 and n2 == 5 and n3 == 4 and n4 == 3 and n5 == 2 then
         is_straight = true -- A5432
-        rank = (1 << 16) | (n2 << 12) | (n3 << 8) | (n4 << 4) | n5
+        score = (1 << 16) | (n2 << 12) | (n3 << 8) | (n4 << 4) | n5
     end
 
-    local pattern = 0
+    local rank = 0
     if is_flush and is_straight then
         if n5 == 10 then
-            pattern = texas_pattern.ROYAL_FLUSH
+            rank = texas_rank.ROYAL_FLUSH
         else
-            pattern = texas_pattern.STRAIGHT_FLUSH
+            rank = texas_rank.STRAIGHT_FLUSH
         end
     elseif d1 == 0 and d2 == 0 and d3 == 0 then
-        pattern = texas_pattern.FOUR
+        rank = texas_rank.FOUR
     elseif d1 == 0 and d2 == 0 and d4 == 0 then
-        pattern = texas_pattern.FULLHOUSE
+        rank = texas_rank.FULLHOUSE
     elseif is_flush then
-        pattern = texas_pattern.FLUSH
+        rank = texas_rank.FLUSH
     elseif is_straight then
-        pattern = texas_pattern.STRAIGHT
+        rank = texas_rank.STRAIGHT
     elseif d1 == 0 and d2 == 0 then
-        pattern = texas_pattern.THREE
+        rank = texas_rank.THREE
     elseif d1 == 0 and d3 == 0 then
-        pattern = texas_pattern.TWO_PAIR
+        rank = texas_rank.TWO_PAIR
     elseif d1 == 0 then
-        pattern = texas_pattern.ONE_PAIR
+        rank = texas_rank.ONE_PAIR
     else
-        pattern = texas_pattern.HIGH_CARD
+        rank = texas_rank.HIGH_CARD
     end
     
-    return (pattern << 20) | rank
+    return (rank << 20) | score
 end
