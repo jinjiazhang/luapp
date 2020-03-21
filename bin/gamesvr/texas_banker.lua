@@ -74,6 +74,7 @@ function complex_assign( game, score_table )
         end
     end
 
+    -- todo: fold seat has chips left
     assert(hand.pot_chips == 0)
     return prize_table
 end
@@ -88,24 +89,28 @@ function assign_prize( game, seatids )
         end
     end
 
-    local pot_chips = 0
+    local prize_pot = 0
     for seatid, bet_chips in pairs(hand.hand_chips) do
         local cost_chips = math.min(bet_chips, min_chips)
-        pot_chips = pot_chips + cost_chips
+        prize_pot = prize_pot + cost_chips
         hand.pot_chips = hand.pot_chips - cost_chips
         hand.hand_chips[seatid] = bet_chips - cost_chips 
     end
 
-    local prizes = {}
-    local prize = pot_chips // #seatids
-    for _, seatid in ipairs(seatids) do
-        prizes[seatid] = prize
-        pot_chips = pot_chips - prize
+    if prize_pot == 0 then
+        return nil
     end
 
-    if pot_chips > 0 then -- odd chips
+    local prizes = {}
+    local prize = prize_pot // #seatids
+    for _, seatid in ipairs(seatids) do
+        prizes[seatid] = prize
+        prize_pot = prize_pot - prize
+    end
+
+    if prize_pot > 0 then -- odd chips
         sort_deal_seat(game, seatids)
-        for i = 1, pot_chips do
+        for i = 1, prize_pot do
             local seatid = seatids[i]
             prizes[seatid] = prizes[seatid] + 1 
         end
