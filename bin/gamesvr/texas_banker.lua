@@ -73,6 +73,8 @@ function complex_assign( game, score_table )
             end
         end
     end
+
+    assert(hand.pot_chips == 0)
     return prize_table
 end
 
@@ -90,6 +92,7 @@ function assign_prize( game, seatids )
     for seatid, bet_chips in pairs(hand.hand_chips) do
         local cost_chips = math.min(bet_chips, min_chips)
         pot_chips = pot_chips + cost_chips
+        hand.pot_chips = hand.pot_chips - cost_chips
         hand.hand_chips[seatid] = bet_chips - cost_chips 
     end
 
