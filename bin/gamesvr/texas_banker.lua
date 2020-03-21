@@ -55,8 +55,13 @@ function filter_winner( score_table )
     return seatids
 end
 
-function sort_deal_seat( game, seatids )
-
+function calc_deal_turn( game, seatid )
+    local button = game.current.button
+    if seatid > button then
+        return seatid - button
+    else
+        return seatid + texas.MAX_PLAYER_NUM - button
+    end
 end
 
 function complex_assign( game, score_table )
@@ -109,7 +114,10 @@ function assign_prize( game, seatids )
     end
 
     if prize_pot > 0 then -- odd chips
-        sort_deal_seat(game, seatids)
+        table.sort(seatids, function(a, b)
+            return calc_deal_turn(a) < calc_deal_turn(b)
+        end)
+
         for i = 1, prize_pot do
             local seatid = seatids[i]
             prizes[seatid] = prizes[seatid] + 1 
