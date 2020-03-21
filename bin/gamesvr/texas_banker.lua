@@ -18,9 +18,8 @@ end
 
 function simple_settle( game, incall_list )
     local hand = game.current
-    local winner = incall_list[1]
-    local prize_table = {}
-    prize_table[winner.seatid] = hand.pot_chips
+    local seatid = incall_list[1].seatid
+    local prize_table = {{[seatid] = hand.pot_chips}}
     return settle_prize(game, prize_table)
 end
 
@@ -42,25 +41,82 @@ function complex_settle( game, incall_list )
     return settle_prize(game, prize_table, card_table)
 end
 
-function complex_assign( game, score_table )
-    local hand = game.current
+function filter_winner( score_table )
+    local seatids = {}
     local max_score = 0
-    local winner_seatid = 0
     for seatid, score in pairs(score_table) do
         if score > max_score then
             max_score = score
-            winner_seatid = seatid
+            seatids = {seatid}
+        elseif score == max_score then
+            table.insert(seatids, seatid)
         end
     end
+    return seatids
+end
 
+function sort_deal_seat( game, seatids )
+
+end
+
+function complex_assign( game, score_table )
+    local hand = game.current
     local prize_table = {}
-    prize_table[winner_seatid] = hand.pot_chips
+    while next(score_table) do
+        local seatids = filter_winner(score_table)
+        local prizes = assign_prize(game, seatids)
+        table.insert(prize_table, prizes)
+
+        for _, seatid in ipairs(seatids) do
+            if hand.hand_chips[seatid] <= 0 then
+                score_table[seatid] = nil
+            end
+        end
+    end
     return prize_table
 end
 
+function assign_prize( game, seatids )
+    local hand = game.current
+    local min_chips = nil
+    for _, seatid in ipairs(seatids) do
+        local bet_chips = hand.hand_chips[seatid]
+        if min_chips == nil or bet_chips < min_chips then
+            min_chips = bet_chips
+        end
+    end
+
+    local pot_chips = 0
+    for seatid, bet_chips in pairs(hand.hand_chips) do
+        local cost_chips = math.min(bet_chips, min_chips)
+        pot_chips = pot_chips + cost_chips
+        hand.hand_chips[seatid] = bet_chips - cost_chips 
+    end
+
+    local prizes = {}
+    local prize = pot_chips // #seatids
+    for _, seatid in ipairs(seatids) do
+        prizes[seatid] = prize
+        pot_chips = pot_chips - prize
+    end
+
+    if pot_chips > 0 then -- odd chips
+        sort_deal_seat(game, seatids)
+        for i = 1, pot_chips do
+            local seatid = seatids[i]
+            prizes[seatid] = prizes[seatid] + 1 
+        end
+    end
+    return prizes
+end
+
 function settle_prize( game, prize_table, card_table )
-    for seatid, prize in pairs(prize_table) do
-        local player = game.seat_table[seatid]
-        player.chips = player.chips + prize
+    log_info("settle_prize", app.tostring(prize_table))
+    local hand = game.current
+    for _, prizes in ipairs(prize_table) do
+        for seatid, prize in pairs(prizes) do
+            local player = game.seat_table[seatid]
+            player.chips = player.chips + prize
+        end
     end
 end
