@@ -346,7 +346,9 @@ function on_ante_action( game )
 
 	local hand = game.current
 	for _, seat in ipairs(hand.ingame_seats) do
-		accept_action(game, seat.seatid, texas_act.ANTE, ante_chips, false)
+		local player = game.seat_table[seat.seatid]
+		local bet_chips = math.min(ante_chips, player.chips)
+		accept_action(game, seat.seatid, texas_act.ANTE, bet_chips, false)
 	end
 	return errno.SUCCESS
 end
@@ -356,12 +358,18 @@ function on_blind_action( game )
 	local small_blind = game.option.small_blind
 	local small_seat = table.remove(hand.ingame_seats, 1)
 	table.insert(hand.ingame_seats, small_seat)
-	accept_action(game, small_seat.seatid, texas_act.SMALL_BLIND, small_blind, false)
+
+	local player = game.seat_table[small_seat.seatid]
+	local bet_chips = math.min(small_blind, player.chips)
+	accept_action(game, small_seat.seatid, texas_act.SMALL_BLIND, bet_chips, false)
 
 	local big_blind = game.option.big_blind
 	local big_seat = table.remove(hand.ingame_seats, 1)
 	table.insert(hand.ingame_seats, big_seat)
-	accept_action(game, big_seat.seatid, texas_act.BIG_BLIND, big_blind, false)
+
+	local player = game.seat_table[big_seat.seatid]
+	local bet_chips = math.min(big_blind, player.chips)
+	accept_action(game, big_seat.seatid, texas_act.BIG_BLIND, bet_chips, false)
 
 	hand.first_bet = game.option.big_blind
 	hand.last_raise = game.option.big_blind
