@@ -153,7 +153,7 @@ function net.cs_texas_start_req( roleid )
 		return
 	end
 
-	if #game.players < MIN_PLAYER_NUM then
+	if not dealer.can_start_hand(game) then
 		airport.call_client(roleid, "cs_texas_start_rsp", errno.TEXAS_PLAYER_NUM)
 		return
 	end

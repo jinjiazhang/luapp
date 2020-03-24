@@ -2,7 +2,9 @@ banker = import("gamesvr/texas_banker.lua")
 
 function tick_game( game )
 	if not game.current then
-		start_new_hand(game)
+		if can_start_hand(game) then
+			start_new_hand(game)
+		end
 	else
 		tick_cur_hand(game)
 	end
@@ -62,6 +64,18 @@ function tick_after_action( game )
 	notify_cur_turn(game)
 end
 
+function can_start_hand( game )
+	local ready_count = 0
+	for seatid = 1, texas.MAX_PLAYER_NUM do
+		local player = game.seat_table[seatid]
+		if player ~= nil and player.chips > 0 then
+			ready_count = ready_count + 1
+		end
+	end
+
+	return ready_count >= texas.MIN_PLAYER_NUM
+end
+
 function start_new_hand( game )
 	local option = game.option
 	local hand = proto.create("texas_hand")
@@ -115,7 +129,7 @@ function init_ingame_seats( game )
 	local deal_order = {}
 	for seatid = 1, texas.MAX_PLAYER_NUM do
 		local player = game.seat_table[seatid]
-		if player ~= nil then
+		if player ~= nil and player.chips > 0 then
 			table.insert(deal_order, seatid)
 		end
 	end
