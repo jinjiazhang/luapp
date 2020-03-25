@@ -68,7 +68,7 @@ function can_start_hand( game )
 	local ready_count = 0
 	for seatid = 1, texas.MAX_PLAYER_NUM do
 		local player = game.seat_table[seatid]
-		if player ~= nil and player.chips > 0 then
+		if player and player.chips > 0 then
 			ready_count = ready_count + 1
 		end
 	end
@@ -129,7 +129,7 @@ function init_ingame_seats( game )
 	local deal_order = {}
 	for seatid = 1, texas.MAX_PLAYER_NUM do
 		local player = game.seat_table[seatid]
-		if player ~= nil and player.chips > 0 then
+		if player and player.chips > 0 then
 			table.insert(deal_order, seatid)
 		end
 	end
@@ -347,7 +347,7 @@ function on_ante_action( game )
 	local hand = game.current
 	for _, seat in ipairs(hand.ingame_seats) do
 		local player = game.seat_table[seat.seatid]
-		if player ~= nil and player.chips > 0 then
+		if player and player.chips > 0 then
 			local bet_chips = math.min(ante_chips, player.chips)
 			accept_action(game, seat.seatid, texas_act.ANTE, bet_chips, false)
 			if player.chips == 0 then
@@ -366,7 +366,7 @@ function on_blind_action( game )
 	table.insert(hand.ingame_seats, small_seat)
 
 	local player = game.seat_table[small_seat.seatid]
-	if player ~= nil and player.chips > 0 then
+	if player and player.chips > 0 then
 		local bet_chips = math.min(small_blind, player.chips)
 		accept_action(game, small_seat.seatid, texas_act.SMALL_BLIND, bet_chips, false)
 		if player.chips == 0 then
@@ -380,7 +380,7 @@ function on_blind_action( game )
 	table.insert(hand.ingame_seats, big_seat)
 
 	local player = game.seat_table[big_seat.seatid]
-	if player ~= nil and player.chips > 0 then
+	if player and player.chips > 0 then
 		local bet_chips = math.min(big_blind, player.chips)
 		accept_action(game, big_seat.seatid, texas_act.BIG_BLIND, bet_chips, false)
 		if player.chips == 0 then
