@@ -80,3 +80,8 @@ function net.cs_texas_turn_ntf( roomid, hand_idx, seatid )
 	-- log_debug("cs_texas_turn_ntf", roomid, hand_idx, seatid)
 	on_recv_notify("texas_turn", roomid, hand_idx, seatid)
 end
+
+function net.cs_texas_settle_ntf( roomid, hand_idx, report )
+	log_debug("cs_texas_settle_ntf", roomid, hand_idx, app.tostring(report))
+	on_recv_notify("texas_settle", roomid, hand_idx, report)
+end

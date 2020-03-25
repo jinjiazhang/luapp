@@ -191,6 +191,28 @@ message texas_detail {
 	}
 }
 
+message texas_settle {
+	message cards_info {
+		int32 seatid = 1;
+		int32 card1 = 2;
+		int32 card2 = 3;
+		int32 rank = 4;
+		repeated int32 max_cards = 5;
+	}
+
+	message prize_list {
+		message prize_info {
+			int32 seatid = 1;
+			int32 prize = 2;
+			int32 chips = 3;
+		}
+		repeated prize_info prize_list = 1;
+	}
+	
+	repeated cards_info cards_list = 1;
+	repeated prize_list prize_lists = 2;
+}
+
 message texas_brief {
 
 }

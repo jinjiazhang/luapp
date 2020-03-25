@@ -20,8 +20,8 @@ function simple_settle( game, incall_list )
     local hand = game.current
     local seatid = incall_list[1].seatid
     local prize_table = {{[seatid] = hand.pot_chips}}
-    local prize_list = settle_prize(game, prize_table)
-    return notify_report(game, prize_list, {})
+    local prize_lists = settle_prize(game, prize_table)
+    return notify_settle(game, prize_lists, {})
 end
 
 function complex_settle( game, incall_list )
@@ -47,8 +47,8 @@ function complex_settle( game, incall_list )
     end
 
     local prize_table = complex_assign(game, score_table)
-    local prize_list = settle_prize(game, prize_table)
-    return notify_report(game, prize_list, cards_list)
+    local prize_lists = settle_prize(game, prize_table)
+    return notify_settle(game, prize_lists, cards_list)
 end
 
 function filter_winner( score_table )
@@ -137,23 +137,30 @@ end
 
 function settle_prize( game, prize_table )
     local hand = game.current
-    local prize_list = {}
+    local prize_lists = {}
     for _, prizes in ipairs(prize_table) do
-        table.insert(prize_list, {})
+        local prize_list = {}
         for seatid, prize in pairs(prizes) do
             local player = game.seat_table[seatid]
             player.chips = player.chips + prize
-            table.insert(prize_list[#prize_list], {
+            table.insert(prize_list, {
                 seatid = seatid,
                 prize = prize,
                 chips = player.chips,
             })
         end
+        table.insert(prize_lists, {prize_list = prize_list})
     end
-    return prize_list
+    return prize_lists
 end
 
-function notify_report( game, prize_list, cards_list )
+function notify_settle( game, prize_lists, cards_list )
     log_info("cards_list", app.tostring(cards_list))
-    log_info("prize_list", app.tostring(prize_list))
+    log_info("prize_lists", app.tostring(prize_lists))
+    local hand = game.current
+    local report = {
+        cards_list = cards_list,
+        prize_lists = prize_lists,
+    }
+    game.broadcast(0, "cs_texas_settle_ntf", game.roomid, hand.index, report)
 end
