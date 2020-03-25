@@ -20,25 +20,35 @@ function simple_settle( game, incall_list )
     local hand = game.current
     local seatid = incall_list[1].seatid
     local prize_table = {{[seatid] = hand.pot_chips}}
-    return settle_prize(game, prize_table)
+    local prize_list = settle_prize(game, prize_table)
+    return notify_report(game, prize_list, {})
 end
 
 function complex_settle( game, incall_list )
     local hand = game.current
     local score_table = {}
-    local card_table = {}
+    local cards_list = {}
     for _, seat in ipairs(incall_list) do
         local cards = {seat.card1, seat.card2}
         for _, card in ipairs(hand.shared_cards) do
             table.insert(cards, card)
-        end        
+        end
+
         local max_score, max_cards = judge.calc_score_7(cards)
         score_table[seat.seatid] = max_score
-        card_table[seat.seatid] = max_cards
+        
+        table.insert(cards_list, {
+            seatid = seat.seatid,
+            card1 = seat.card1,
+            card2 = seat.card2,
+            max_cards = max_cards,
+            rank = judge.score_rank(max_score),
+        })
     end
 
     local prize_table = complex_assign(game, score_table)
-    return settle_prize(game, prize_table, card_table)
+    local prize_list = settle_prize(game, prize_table)
+    return notify_report(game, prize_list, cards_list)
 end
 
 function filter_winner( score_table )
@@ -79,7 +89,6 @@ function complex_assign( game, score_table )
         end
     end
 
-    -- todo: fold seat has chips left
     assert(hand.pot_chips == 0)
     return prize_table
 end
@@ -126,13 +135,25 @@ function assign_prize( game, seatids )
     return prizes
 end
 
-function settle_prize( game, prize_table, card_table )
-    log_info("settle_prize", app.tostring(prize_table))
+function settle_prize( game, prize_table )
     local hand = game.current
+    local prize_list = {}
     for _, prizes in ipairs(prize_table) do
+        table.insert(prize_list, {})
         for seatid, prize in pairs(prizes) do
             local player = game.seat_table[seatid]
             player.chips = player.chips + prize
+            table.insert(prize_list[#prize_list], {
+                seatid = seatid,
+                prize = prize,
+                chips = player.chips,
+            })
         end
     end
+    return prize_list
+end
+
+function notify_report( game, prize_list, cards_list )
+    log_info("cards_list", app.tostring(cards_list))
+    log_info("prize_list", app.tostring(prize_list))
 end

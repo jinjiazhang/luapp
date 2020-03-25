@@ -46,6 +46,10 @@ function card_string( cards )
     return table.concat(names, " ")
 end
 
+function score_rank( score )
+    return score >> 20
+end
+
 function calc_score_7( cards )
     local max_score = 0
     local max_cards = nil
