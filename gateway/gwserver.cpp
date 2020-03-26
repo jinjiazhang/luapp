@@ -92,8 +92,10 @@ void gwserver::on_package(int number, char* data, int len)
     case gwm_type::remote_call:
         on_remote_call(number, data, len);
         break;
-    case gwm_type::close_session:
-        on_close_session(number, data, len);
+    case gwm_type::start_session:
+        on_start_session(number, data, len);
+    case gwm_type::stop_session:
+        on_stop_session(number, data, len);
         break;
     case gwm_type::transmit_data:
         on_transmit_data(number, data, len);
@@ -137,7 +139,12 @@ void gwserver::on_remote_call(int number, char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-void gwserver::on_close_session(int number, char* data, int len)
+void gwserver::on_start_session(int number, char* data, int len)
+{
+
+}
+
+void gwserver::on_stop_session(int number, char* data, int len)
 {
 
 }

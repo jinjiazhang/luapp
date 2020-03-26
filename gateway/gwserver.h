@@ -29,7 +29,8 @@ private:
 
     void on_reg_svrid(int number, char* data, int len);
     void on_remote_call(int number, char* data, int len);
-    void on_close_session(int number, char* data, int len);
+    void on_start_session(int number, char* data, int len);
+    void on_stop_session(int number, char* data, int len);
     void on_transmit_data(int number, char* data, int len);
     void on_broadcast_data(int number, char* data, int len);
 

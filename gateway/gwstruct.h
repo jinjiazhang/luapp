@@ -11,7 +11,8 @@ enum gwm_type
     remote_call,
     session_start,
     session_stop,
-    close_session,
+    start_session,
+    stop_session,
     transmit_data,
     broadcast_data,
 };
@@ -42,7 +43,12 @@ struct gwm_session_stop : gwm_head
 
 };
 
-struct gwm_close_session : gwm_head
+struct gwm_start_session : gwm_head
+{
+
+};
+
+struct gwm_stop_session : gwm_head
 {
 
 };
