@@ -1,5 +1,6 @@
 #include "gwserver.h"
 #include "gateway.h"
+#include "gwproxy.h"
 #include "protolua/protolua.h"
 
 gwserver::gwserver(lua_State* L, svrid_t svrid) : lobject(L)
@@ -44,6 +45,26 @@ svrid_t gwserver::num_to_svrid(int number)
     if (it == num_svrid_map_.end())
     {
         return 0;
+    }
+    return it->second;
+}
+
+svrid_t gwserver::connid_to_svrid(connid_t connid)
+{
+    conn_svrid_map::iterator it = conn_svrid_map_.find(connid);
+    if (it == conn_svrid_map_.end())
+    {
+        return 0;
+    }
+    return it->second;
+}
+
+gwproxy* gwserver::connid_to_proxy(connid_t connid)
+{
+    conn_proxy_map::iterator it = conn_proxy_map_.find(connid);
+    if (it == conn_proxy_map_.end())
+    {
+        return nullptr;
     }
     return it->second;
 }
@@ -141,22 +162,69 @@ void gwserver::on_remote_call(int number, char* data, int len)
 
 void gwserver::on_start_session(int number, char* data, int len)
 {
+    gwm_start_session* msg = (gwm_start_session*)data;
+    data += sizeof(gwm_start_session);
+    len -= sizeof(gwm_start_session);
 
+    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    gwproxy* proxy = connid_to_proxy(msg->connid);
+    if (proxy == nullptr)
+    {
+        return;
+    }
+    proxy->start_session(msg->connid);
 }
 
 void gwserver::on_stop_session(int number, char* data, int len)
 {
+    gwm_stop_session* msg = (gwm_stop_session*)data;
+    data += sizeof(gwm_stop_session);
+    len -= sizeof(gwm_stop_session);
 
+    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    gwproxy* proxy = connid_to_proxy(msg->connid);
+    if (proxy == nullptr)
+    {
+        return;
+    }
+    proxy->stop_session(msg->connid);
 }
 
 void gwserver::on_transmit_data(int number, char* data, int len)
 {
+    gwm_transmit_data* msg = (gwm_transmit_data*)data;
+    data += sizeof(gwm_transmit_data);
+    len -= sizeof(gwm_transmit_data);
 
+    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    gwproxy* proxy = connid_to_proxy(msg->connid);
+    if (proxy == nullptr)
+    {
+        return;
+    }
+    proxy->send(msg->connid, data, len);
 }
 
 void gwserver::on_broadcast_data(int number, char* data, int len)
 {
+    gwm_broadcast_data* msg = (gwm_broadcast_data*)data;
+    data += sizeof(gwm_broadcast_data);
+    len -= sizeof(gwm_broadcast_data);
 
+    connid_t* connids = (connid_t*)data;
+    data += sizeof(msg->count * sizeof(connid_t));
+    len -= sizeof(msg->count * sizeof(connid_t));
+
+    for (int i = 0; i < msg->count; i++)
+    {
+        assert(connid_to_svrid(connids[i]) == num_to_svrid(number));
+        gwproxy* proxy = connid_to_proxy(connids[i]);
+        if (proxy == nullptr)
+        {
+            continue;
+        }
+        proxy->send(connids[i], data, len);
+    }   
 }
 
 int gwserver::close(lua_State* L)

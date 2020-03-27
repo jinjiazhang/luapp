@@ -15,6 +15,9 @@ public:
 
     int number();
     bool init(gateway* manager, int number);
+    void send(int connid, const void* data, int len);
+    void start_session(int connid);
+    void stop_session(int connid);
 
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();

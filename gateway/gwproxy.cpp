@@ -28,6 +28,21 @@ bool gwproxy::init(gateway* manager, int number)
     return true;
 }
 
+void gwproxy::send(int connid, const void* data, int len)
+{
+    network_->send(connid, data, len);
+}
+
+void gwproxy::start_session(int connid)
+{
+
+}
+
+void gwproxy::stop_session(int connid)
+{
+
+}
+
 void gwproxy::on_accept(int number, int error)
 {
     luaL_callfunc(L, this, "on_accept", number, error);
