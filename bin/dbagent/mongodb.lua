@@ -4,7 +4,7 @@ mongo_callbacks = mongo_callbacks or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	_mongo = mongo.create_pool("mongodb://jinjiazh.com:27017", 5)
+	_mongo = mongo.create_pool(config.mongo_url, 5)
 	_mongo.on_respond = on_respond
 	copool.fork(init_schema)
 end

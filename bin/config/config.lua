@@ -1,5 +1,7 @@
--- 服务器配置
 module = "config"
+
+mongo_url = "mongodb://jinjiazh.com:27017"
+-- mongo_url = "mongodb://9.134.11.29:27017"
 
 redis_ip = "jinjiazh.com"
 redis_port = 6379
