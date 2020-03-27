@@ -19,12 +19,16 @@ public:
     bool init(gateway* manager, int number);
 
     int close(lua_State* L);
+    int start(lua_State* L);
+    int stop(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
     virtual void on_closed(int number, int error);
     virtual void on_package(int number, char* data, int len);
 
+    void reg_connid(connid_t connid, gwproxy* proxy);
+    void unreg_connid(connid_t connid);
     bool is_accepted(connid_t connid);
     void transmit_data(connid_t connid, char* data, int len);
 

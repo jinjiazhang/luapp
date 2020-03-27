@@ -45,12 +45,14 @@ void gwproxy::stop_session(int connid)
 
 void gwproxy::on_accept(int number, int error)
 {
+    server_->reg_connid(number, this);
     luaL_callfunc(L, this, "on_accept", number, error);
 }
 
 void gwproxy::on_closed(int number, int error)
 {
     luaL_callfunc(L, this, "on_close", number, error);
+    server_->unreg_connid(number);
 }
 
 void gwproxy::on_package(int number, char* data, int len)

@@ -74,6 +74,16 @@ gwproxy* gwserver::connid_to_proxy(connid_t connid)
     return it->second;
 }
 
+void gwserver::reg_connid(connid_t connid, gwproxy* proxy)
+{
+    conn_proxy_map_[connid] = proxy;
+}
+
+void gwserver::unreg_connid(connid_t connid)
+{
+    conn_proxy_map_.erase(connid);
+}
+
 bool gwserver::is_accepted(connid_t connid)
 {
     return conn_svrid_map_.find(connid) != conn_svrid_map_.end();
@@ -216,7 +226,10 @@ void gwserver::on_stop_session(int number, char* data, int len)
     {
         return;
     }
+
     proxy->stop_session(msg->connid);
+    conn_svrid_map_.erase(msg->connid);
+    conn_proxy_map_.erase(msg->connid);
 }
 
 void gwserver::on_transmit_data(int number, char* data, int len)
@@ -229,6 +242,7 @@ void gwserver::on_transmit_data(int number, char* data, int len)
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
+        // log_warn
         return;
     }
     proxy->send(msg->connid, data, len);
@@ -253,6 +267,7 @@ void gwserver::on_broadcast_data(int number, char* data, int len)
         gwproxy* proxy = connid_to_proxy(connid);
         if (proxy == nullptr)
         {
+            // log_warn
             continue;
         }
         proxy->send(connid, data, len);
@@ -275,6 +290,7 @@ void gwserver::on_multicast_data(int number, char* data, int len)
         gwproxy* proxy = connid_to_proxy(connids[i]);
         if (proxy == nullptr)
         {
+            // log_warn
             continue;
         }
         proxy->send(connids[i], data, len);
@@ -286,11 +302,62 @@ int gwserver::close(lua_State* L)
     return 0;
 }
 
+int gwserver::start(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+    connid_t connid = luaL_getvalue<connid_t>(L, 1);
+    svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
+    
+    assert(connid_to_svrid(connid) == 0);
+    int number = svrid_to_num(svrid);
+    if (number == 0)
+    {
+        // log_error
+        return 0;
+    }
+
+    conn_svrid_map_[connid] = svrid;
+
+    gwm_session_start msg;
+    msg.msg_type = gwm_type::session_start;
+    msg.connid = connid;
+    network_->send(number, &msg, sizeof(msg));
+    return 0;
+}
+
+int gwserver::stop(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    connid_t connid = luaL_getvalue<connid_t>(L, 1);
+    svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
+
+    assert(connid_to_svrid(connid) == svrid);
+    int number = svrid_to_num(svrid);
+    if (number == 0)
+    {
+        // log_error
+        return 0;
+    }
+
+    conn_svrid_map_.erase(connid);
+
+    gwm_session_stop msg;
+    msg.msg_type = gwm_type::session_stop;
+    msg.connid = connid;
+    network_->send(number, &msg, sizeof(msg));
+    return 0;
+}
+
 EXPORT_OFUNC(gwserver, close)
+EXPORT_OFUNC(gwserver, start)
+EXPORT_OFUNC(gwserver, stop)
 const luaL_Reg* gwserver::get_libs()
 {
     static const luaL_Reg libs[] = {
     	{ IMPORT_OFUNC(gwserver, close) },
+        { IMPORT_OFUNC(gwserver, start) },
+        { IMPORT_OFUNC(gwserver, stop) },
         { NULL, NULL }
     };
     return libs;
