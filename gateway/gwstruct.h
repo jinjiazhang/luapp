@@ -3,6 +3,7 @@
 
 typedef unsigned int            svrid_t;
 typedef unsigned long long      roleid_t;
+typedef unsigned int            connid_t;
 
 enum gwm_type
 {
@@ -35,32 +36,32 @@ struct gwm_remote_call : gwm_head
 
 struct gwm_session_start : gwm_head
 {
-
+    connid_t connid;
 };
 
 struct gwm_session_stop : gwm_head
 {
-
+    connid_t connid;
 };
 
 struct gwm_start_session : gwm_head
 {
-
+    connid_t connid;
 };
 
 struct gwm_stop_session : gwm_head
 {
-
+    connid_t connid;
 };
 
 struct gwm_transmit_data : gwm_head
 {
-
+    connid_t connid;
 };
 
 struct gwm_broadcast_data : gwm_head
 {
-
+    int count;
 };
 
 #pragma pack()

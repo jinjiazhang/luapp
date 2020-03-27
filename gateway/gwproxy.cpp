@@ -30,7 +30,7 @@ bool gwproxy::init(gateway* manager, int number)
 
 void gwproxy::on_accept(int number, int error)
 {
-
+    luaL_callfunc(L, this, "on_accept", number, error);
 }
 
 void gwproxy::on_closed(int number, int error)

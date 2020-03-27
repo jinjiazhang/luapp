@@ -113,17 +113,48 @@ void gwclient::on_remote_call(char* data, int len)
 
 void gwclient::on_session_start(char* data, int len)
 {
+    gwm_session_start* msg = (gwm_session_start*)data;
+    data += sizeof(gwm_session_start);
+    len -= sizeof(gwm_session_start);
 
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_start");
+    luaL_pushvalue(L, msg->connid);
+    lua_pushlstring(L, data, len);
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 void gwclient::on_session_stop(char* data, int len)
 {
+    gwm_session_stop* msg = (gwm_session_stop*)data;
+    data += sizeof(gwm_session_stop);
+    len -= sizeof(gwm_session_stop);
 
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_stop");
+    luaL_pushvalue(L, msg->connid);
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 void gwclient::on_transmit_data(char* data, int len)
 {
+    gwm_transmit_data* msg = (gwm_transmit_data*)data;
+    data += sizeof(gwm_transmit_data);
+    len -= sizeof(gwm_transmit_data);
 
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_transmit");
+    luaL_pushvalue(L, msg->connid);
+
+    if (!message_unpack(L, data, len))
+    {
+        lua_settop(L, top);
+        return;
+    }
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 int gwclient::close(lua_State* L)
@@ -131,11 +162,102 @@ int gwclient::close(lua_State* L)
     return 0;
 }
 
+int gwclient::start(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    connid_t connid = luaL_getvalue<connid_t>(L, 1);
+    gwm_start_session msg;
+    msg.msg_type = gwm_type::start_session;
+    msg.connid = connid;
+    network_->send(number_, &msg, sizeof(msg));
+    return 0;
+}
+
+int gwclient::stop(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    connid_t connid = luaL_getvalue<connid_t>(L, 1);
+    gwm_stop_session msg;
+    msg.msg_type = gwm_type::stop_session;
+    msg.connid = connid;
+    network_->send(number_, &msg, sizeof(msg));
+    return 0;
+}
+
+static char buffer[PROTO_BUFFER_SIZE];
+int gwclient::transmit(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TNUMBER);
+    connid_t connid = luaL_getvalue<connid_t>(L, 1);
+
+    int top = lua_gettop(L);
+    size_t len = sizeof(buffer);
+    if (!message_pack(L, 2, top, buffer, &len))
+    {
+        return 0;
+    }
+
+    gwm_transmit_data head;
+    head.msg_type = gwm_type::transmit_data;
+    head.connid = connid;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { &buffer, (int)len };
+    network_->sendv(number_, bufs, 2);
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+int gwclient::broadcast(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    int count = (int)luaL_len(L, 1);
+
+    std::vector<connid_t> connids(count);
+    for (int i = 0; i < count; i++)
+    {
+        lua_geti(L, 1, i + 1);
+        luaL_checktype(L, -1, LUA_TNUMBER);
+        connids[i] = luaL_getvalue<connid_t>(L, -1);
+        lua_pop(L, 1);
+    }
+
+    int top = lua_gettop(L);
+    size_t len = sizeof(buffer);
+    if (!message_pack(L, 2, top, buffer, &len))
+    {
+        return 0;
+    }
+
+    gwm_broadcast_data head;
+    head.msg_type = gwm_type::broadcast_data;
+    head.count = count;
+
+    iobuf bufs[3];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { (char*)connids.data(), count * (int)sizeof(connid_t) };
+    bufs[2] = { &buffer, (int)len };
+    network_->sendv(number_, bufs, 2);
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
 EXPORT_OFUNC(gwclient, close)
+EXPORT_OFUNC(gwclient, start)
+EXPORT_OFUNC(gwclient, stop)
+EXPORT_OFUNC(gwclient, transmit)
+EXPORT_OFUNC(gwclient, broadcast)
 const luaL_Reg* gwclient::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(gwclient, close) },
+        { IMPORT_OFUNC(gwclient, start) },
+        { IMPORT_OFUNC(gwclient, stop) },
+        { IMPORT_OFUNC(gwclient, transmit) },
+        { IMPORT_OFUNC(gwclient, broadcast) },
         { NULL, NULL }
     };
     return libs;

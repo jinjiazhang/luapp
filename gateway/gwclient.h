@@ -16,6 +16,10 @@ public:
     bool init(gateway* manager, int number);
 
     int close(lua_State* L);
+    int start(lua_State* L);
+    int stop(lua_State* L);
+    int transmit(lua_State* L);
+    int broadcast(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
     virtual void on_accept(int number, int error);
