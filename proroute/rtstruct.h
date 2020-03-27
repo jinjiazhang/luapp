@@ -5,7 +5,7 @@ typedef unsigned int            svrid_t;
 typedef unsigned int            group_t;
 typedef unsigned long long      roleid_t;
 
-enum rtm_type
+enum class rtm_type : unsigned char
 {
     invalid = 0,
     reg_svrid,
@@ -22,7 +22,7 @@ enum rtm_type
 #pragma pack(1)
 struct rtm_head
 {
-    unsigned char msg_type;
+    rtm_type msg_type;
 };
 
 struct rtm_reg_svrid : rtm_head

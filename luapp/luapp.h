@@ -7,6 +7,7 @@
 #include "luamysql/luamysql.h"
 #include "protonet/lnetwork.h"
 #include "proroute/routermgr.h"
+#include "gateway/gateway.h"
 #include "lhttp.h"
 #include "ltimer.h"
 
@@ -60,6 +61,7 @@ private:
     luamysql* luamysql_;
     luamongo* luamongo_;
     routermgr* routermgr_;
+    gateway* gateway_;
 };
 
 extern const char* assist_code;

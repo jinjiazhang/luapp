@@ -19,6 +19,7 @@ luapp::luapp(lua_State* L) : lobject(L)
     luamongo_ = nullptr;
     luamysql_ = nullptr;
     routermgr_ = nullptr;
+    gateway_ = nullptr;
 }
 
 luapp::~luapp()
@@ -37,6 +38,8 @@ luapp::~luapp()
         delete luamysql_;
     if (routermgr_)
         delete routermgr_;
+    if (gateway_)
+        delete gateway_;
     if (network_) 
         network_->release();
 }
@@ -135,6 +138,10 @@ int luapp::init()
     routermgr_ = new routermgr(L, network_, svrid_);
     lua_pushlobject(L, routermgr_);
     lua_setglobal(L, "route");
+
+    gateway_ = new gateway(L, network_, svrid_);
+    lua_pushlobject(L, gateway_);
+    lua_setglobal(L, "gateway");
 
     luaL_dostring(L, assist_code);
     if (!luaL_callfunc(L, this, "import", ctx_->entry))

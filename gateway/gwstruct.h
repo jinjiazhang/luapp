@@ -5,7 +5,7 @@ typedef unsigned int            svrid_t;
 typedef unsigned long long      roleid_t;
 typedef unsigned int            connid_t;
 
-enum gwm_type
+enum class gwm_type : unsigned char
 {
     invalid = 0,
     reg_svrid,
@@ -22,7 +22,7 @@ enum gwm_type
 #pragma pack(1)
 struct gwm_head
 {
-    unsigned char msg_type;
+    gwm_type msg_type;
 };
 
 struct gwm_reg_svrid : gwm_head
