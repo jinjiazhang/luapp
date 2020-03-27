@@ -74,6 +74,26 @@ gwproxy* gwserver::connid_to_proxy(connid_t connid)
     return it->second;
 }
 
+bool gwserver::is_accepted(connid_t connid)
+{
+    return conn_svrid_map_.find(connid) != conn_svrid_map_.end();
+}
+
+void gwserver::transmit_data(connid_t connid, char* data, int len)
+{
+    gwm_transmit_data head;
+    head.msg_type = gwm_type::transmit_data;
+    head.connid = connid;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { data, len };
+
+    svrid_t svrid = connid_to_svrid(connid);
+    int number = svrid_to_num(svrid);
+    network_->sendv(number, bufs, 2);
+}
+
 void gwserver::on_accept(int number, int error)
 {
     if (error != 0)

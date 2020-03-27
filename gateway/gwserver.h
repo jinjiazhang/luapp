@@ -25,6 +25,9 @@ public:
     virtual void on_closed(int number, int error);
     virtual void on_package(int number, char* data, int len);
 
+    bool is_accepted(connid_t connid);
+    void transmit_data(connid_t connid, char* data, int len);
+
 private:
     svrid_t num_to_svrid(int number);
     int svrid_to_num(svrid_t svrid);

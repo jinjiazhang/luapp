@@ -40,7 +40,7 @@ void gwproxy::start_session(int connid)
 
 void gwproxy::stop_session(int connid)
 {
-
+    network_->close(connid);
 }
 
 void gwproxy::on_accept(int number, int error)
@@ -50,12 +50,28 @@ void gwproxy::on_accept(int number, int error)
 
 void gwproxy::on_closed(int number, int error)
 {
-
+    luaL_callfunc(L, this, "on_close", number, error);
 }
 
 void gwproxy::on_package(int number, char* data, int len)
 {
+    if (server_->is_accepted(number))
+    {
+        server_->transmit_data(number, data, len);
+        return;
+    }
 
+    int top = lua_gettop(L);
+    luaL_pushfunc(L, this, "on_message");
+    luaL_pushvalue(L, number);
+
+    if (!message_unpack(L, data, len))
+    {
+        lua_settop(L, top);
+        return;
+    }
+    int nargs = lua_gettop(L) - top - 1;
+    luaL_safecall(L, nargs, 0);
 }
 
 int gwproxy::close(lua_State* L)
