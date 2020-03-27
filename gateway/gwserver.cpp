@@ -297,6 +297,26 @@ void gwserver::on_multicast_data(int number, char* data, int len)
     }
 }
 
+int gwserver::open(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TSTRING);
+    const char* ip = luaL_getvalue<const char*>(L, 1);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+    int port = luaL_getvalue<int>(L, 2);
+
+    gwproxy* proxy = new gwproxy(this->L, svrid_);
+    int number = network_->listen(proxy, ip, port);
+    if (number <= 0)
+    {
+        delete proxy;
+        return 0;
+    }
+
+    proxy->init(this, number);
+    lua_pushlobject(L, proxy);
+    return 1;
+}
+
 int gwserver::close(lua_State* L)
 {
     return 0;
@@ -349,12 +369,14 @@ int gwserver::stop(lua_State* L)
     return 0;
 }
 
+EXPORT_OFUNC(gwserver, open)
 EXPORT_OFUNC(gwserver, close)
 EXPORT_OFUNC(gwserver, start)
 EXPORT_OFUNC(gwserver, stop)
 const luaL_Reg* gwserver::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { IMPORT_OFUNC(gwserver, open) },
     	{ IMPORT_OFUNC(gwserver, close) },
         { IMPORT_OFUNC(gwserver, start) },
         { IMPORT_OFUNC(gwserver, stop) },

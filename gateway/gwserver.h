@@ -18,6 +18,7 @@ public:
     inetwork* network();
     bool init(gateway* manager, int number);
 
+    int open(lua_State* L);
     int close(lua_State* L);
     int start(lua_State* L);
     int stop(lua_State* L);
