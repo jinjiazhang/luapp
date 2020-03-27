@@ -16,6 +16,7 @@ enum gwm_type
     stop_session,
     transmit_data,
     broadcast_data,
+    multicast_data,
 };
 
 #pragma pack(1)
@@ -60,6 +61,11 @@ struct gwm_transmit_data : gwm_head
 };
 
 struct gwm_broadcast_data : gwm_head
+{
+
+};
+
+struct gwm_multicast_data : gwm_head
 {
     int count;
 };

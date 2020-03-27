@@ -115,6 +115,7 @@ void gwserver::on_package(int number, char* data, int len)
         break;
     case gwm_type::start_session:
         on_start_session(number, data, len);
+        break;
     case gwm_type::stop_session:
         on_stop_session(number, data, len);
         break;
@@ -123,6 +124,9 @@ void gwserver::on_package(int number, char* data, int len)
         break;
     case gwm_type::broadcast_data:
         on_broadcast_data(number, data, len);
+        break;
+    case gwm_type::multicast_data:
+        on_multicast_data(number, data, len);
         break;
     default:
         log_error("gwserver::on_package msg_type =%d invalid", head->msg_type);
@@ -211,6 +215,31 @@ void gwserver::on_broadcast_data(int number, char* data, int len)
     data += sizeof(gwm_broadcast_data);
     len -= sizeof(gwm_broadcast_data);
 
+    svrid_t svrid = num_to_svrid(number);
+    conn_svrid_map::iterator it = conn_svrid_map_.begin();
+    for (; it != conn_svrid_map_.end(); ++it)
+    {
+        if (it->second != svrid)
+        {
+            continue;
+        }
+
+        connid_t connid = it->first;
+        gwproxy* proxy = connid_to_proxy(connid);
+        if (proxy == nullptr)
+        {
+            continue;
+        }
+        proxy->send(connid, data, len);
+    }   
+}
+
+void gwserver::on_multicast_data(int number, char* data, int len)
+{
+    gwm_multicast_data* msg = (gwm_multicast_data*)data;
+    data += sizeof(gwm_multicast_data);
+    len -= sizeof(gwm_multicast_data);
+
     connid_t* connids = (connid_t*)data;
     data += sizeof(msg->count * sizeof(connid_t));
     len -= sizeof(msg->count * sizeof(connid_t));
@@ -224,7 +253,7 @@ void gwserver::on_broadcast_data(int number, char* data, int len)
             continue;
         }
         proxy->send(connids[i], data, len);
-    }   
+    }
 }
 
 int gwserver::close(lua_State* L)

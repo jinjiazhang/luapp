@@ -36,6 +36,7 @@ private:
     void on_stop_session(int number, char* data, int len);
     void on_transmit_data(int number, char* data, int len);
     void on_broadcast_data(int number, char* data, int len);
+    void on_multicast_data(int number, char* data, int len);
 
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;

@@ -212,6 +212,27 @@ int gwclient::transmit(lua_State* L)
 
 int gwclient::broadcast(lua_State* L)
 {
+    int top = lua_gettop(L);
+    size_t len = sizeof(buffer);
+    if (!message_pack(L, 1, top, buffer, &len))
+    {
+        return 0;
+    }
+
+    gwm_broadcast_data head;
+    head.msg_type = gwm_type::broadcast_data;
+
+    iobuf bufs[2];
+    bufs[0] = { &head, sizeof(head) };
+    bufs[1] = { &buffer, (int)len };
+    network_->sendv(number_, bufs, 2);
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+int gwclient::multicast(lua_State* L)
+{
     luaL_checktype(L, 1, LUA_TTABLE);
     int count = (int)luaL_len(L, 1);
 
@@ -231,8 +252,8 @@ int gwclient::broadcast(lua_State* L)
         return 0;
     }
 
-    gwm_broadcast_data head;
-    head.msg_type = gwm_type::broadcast_data;
+    gwm_multicast_data head;
+    head.msg_type = gwm_type::multicast_data;
     head.count = count;
 
     iobuf bufs[3];
