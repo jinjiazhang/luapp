@@ -42,7 +42,7 @@ end
 function __index_ss( ss, key )
 	if proto.exist(key) then
 		ss[key] = function ( ... )
-			net.call(ss.number, key, ...)
+			server.call_client(ss.number, key, ...)
 		end
 		return ss[key]
 	end

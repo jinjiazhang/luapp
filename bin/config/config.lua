@@ -16,8 +16,11 @@ dbagent_port = 6571
 router_ip = "127.0.0.1"
 router_port = 6572
 
-lobby_ip = "0.0.0.0"
-lobby_port = 6573
+gateway_ip = "127.0.0.1"
+gateway_port = 6573
+
+proxy_ip = "0.0.0.0"
+proxy_port = 6575
 
 support_mode = 1
 

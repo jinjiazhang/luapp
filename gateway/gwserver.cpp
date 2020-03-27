@@ -339,11 +339,27 @@ int gwserver::start(lua_State* L)
 
     conn_svrid_map_[connid] = svrid;
 
-    gwm_session_start msg;
-    msg.msg_type = gwm_type::session_start;
-    msg.connid = connid;
-    network_->send(number, &msg, sizeof(msg));
-    return 0;
+    gwm_session_start head;
+    head.msg_type = gwm_type::session_start;
+    head.connid = connid;
+
+    if (lua_isnil(L, 3))
+    {
+        network_->send(number, &head, sizeof(head));
+    }
+    else
+    {
+        
+        size_t len = 0;
+        const char* data = lua_tolstring(L, 3, &len);
+        iobuf bufs[2];
+        bufs[0] = { &head, sizeof(head) };
+        bufs[1] = { data, (int)len };
+        network_->sendv(number, bufs, 2);
+    }
+    
+    lua_pushboolean(L, true);
+    return 1;
 }
 
 int gwserver::stop(lua_State* L)
@@ -366,7 +382,9 @@ int gwserver::stop(lua_State* L)
     msg.msg_type = gwm_type::session_stop;
     msg.connid = connid;
     network_->send(number, &msg, sizeof(msg));
-    return 0;
+    
+    lua_pushboolean(L, true);
+    return 1;
 }
 
 EXPORT_OFUNC(gwserver, open)

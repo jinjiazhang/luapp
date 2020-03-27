@@ -7,7 +7,7 @@ client_callnames = client_callnames or {}
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	_client = net.connect("127.0.0.1", config.lobby_port)
+	_client = net.connect("127.0.0.1", config.proxy_port)
 	_client.on_accept = on_accept
 	_client.on_closed = on_closed
 	_client.on_message = on_message

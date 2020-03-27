@@ -51,7 +51,7 @@ void gwproxy::on_accept(int number, int error)
 
 void gwproxy::on_closed(int number, int error)
 {
-    luaL_callfunc(L, this, "on_close", number, error);
+    luaL_callfunc(L, this, "on_closed", number, error);
     server_->unreg_connid(number);
 }
 

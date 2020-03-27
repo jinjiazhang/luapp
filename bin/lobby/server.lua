@@ -1,31 +1,49 @@
 module = "server"
 
 function init( ... )
-	_server = net.listen(config.lobby_ip, config.lobby_port)
-	_server.on_accept = on_accept
-	_server.on_closed = on_closed
-	_server.on_message = on_message
+	_gateway = gateway.connect(config.gateway_ip, config.gateway_port)
+	_gateway.on_accept = on_accept
+	_gateway.on_closed = on_closed
+	_gateway.on_message = on_message
+	
+	_gateway.on_start = on_start
+	_gateway.on_stop = on_stop
+	_gateway.on_transmit = on_transmit
 end
 
-function on_accept( number, errno )
-	log_info("server.on_accept", number, errno)
-	if errno == 0 then
-		ssmgr.on_start(number)
-	end
+function on_accept( svrid, errno )
+	log_info("gateway.on_accept", svrid, errno)
 end
 
-function on_closed( number, errno )
-	log_info("server.on_closed", number, errno)
-	ssmgr.on_stop(number)
+function on_closed( svrid, errno )
+	log_info("gateway.on_closed", svrid, errno)
 end
 
-function on_message( number, proto, ... )
-	-- log_debug("server.on_message", number, proto, ...)
-	ssmgr.on_call(number, proto, ...)
+function on_message( svrid, proto, ... )
+	log_debug("gateway.on_message", svrid, proto, ...)
 end
 
-function close_conn( number )
-	log_info("server.close_conn", number)
-	net.close(number)
-	ssmgr.on_stop(number)
+function on_start( connid, data )
+	log_info("gateway.on_start", connid, data)
+	ssmgr.on_start(connid)
+end
+
+function on_stop( connid )
+	log_info("gateway.on_stop", connid)
+	ssmgr.on_stop(connid)
+end
+
+function on_transmit( connid, proto, ... )
+	-- log_debug("gateway.connid", connid, proto, ...)
+	ssmgr.on_call(connid, proto, ...)
+end
+
+function call_client( connid, proto, ...)
+	_gateway.transmit(connid, proto, ...)
+end
+
+function close_conn( connid )
+	log_info("gateway.close_conn", connid)
+	_gateway.stop(connid)
+	ssmgr.on_stop(connid)
 end
