@@ -21,6 +21,11 @@ int gwserver::number()
     return number_;
 }
 
+inetwork* gwserver::network()
+{
+    return network_;
+}
+
 bool gwserver::init(gateway* manager, int number)
 {
     network_ = manager->network();

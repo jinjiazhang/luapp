@@ -15,6 +15,7 @@ public:
     ~gwserver();
 
     int number();
+    inetwork* network();
     bool init(gateway* manager, int number);
 
     int close(lua_State* L);

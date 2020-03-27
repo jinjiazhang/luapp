@@ -1,5 +1,5 @@
 #include "gwproxy.h"
-#include "gateway.h"
+#include "gwserver.h"
 #include "protolua/protolua.h"
 
 gwproxy::gwproxy(lua_State* L, svrid_t svrid) : lobject(L)
@@ -7,7 +7,7 @@ gwproxy::gwproxy(lua_State* L, svrid_t svrid) : lobject(L)
     svrid_ = svrid;
     number_ = 0;
     network_ = nullptr;
-    manager_ = nullptr;
+    server_ = nullptr;
 }
 
 gwproxy::~gwproxy()
@@ -20,10 +20,10 @@ int gwproxy::number()
     return number_;
 }
 
-bool gwproxy::init(gateway* manager, int number)
+bool gwproxy::init(gwserver* server, int number)
 {
-    network_ = manager->network();
-    manager_ = manager;
+    network_ = server->network();
+    server_ = server;
     number_ = number;
     return true;
 }

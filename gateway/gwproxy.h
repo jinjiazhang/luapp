@@ -6,7 +6,7 @@
 #include "lualib/lobject.h"
 #include <unordered_map>
 
-class gateway;
+class gwserver;
 class gwproxy : public lobject, public imanager
 {
 public:
@@ -14,7 +14,7 @@ public:
     ~gwproxy();
 
     int number();
-    bool init(gateway* manager, int number);
+    bool init(gwserver* server, int number);
     void send(int connid, const void* data, int len);
     void start_session(int connid);
     void stop_session(int connid);
@@ -30,7 +30,7 @@ private:
     svrid_t svrid_;
     int number_;
     inetwork* network_;
-    gateway* manager_;
+    gwserver* server_;
 };
 
 #endif
