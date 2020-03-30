@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_LUAJSON_H_
 
 #include "lua.hpp"
+#include "protolog/protolog.h"
 
 #ifdef _JINJIAZHANG_PROTOLOG_H_
 #define json_trace(fmt, ...)  log_trace(fmt, __VA_ARGS__)
