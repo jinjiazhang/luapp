@@ -349,7 +349,6 @@ int gwserver::start(lua_State* L)
     }
     else
     {
-        
         size_t len = 0;
         const char* data = lua_tolstring(L, 3, &len);
         iobuf bufs[2];
