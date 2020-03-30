@@ -1,6 +1,6 @@
 #include "lmanager.h"
 #include "lnetwork.h"
-#include "protolua/protolua.h"
+#include "protolua/message.h"
 
 lmanager::lmanager(lua_State* L) : lobject(L)
 {
@@ -25,7 +25,7 @@ bool lmanager::init(lnetwork* network, int number)
     return true;
 }
 
-static char buffer[PROTO_BUFFER_SIZE];
+static char buffer[MESSAGE_BUFFER_SIZE];
 int lmanager::call(lua_State* L)
 {
     int top = lua_gettop(L);

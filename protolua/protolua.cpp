@@ -118,52 +118,6 @@ static int unpack(lua_State *L)
     return lua_gettop(L) - 2;
 }
 
-static int to_json(lua_State *L)
-{
-    bool pretty = false;
-    if (lua_gettop(L) >= 2)
-    {
-        luaL_checktype(L, 2, LUA_TBOOLEAN);
-        pretty = lua_toboolean(L, 2) != 0;
-    }
-
-    int stack = lua_gettop(L);
-    if (!proto_tojson(L, 1, pretty, 0, 0))
-    {
-        proto_error("proto.to_json fail, table=%s", lua_tostring(L, 1));
-        return 0;
-    }
-    return lua_gettop(L) - stack;
-}
-
-static int from_json(lua_State *L)
-{
-    assert(lua_gettop(L) == 1);
-    luaL_checktype(L, 1, LUA_TSTRING);
-    size_t size = 0;
-    const char* data = lua_tolstring(L, 1, &size);
-
-    if (!proto_fromjson(L, data, size))
-    {
-        proto_error("proto.from_json fail, json=%s", data);
-        return 0;
-    }
-    return lua_gettop(L) - 1;
-}
-
-static const struct luaL_Reg protoLib[]={
-    {"parse", parse},
-    {"exist", exist},
-    {"create", create},
-    {"encode", encode},
-    {"decode", decode},
-    {"pack", pack},
-    {"unpack", unpack},
-    {"to_json", to_json},
-    {"from_json", from_json},
-    {NULL, NULL}
-};
-
 struct FieldOrderingByNumber {
     inline bool operator()(const FieldDescriptor* a,
         const FieldDescriptor* b) const {
@@ -200,11 +154,22 @@ DynamicMessageFactory      g_factory;
 
 int luaopen_protolua(lua_State* L)
 {
+    static const struct luaL_Reg protoLib[] = {
+        {"parse", parse},
+        {"exist", exist},
+        {"create", create},
+        {"encode", encode},
+        {"decode", decode},
+        {"pack", pack},
+        {"unpack", unpack},
+        {NULL, NULL}
+    };
+
     lua_newtable(L);
     luaL_setfuncs(L, protoLib, 0);
     lua_setglobal(L, "proto");
     
     g_sourceTree.MapPath("", "./");
     g_sourceTree.MapPath("", "./proto/");
-    return 1;
+    return 0;
 }

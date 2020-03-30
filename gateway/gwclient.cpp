@@ -1,6 +1,6 @@
 #include "gwclient.h"
 #include "gateway.h"
-#include "protolua/protolua.h"
+#include "protolua/message.h"
 
 gwclient::gwclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
@@ -184,7 +184,7 @@ int gwclient::stop(lua_State* L)
     return 0;
 }
 
-static char buffer[PROTO_BUFFER_SIZE];
+static char buffer[MESSAGE_BUFFER_SIZE];
 int gwclient::transmit(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);

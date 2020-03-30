@@ -1,6 +1,6 @@
 #include "gwproxy.h"
 #include "gwserver.h"
-#include "protolua/protolua.h"
+#include "protolua/message.h"
 
 gwproxy::gwproxy(lua_State* L, svrid_t svrid) : lobject(L)
 {

@@ -1,6 +1,6 @@
 #include "lnetwork.h"
 #include "lmanager.h"
-#include "protolua/protolua.h"
+#include "protolua/message.h"
 
 lnetwork::lnetwork(lua_State* L, inetwork* network) : lobject(L)
 {
@@ -59,7 +59,7 @@ int lnetwork::connect(lua_State* L)
     return 1;
 }
 
-static char buffer[PROTO_BUFFER_SIZE];
+static char buffer[MESSAGE_BUFFER_SIZE];
 int lnetwork::call(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);

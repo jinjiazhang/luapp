@@ -119,7 +119,6 @@ int base64_decode(lua_State* L)
 
 int luaopen_crypto(lua_State* L)
 {
-    luaL_checkversion(L);
     static const struct luaL_Reg cryptoLibs[] = {
         { "md5", md5 },
         { "sha256", sha256 },

@@ -1,6 +1,6 @@
 #include "rtclient.h"
 #include "routermgr.h"
-#include "protolua/protolua.h"
+#include "protolua/message.h"
 
 rtclient::rtclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
@@ -149,7 +149,7 @@ int rtclient::unreg_role(lua_State* L)
     return 0;
 }
 
-static char buffer[PROTO_BUFFER_SIZE];
+static char buffer[MESSAGE_BUFFER_SIZE];
 int rtclient::call_target(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
