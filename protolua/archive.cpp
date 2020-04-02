@@ -17,6 +17,17 @@ enum class ar_type : unsigned char
 bool pack_value(lua_State* L, int index, char* output, size_t* size);
 bool unpack_value(lua_State* L, const char* input, size_t* size);
 
+unsigned char size_log2(int size)
+{
+    unsigned char bits = 0;
+    while (size > 0)
+    {
+        size >>= 1;
+        bits++;
+    }
+    return bits;
+}
+
 bool pack_nil(char* output, size_t* size)
 {
     size_t in_size = *size;
@@ -184,6 +195,10 @@ bool pack_table(lua_State* L, int index, char* output, size_t* size)
         lua_pop(L, 1);
     }
 
+    int narr = (int)luaL_len(L, index);
+    int nhash = count - narr;
+    *lasize = size_log2(narr);
+    *lhsize = size_log2(nhash);
     if (in_size < sizeof(unsigned char))
         return false;
     *output++ = (unsigned char)ar_type::table_tail;
@@ -203,8 +218,10 @@ bool unpack_table(lua_State* L, const char* input, size_t* size)
     unsigned char* lhsize = (unsigned char*)input + 2;
     input += 3 * sizeof(unsigned char);
     in_size -= 3 * sizeof(unsigned char);
+    int narr = std::max(1 << (*lasize - 1), 0x10000);
+    int nhash = std::max(1 << (*lhsize - 1), 0x10000);
+    lua_createtable(L, narr, nhash);
     size_t total_size = 0;
-    lua_newtable(L);
     while (input < end)
     {
         if ((ar_type)*input == ar_type::table_tail)
