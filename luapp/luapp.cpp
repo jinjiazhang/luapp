@@ -3,6 +3,7 @@
 #include "crypto/crypto.h"
 #include "protolua/protolua.h"
 #include "protolua/luajson.h"
+#include "protolua/archive.h"
 
 luapp::luapp(lua_State* L) : lobject(L)
 {
@@ -109,6 +110,7 @@ int luapp::init()
     luaopen_protolog(L);
     luaopen_protolua(L);
     luaopen_luajson(L);
+    luaopen_archive(L);
     luaopen_crypto(L);
 
     lua_pushlobject(L, this);

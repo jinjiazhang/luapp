@@ -17,6 +17,8 @@
         "redis",
         "mysql",
         "proto",
+        "crypto",
+        "archive",
         "gateway",
         "import",
         "config",

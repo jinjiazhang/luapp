@@ -14,6 +14,9 @@ enum class ar_type : unsigned char
     table_tail,
 };
 
+bool pack_value(lua_State* L, int index, char* output, size_t* size);
+bool unpack_value(lua_State* L, const char* input, size_t* size);
+
 bool pack_nil(char* output, size_t* size)
 {
     size_t in_size = *size;
@@ -28,7 +31,7 @@ bool unpack_nil(lua_State* L, const char* input, size_t* size)
 {
     size_t in_size = *size;
     assert(in_size >= sizeof(unsigned char));
-    assert(*input == (unsigned char)ar_type::nil);
+    assert((ar_type)*input == ar_type::nil);
     lua_pushnil(L);
     *size = sizeof(unsigned char);
     return true;
@@ -50,7 +53,7 @@ bool unpack_number(lua_State* L, const char* input, size_t* size)
 {
     size_t in_size = *size;
     assert(in_size >= sizeof(unsigned char));
-    assert(*input == (unsigned char)ar_type::number);
+    assert((ar_type)*input == ar_type::number);
     input += sizeof(unsigned char);
     double value = *(double*)input;
     lua_pushnumber(L, value);
@@ -77,7 +80,7 @@ bool unpack_integer(lua_State* L, const char* input, size_t* size)
 {
     size_t in_size = *size;
     assert(in_size >= sizeof(unsigned char));
-    assert(*input == (unsigned char)ar_type::integer);
+    assert((ar_type)*input == ar_type::integer);
     input += sizeof(unsigned char);
     in_size -= sizeof(unsigned char);
     uint64_t value;
@@ -104,8 +107,8 @@ bool upack_boolean(lua_State* L, const char* input, size_t* size)
 {
     size_t in_size = *size;
     assert(in_size >= sizeof(unsigned char));
-    assert(*input == (unsigned char)ar_type::bool_true || *input == (unsigned char)ar_type::bool_false);
-    bool value = (*input == (unsigned char)ar_type::bool_true);
+    assert((ar_type)*input == ar_type::bool_true || (ar_type)*input == ar_type::bool_false);
+    bool value = ((ar_type)*input == ar_type::bool_true);
     lua_pushboolean(L, value);
     *size = sizeof(unsigned char);
     return true;
@@ -136,7 +139,7 @@ bool unpack_string(lua_State* L, const char* input, size_t* size)
 {
     size_t in_size = *size;
     assert(in_size >= sizeof(unsigned char));
-    assert(*input == (unsigned char)ar_type::integer);
+    assert((ar_type)*input == ar_type::string);
     input += sizeof(unsigned char);
     in_size -= sizeof(unsigned char);
     uint64_t len;
@@ -154,16 +157,78 @@ bool unpack_string(lua_State* L, const char* input, size_t* size)
 
 bool pack_table(lua_State* L, int index, char* output, size_t* size)
 {
+    size_t in_size = *size;
+    if (in_size < 4 * sizeof(unsigned char))
+        return false;
+    *output++ = (unsigned char)ar_type::table_head;
+    unsigned char* lasize = (unsigned char*)output++;
+    unsigned char* lhsize = (unsigned char*)output++;
+    in_size -= 3 * sizeof(unsigned char);
+
+    int count = 0;
+    size_t total_size = 0;
+    lua_pushnil(L);
+    while (lua_next(L, index))
+    {
+        for (int i = -2; i < 0; i++)
+        {
+            size_t used = in_size;
+            if (!pack_value(L, i, output, &used))
+                return false;
+            output += used;
+            in_size -= used;
+            total_size += used;
+        }
+
+        count++;
+        lua_pop(L, 1);
+    }
+
+    if (in_size < sizeof(unsigned char))
+        return false;
+    *output++ = (unsigned char)ar_type::table_tail;
+    *size = 4 * sizeof(unsigned char) + total_size;
     return true;
 }
 
-bool unpack_table(lua_State* L, const char* output, size_t* size)
+bool unpack_table(lua_State* L, const char* input, size_t* size)
 {
-    return true;
+    size_t in_size = *size;
+    assert(in_size >= sizeof(unsigned char));
+    assert((ar_type)*input == ar_type::table_head);
+    if (in_size < 4 * sizeof(unsigned char))
+        return false;
+    const char* end = input + in_size;
+    unsigned char* lasize = (unsigned char*)input + 1;
+    unsigned char* lhsize = (unsigned char*)input + 2;
+    input += 3 * sizeof(unsigned char);
+    in_size -= 3 * sizeof(unsigned char);
+    size_t total_size = 0;
+    lua_newtable(L);
+    while (input < end)
+    {
+        if ((ar_type)*input == ar_type::table_tail)
+        {
+            *size = 4 * sizeof(unsigned char) + total_size;
+            return true;
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            size_t used = in_size;
+            if (!unpack_value(L, input, &used))
+                return false;
+            input += used;
+            in_size -= used;
+            total_size += used;
+        }
+        lua_settable(L, -3);
+    }
+    return false;
 }
 
 bool pack_value(lua_State* L, int index, char* output, size_t* size)
 {
+    index = lua_absindex(L, index);
     int type = lua_type(L, index);
     switch (type)
     {
@@ -251,18 +316,21 @@ bool archive_unpack(lua_State* L, const char* input, size_t size)
     return true;
 }
 
+static char buffer[ARCHIVE_BUFFER_SIZE];
 // data = archive.pack(name, id, email)
 static int pack(lua_State *L)
 {
     assert(lua_gettop(L) >= 1);
     int stack = lua_gettop(L);
-    if (!archive_pack(L, 1, stack, 0, 0))
+    size_t len = sizeof(buffer);
+    if (!archive_pack(L, 1, stack, buffer, &len))
     {
         archive_error("archive.unpack fail, first=%s", lua_tostring(L, 1));
         return 0;
     }
 
-    return lua_gettop(L) - stack;
+    lua_pushlstring(L, buffer, len);
+    return 1;
 }
 
 // name, id, email = archive.unpack(data)
@@ -270,6 +338,7 @@ static int unpack(lua_State *L)
 {
     assert(lua_gettop(L) == 1);
     size_t size = 0;
+    int stack = lua_gettop(L);
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* data = lua_tolstring(L, 1, &size);
     if (!archive_unpack(L, data, size))
@@ -278,7 +347,7 @@ static int unpack(lua_State *L)
         return 0;
     }
 
-    return lua_gettop(L) - 1;
+    return lua_gettop(L) - stack;
 }
 
 int luaopen_archive(lua_State* L)

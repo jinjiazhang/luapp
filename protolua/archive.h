@@ -23,6 +23,8 @@
 #define ARCHIVE_DO(exp) { if(!(exp)) return false; }
 #define ARCHIVE_ASSERT(exp) { if(!(exp)) return false; }
 
+#define ARCHIVE_BUFFER_SIZE (1024 * 1024)
+
 bool archive_pack(lua_State* L, int start, int end, char* output, size_t* size);
 bool archive_unpack(lua_State* L, const char* input, size_t size);
 
