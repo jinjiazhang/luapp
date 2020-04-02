@@ -1,5 +1,5 @@
 #include "session.h"
-#include "varint.h"
+#include "header.h"
 #include <vector>
 
 session::session(network* instance, imanager* manager)
@@ -105,7 +105,7 @@ void session::on_writable()
 void session::send(const void* data, int len)
 {
     char head_data[16];
-    int head_len = encode_varint(head_data, sizeof(head_data), len);
+    int head_len = encode_head(head_data, sizeof(head_data), len);
     iovec iov[2];
     iov[0].iov_base = head_data;
     iov[0].iov_len = head_len;
@@ -126,7 +126,7 @@ void session::sendv(iobuf bufs[], int count)
     }
 
     char head_data[16];
-    int head_len = encode_varint(head_data, sizeof(head_data), total);
+    int head_len = encode_head(head_data, sizeof(head_data), total);
     iov[0].iov_base = head_data;
     iov[0].iov_len = head_len;
     transmit(iov.data(), iov.size());
@@ -202,7 +202,7 @@ void session::dispatch()
     while (!closed_ && recvbuf_.size() > 0)
     {
         int body_len = 0;
-        int head_len = decode_varint(&body_len, recvbuf_.data(), recvbuf_.size());
+        int head_len = decode_head(&body_len, recvbuf_.data(), recvbuf_.size());
         if (head_len < 0)
         {
             on_error(NET_HEAD_ERROR);

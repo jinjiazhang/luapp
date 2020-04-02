@@ -3,7 +3,7 @@
 
 // https://en.wikipedia.org/wiki/UTF-8
 
-inline int count_varint(int value)
+inline int head_size(int value)
 {
     if (value < 0)
         return 0;
@@ -23,9 +23,9 @@ inline int count_varint(int value)
         return -1;
 }
 
-inline int encode_varint(char* data, int len, int value)
+inline int encode_head(char* data, int len, int value)
 {
-    int count = count_varint(value);
+    int count = head_size(value);
     if (count <= 0 || len < count)
         return -1;
 
@@ -44,7 +44,7 @@ inline int encode_varint(char* data, int len, int value)
     return count;
 }
 
-inline int decode_varint(int* value, const char* data, int len)
+inline int decode_head(int* value, const char* data, int len)
 {
     if (data == NULL || len <= 0)
         return -1;
