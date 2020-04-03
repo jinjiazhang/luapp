@@ -1,12 +1,12 @@
 
 function net.cs_login_req( ss, openid, token )
-	log_debug("cs_login_req", ss.number, openid, token)
-	dbagent.ss_login_req(ss.number, openid, app.svrid())
+	log_debug("cs_login_req", ss.connid, openid, token)
+	dbagent.ss_login_req(ss.connid, openid, app.svrid())
 end
 
-function net.ss_login_rsp( result, number, openid, svrid, account )
-	log_debug("ss_login_rsp", result, number, openid, svrid, account)
-	local ss = ssmgr.find_by_number(number)
+function net.ss_login_rsp( result, connid, openid, svrid, account )
+	log_debug("ss_login_rsp", result, connid, openid, svrid, account)
+	local ss = ssmgr.find_by_connid(connid)
 	if not ss then
 		log_warn("ss_login_rsp ss not exist", openid)
 		return

@@ -1,15 +1,15 @@
 module = "ssmgr"
 
-number_session_table = number_session_table or {}
-openid_session_table = number_session_table or {}
-roleid_session_table = number_session_table or {}
+connid_session_table = connid_session_table or {}
+openid_session_table = openid_session_table or {}
+roleid_session_table = roleid_session_table or {}
 kickout_session_table = kickout_session_table or {}
 
 KICKOUT_DELAY_CLOSE = 1000    	-- 踢号延迟关闭连接时间
 KICKOUT_TICK_MAX_NUM = 10		-- 每次tick最多踢多少个连接
 
-function find_by_number( number )
-	return number_session_table[number]
+function find_by_connid( connid )
+	return connid_session_table[connid]
 end
 
 function find_by_openid( openid )
@@ -34,15 +34,15 @@ function bind_role( ss, role )
 end
 
 function kickout( ss, reason )
-	log_info("ssmgr.kickout", ss.number, ss.openid, reason)
+	log_info("ssmgr.kickout", ss.connid, ss.openid, reason)
 	ss.cs_kickout_ntf(reason)
-	kickout_session_table[ss.number] = app.mstime()
+	kickout_session_table[ss.connid] = app.mstime()
 end
 
 function __index_ss( ss, key )
 	if proto.exist(key) then
 		ss[key] = function ( ... )
-			server.call_client(ss.number, key, ...)
+			server.call_client(ss.connid, key, ...)
 		end
 		return ss[key]
 	end
@@ -55,10 +55,10 @@ end
 function tick_kickout(  )
 	local count = 0
 	local mstime = app.mstime()
-	for number, record in pairs(kickout_session_table) do
+	for connid, record in pairs(kickout_session_table) do
 		if mstime - record >= KICKOUT_DELAY_CLOSE then
-			log_info("ssmgr.real_kickout", number, record)
-			server.close_conn(number)
+			log_info("ssmgr.real_kickout", connid, record)
+			server.close_conn(connid)
 
 			count = count + 1
 			if count >= KICKOUT_TICK_MAX_NUM then
@@ -68,16 +68,16 @@ function tick_kickout(  )
 	end
 end
 
-function on_start( number )
-	log_info("ssmgr.on_start", number)
-	local ss = { number = number }
+function on_start( connid )
+	log_info("ssmgr.on_start", connid)
+	local ss = { connid = connid }
 	setmetatable(ss, {__index = __index_ss})
-	number_session_table[number] = ss
+	connid_session_table[connid] = ss
 end
 
-function on_stop( number )
-	log_info("ssmgr.on_stop", number)
-	local ss = find_by_number(number)
+function on_stop( connid )
+	log_info("ssmgr.on_stop", connid)
+	local ss = find_by_connid(connid)
 	if not ss then
 		return
 	end
@@ -97,8 +97,8 @@ function on_stop( number )
 		ss.openid = nil
 	end
 
-	number_session_table[number] = nil
-	kickout_session_table[number] = nil
+	connid_session_table[connid] = nil
+	kickout_session_table[connid] = nil
 end
 
 proto_transmit_table = {
@@ -109,10 +109,10 @@ proto_transmit_table = {
 	["cs_texas_action_req"] = service.GAMESVR,
 }
 
-function on_call( number, proto, ... )
-	local ss = find_by_number(number)
+function on_call( connid, proto, ... )
+	local ss = find_by_connid(connid)
 	if not ss then
-		log_error("ssmgr.on_call session not found", number)
+		log_error("ssmgr.on_call session not found", connid)
 		return
 	end
 
@@ -124,7 +124,7 @@ function on_call( number, proto, ... )
 
 	local proc_func = net[proto]
 	if not proc_func then
-		log_error("ssmgr.on_call proc_func not found", number)
+		log_error("ssmgr.on_call proc_func not found", connid)
 		return
 	end
 

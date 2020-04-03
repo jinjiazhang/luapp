@@ -1,25 +1,25 @@
 ONLINE_VALID_DURATION = 28		-- 在线状态有效期
 
-function net.ss_login_req(ss, number, openid, svrid)
-	log_debug("ss_login_req", ss.number, number, openid, svrid)
+function net.ss_login_req(ss, connid, openid, svrid)
+	log_debug("ss_login_req", ss.number, connid, openid, svrid)
 	local ok, data = dbimpl.get_online_info(openid)
 	if not ok then
 		log_error("ss_login_req get_online_info failed", openid)
-		ss.ss_login_rsp(errno.SERVICE, number, openid)
+		ss.ss_login_rsp(errno.SERVICE, connid, openid)
 		return
 	end
 
 	if data and data.svrid > 0 then
 		if app.time() - data.online < ONLINE_VALID_DURATION then
 			log_error("ss_login_req online info exist", openid)
-			ss.ss_login_rsp(errno.CONFLICT, number, openid, data.svrid)
+			ss.ss_login_rsp(errno.CONFLICT, connid, openid, data.svrid)
 			return
 		end
 
 		-- invalid online recode
 		if not dbimpl.clean_online_info(openid) then
 			log_error("ss_login_req clean_online_info failed", openid)
-			ss.ss_logout_rsp(errno.SERVICE, number, openid)
+			ss.ss_logout_rsp(errno.SERVICE, connid, openid)
 			return
 		end
 	end
@@ -27,14 +27,14 @@ function net.ss_login_req(ss, number, openid, svrid)
 	data = { openid = openid, svrid = svrid, online = app.time() }
 	if not dbimpl.insert_online_info(data) then
 		log_error("ss_login_req insert_online_info failed", openid)
-		ss.ss_login_rsp(errno.SERVICE, number, openid)
+		ss.ss_login_rsp(errno.SERVICE, connid, openid)
 		return
 	end
 
 	local ok, account = dbimpl.load_account_data(openid)
 	if not ok then
 		log_error("ss_login_req load_account_data failed", openid)
-		ss.ss_login_rsp(errno.SERVICE, number, openid)
+		ss.ss_login_rsp(errno.SERVICE, connid, openid)
 		return
 	end
 
@@ -42,12 +42,12 @@ function net.ss_login_req(ss, number, openid, svrid)
 		account = { openid = openid, name = "", roleid = 0 }
 		if not dbimpl.create_new_account(account) then
 			log_error("ss_login_req create_new_account failed", openid)
-			ss.ss_login_rsp(errno.SERVICE, number, openid)
+			ss.ss_login_rsp(errno.SERVICE, connid, openid)
 			return
 		end
 	end
 
-	ss.ss_login_rsp(errno.SUCCESS, number, openid, svrid, account)
+	ss.ss_login_rsp(errno.SUCCESS, connid, openid, svrid, account)
 end
 
 function net.ss_logout_req( ss, openid, svrid )
