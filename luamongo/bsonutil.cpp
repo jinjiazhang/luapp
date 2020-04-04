@@ -104,6 +104,7 @@ void luaL_pushvalue(lua_State* L, bson_iter_t& iter)
         lua_pushboolean(L, value->value.v_bool ? 1 : 0);
         break;
     case BSON_TYPE_INT32:
+    case BSON_TYPE_TIMESTAMP:
         lua_pushinteger(L, value->value.v_int32);
         break;
     case BSON_TYPE_INT64:

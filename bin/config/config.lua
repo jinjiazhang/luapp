@@ -1,14 +1,13 @@
 module = "config"
 
-mongo_url = "mongodb://jinjiazh.com:27017"
--- mongo_url = "mongodb://9.134.11.29:27017"
+mongo_url = "mongodb+srv://luapp:mckSL5VzzMeuZUuK@luapp-1guzw.mongodb.net/test?retryWrites=true&w=majority"
 
-redis_ip = "jinjiazh.com"
+redis_ip = "127.0.0.1"
 redis_port = 6379
 
-mysql_ip = "jinjiazh.com"
+mysql_ip = "127.0.0.1"
 mysql_port = 3306
-mysql_user = "jinjiazh"
+mysql_user = "luapp"
 mysql_pass = "mckSL5VzzMeuZUuK"
 mysql_db = "game"
 
