@@ -9,6 +9,9 @@ public:
     producer(lua_State* L);
     ~producer();
 
+    bool init(std::map<std::string, std::string>& confs);
+
+    int produce(lua_State* L);
     int poll(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();

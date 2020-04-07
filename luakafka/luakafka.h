@@ -10,8 +10,8 @@ public:
     luakafka(lua_State* L);
     ~luakafka();
 
-    int producer(lua_State* L);
-    int consumer(lua_State* L);
+    int create_producer(lua_State* L);
+    int create_consumer(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 

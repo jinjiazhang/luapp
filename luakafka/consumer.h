@@ -9,7 +9,9 @@ public:
     consumer(lua_State* L);
     ~consumer();
 
-    int push(lua_State* L);
+    bool init(std::map<std::string, std::string>& confs);
+
+    int subscribe(lua_State* L);
     int poll(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
