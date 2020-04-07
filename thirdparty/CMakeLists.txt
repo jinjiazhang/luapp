@@ -7,6 +7,9 @@ option (UNICODE "log4cplus use unicode" OFF)
 option (CMAKE_USE_OPENSSL "Use OpenSSL code. Experimental" OFF)
 option (ENABLE_TESTS "Build MongoDB C Driver tests." OFF)
 option (ENABLE_UNINSTALL "Enable creation of uninstall script and associated uninstall build target." OFF)
+option (RDKAFKA_BUILD_STATIC "Build static rdkafka library" ON)
+option (RDKAFKA_BUILD_EXAMPLES "Build examples" OFF)
+option (RDKAFKA_BUILD_TESTS "Build tests" OFF)
 
 # http://slproweb.com/products/Win32OpenSSL.html
 # http://slproweb.com/download/Win32OpenSSL-1_1_1b.exe
@@ -22,6 +25,7 @@ add_subdirectory(hiredis EXCLUDE_FROM_ALL)
 add_subdirectory(mariadb-connector-c EXCLUDE_FROM_ALL)
 add_subdirectory(log4cplus EXCLUDE_FROM_ALL)
 add_subdirectory(mongo-c-driver EXCLUDE_FROM_ALL)
+add_subdirectory(librdkafka EXCLUDE_FROM_ALL)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(TARGET lua PROPERTY FOLDER "thirdparty")
@@ -32,3 +36,4 @@ set_property(TARGET hiredis PROPERTY FOLDER "thirdparty")
 set_property(TARGET mariadbclient PROPERTY FOLDER "thirdparty")
 set_property(TARGET mongoc_static PROPERTY FOLDER "thirdparty")
 set_property(TARGET bson_static PROPERTY FOLDER "thirdparty")
+set_property(TARGET rdkafka PROPERTY FOLDER "thirdparty")

@@ -27,10 +27,11 @@ add_subdirectory(gateway)
 add_subdirectory(luaredis)
 add_subdirectory(luamongo)
 add_subdirectory(luamysql)
+add_subdirectory(luakafka)
 add_subdirectory(proroute)
 add_subdirectory(protolua)
 add_subdirectory(protonet)
 add_subdirectory(thirdparty)
 
 add_dependencies(luapp lualib crypto gateway luaredis luamysql proroute protolua protonet 
-	lua log4cplusS libprotobuf libcurl hiredis mariadbclient mongoc_static bson_static)
+	lua log4cplusS libprotobuf libcurl hiredis mariadbclient mongoc_static bson_static rdkafka)
