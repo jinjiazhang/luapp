@@ -19,3 +19,6 @@
 [submodule "thirdparty/mongo-c-driver"]
 	path = thirdparty/mongo-c-driver
 	url = https://github.com/mongodb/mongo-c-driver.git
+[submodule "thirdparty/librdkafka"]
+	path = thirdparty/librdkafka
+	url = https://github.com/edenhill/librdkafka.git
