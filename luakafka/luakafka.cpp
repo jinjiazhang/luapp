@@ -26,11 +26,14 @@ int luakafka::create_producer(lua_State* L)
         lua_pop(L, 1);
     }
 
+    std::string errmsg;
     producer* obj = new producer(L);
-    if (!obj->init(confs))
+    if (!obj->init(confs, errmsg))
     {
         delete obj;
-        return 0;
+        lua_pushnil(L);
+        lua_pushlstring(L, errmsg.c_str(), errmsg.size());
+        return 2;
     }
 
     luaL_pushvalue(L, obj);
@@ -51,11 +54,14 @@ int luakafka::create_consumer(lua_State* L)
         lua_pop(L, 1);
     }
 
+    std::string errmsg;
     consumer* obj = new consumer(L);
-    if (!obj->init(confs))
+    if (!obj->init(confs, errmsg))
     {
         delete obj;
-        return 0;
+        lua_pushnil(L);
+        lua_pushlstring(L, errmsg.c_str(), errmsg.size());
+        return 2;
     }
 
     luaL_pushvalue(L, obj);

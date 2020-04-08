@@ -10,7 +10,7 @@ consumer::~consumer()
     
 }
 
-bool consumer::init(std::map<std::string, std::string>& confs)
+bool consumer::init(std::map<std::string, std::string>& confs, std::string& errmsg)
 {
     return true;
 }

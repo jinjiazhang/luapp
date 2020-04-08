@@ -10,7 +10,7 @@ public:
     producer(lua_State* L);
     ~producer();
 
-    bool init(std::map<std::string, std::string>& confs);
+    bool init(std::map<std::string, std::string>& confs, std::string& errmsg);
 
     int produce(lua_State* L);
     int poll(lua_State* L);

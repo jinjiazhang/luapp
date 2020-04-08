@@ -15,7 +15,7 @@ static void dr_msg_cb(rd_kafka_t* rk, const rd_kafka_message_t* rkmessage, void*
 
 }
 
-bool producer::init(std::map<std::string, std::string>& confs)
+bool producer::init(std::map<std::string, std::string>& confs, std::string& errmsg)
 {
     char errstr[512];
     rd_kafka_conf_t* conf = rd_kafka_conf_new();
@@ -25,6 +25,7 @@ bool producer::init(std::map<std::string, std::string>& confs)
         rd_kafka_conf_res_t ret = rd_kafka_conf_set(conf, it->first.c_str(), it->second.c_str(), errstr, sizeof(errstr));
         if (ret != RD_KAFKA_CONF_OK)
         {
+            errmsg = errstr;
             return false;
         }
     }
@@ -33,6 +34,7 @@ bool producer::init(std::map<std::string, std::string>& confs)
     rk_ = rd_kafka_new(RD_KAFKA_PRODUCER, conf, errstr, sizeof(errstr));
     if (rk_ == nullptr) 
     {
+        errmsg = errstr;
         return false;
     }
     return true;
