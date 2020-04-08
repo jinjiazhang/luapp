@@ -3,8 +3,9 @@
 
 consumer::consumer(lua_State* L, luakafka* kafka) : lobject(L)
 {
-    kafka_ = nullptr;
+    kafka_ = kafka;
     rk_ = nullptr;
+    closing_ = false;
 }
 
 consumer::~consumer()
@@ -72,11 +73,22 @@ int consumer::update(int timeout)
 {
     int count = 0;
     rd_kafka_message_t* rkm;
-    while (rkm = rd_kafka_consumer_poll(rk_, timeout))
+    while (!closing_)
     {
+        rkm = rd_kafka_consumer_poll(rk_, timeout);
+        if (rkm == nullptr)
+        {
+            break;
+        }
+
         consume_message(rkm);
         rd_kafka_message_destroy(rkm);
         count++;
+    }
+
+    if (closing_)
+    {
+        kafka_->destory_consumer(this);
     }
     return count;
 }
@@ -111,7 +123,7 @@ void consumer::consume_message(const rd_kafka_message_t* rkm)
     if (rkm->err) 
     {
         luaL_pushfunc(L, this, "on_error");
-        lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
+        lua_pushstring(L, rkm->rkt ? rd_kafka_topic_name(rkm->rkt) : nullptr);
         lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
         lua_pushlstring(L, (const char*)rkm->key, rkm->key_len);
         lua_pushstring(L, rd_kafka_message_errstr(rkm));
@@ -130,7 +142,7 @@ void consumer::consume_message(const rd_kafka_message_t* rkm)
 
 int consumer::close(lua_State* L)
 {
-    kafka_->destory_consumer(this);
+    closing_ = true;
     return 0;
 }
 

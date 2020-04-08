@@ -24,6 +24,7 @@ private:
 private:
     luakafka* kafka_;
     rd_kafka_t* rk_;
+    bool closing_;
 };
 
 #endif

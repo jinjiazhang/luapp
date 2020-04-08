@@ -47,7 +47,7 @@ int luakafka::create_producer(lua_State* L)
     if (lua_type(L, 2) == LUA_TTABLE)
     {
         lua_pushnil(L);
-        while (lua_next(L, 1))
+        while (lua_next(L, 2))
         {
             std::string key = luaL_getvalue<std::string>(L, -2);
             std::string value = luaL_getvalue<std::string>(L, -1);
@@ -71,18 +71,21 @@ int luakafka::create_producer(lua_State* L)
     return 1;
 }
 
-// kafka.create_consumer(brokers, confs)
+// kafka.create_consumer(brokers, grouopid, confs)
 int luakafka::create_consumer(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
     const char* brokers = lua_tostring(L, 1);
+    const char* grouopid = lua_tostring(L, 2);
     std::map<std::string, std::string> confs;
     confs["bootstrap.servers"] = brokers;
+    confs["group.id"] = grouopid;
 
-    if (lua_type(L, 2) == LUA_TTABLE)
+    if (lua_type(L, 3) == LUA_TTABLE)
     {
         lua_pushnil(L);
-        while (lua_next(L, 1))
+        while (lua_next(L, 3))
         {
             std::string key = luaL_getvalue<std::string>(L, -2);
             std::string value = luaL_getvalue<std::string>(L, -1);
