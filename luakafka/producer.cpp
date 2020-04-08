@@ -51,10 +51,6 @@ bool producer::init(std::map<std::string, std::string>& confs, std::string& errm
 
 int producer::update(int timeout)
 {
-    if (rk_ == nullptr)
-    {
-        return 0;
-    }
     return rd_kafka_poll(rk_, timeout);
 }
 

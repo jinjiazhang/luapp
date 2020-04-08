@@ -19,6 +19,9 @@ public:
     virtual const luaL_Reg* get_libs();
 
 private:
+    void consume_message(const rd_kafka_message_t* rkm);
+
+private:
     luakafka* kafka_;
     rd_kafka_t* rk_;
 };
