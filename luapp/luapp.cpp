@@ -178,6 +178,7 @@ int luapp::proc()
     count += http_->update();
     count += luamongo_->update();
     count += luamysql_->update();
+    count += luakafka_->update();
     return count;
 }
 

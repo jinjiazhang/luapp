@@ -1,18 +1,26 @@
 #include "producer.h"
+#include "luakafka.h"
 
-producer::producer(lua_State* L) : lobject(L)
+producer::producer(lua_State* L, luakafka* kafka) : lobject(L)
 {
+    kafka_ = kafka;
     rk_ = nullptr;
 }
 
 producer::~producer()
 {
-
+    if (rk_)
+    {
+        rd_kafka_flush(rk_, 3000);
+        rd_kafka_destroy(rk_);
+        rk_ = nullptr;
+    }
 }
 
-static void dr_msg_cb(rd_kafka_t* rk, const rd_kafka_message_t* rkmessage, void* opaque)
+static void dr_msg_cb(rd_kafka_t* rk, const rd_kafka_message_t* rkm, void* opaque)
 {
-
+    producer* obj = static_cast<producer*>(opaque);
+    obj->on_dr_msg_cb(rk, rkm);
 }
 
 bool producer::init(std::map<std::string, std::string>& confs, std::string& errmsg)
@@ -30,7 +38,8 @@ bool producer::init(std::map<std::string, std::string>& confs, std::string& errm
         }
     }
 
-    rd_kafka_conf_set_dr_msg_cb(conf, dr_msg_cb);
+    rd_kafka_conf_set_opaque(conf, this);
+    rd_kafka_conf_set_dr_msg_cb(conf, &dr_msg_cb);
     rk_ = rd_kafka_new(RD_KAFKA_PRODUCER, conf, errstr, sizeof(errstr));
     if (rk_ == nullptr) 
     {
@@ -40,7 +49,16 @@ bool producer::init(std::map<std::string, std::string>& confs, std::string& errm
     return true;
 }
 
-// producer.produce()
+int producer::update(int timeout)
+{
+    if (rk_ == nullptr)
+    {
+        return 0;
+    }
+    return rd_kafka_poll(rk_, timeout);
+}
+
+// producer.produce(topic, data, key)
 int producer::produce(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
@@ -55,7 +73,7 @@ int producer::produce(lua_State* L)
         RD_KAFKA_V_MSGFLAGS(RD_KAFKA_MSG_F_COPY),
         RD_KAFKA_V_VALUE(payload, len),
         RD_KAFKA_V_KEY(key, key_len),
-        RD_KAFKA_V_OPAQUE(this),
+        RD_KAFKA_V_OPAQUE(NULL),
         RD_KAFKA_V_END);
 
     if (ret != 0)
@@ -69,24 +87,33 @@ int producer::produce(lua_State* L)
     return 1;
 }
 
-int producer::poll(lua_State* L)
+void producer::on_dr_msg_cb(rd_kafka_t* rk, const rd_kafka_message_t* rkm)
 {
-    return 0;
+    assert(rk == rk_);
+    if (rkm->err)
+    {
+        int top = lua_gettop(L);
+        luaL_pushfunc(L, this, "on_error");
+        lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
+        lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
+        lua_pushlstring(L, (const char*)rkm->key, rkm->key_len);
+        lua_pushstring(L, rd_kafka_err2str(rkm->err));
+        luaL_safecall(L, 4, 0);
+    }
 }
 
 int producer::close(lua_State* L)
 {
+    kafka_->destory_producer(this);
     return 0;
 }
 
 EXPORT_OFUNC(producer, produce)
-EXPORT_OFUNC(producer, poll)
 EXPORT_OFUNC(producer, close)
 const luaL_Reg* producer::get_libs()
 {
     static const luaL_Reg libs[] = {
         { IMPORT_OFUNC(producer, produce) },
-        { IMPORT_OFUNC(producer, poll) },
         { IMPORT_OFUNC(producer, close) },
         { NULL, NULL }
     };
