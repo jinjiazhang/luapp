@@ -2,6 +2,7 @@
 #define _JINJIAZHANG_PRODUCER_H_
 
 #include "lualib/lobject.h"
+#include "rdkafka.h"
 
 class producer : public lobject
 {
@@ -17,7 +18,7 @@ public:
     virtual const luaL_Reg* get_libs();
 
 private:
-
+    rd_kafka_t* rk_;
 };
 
 #endif

@@ -20,6 +20,7 @@ luapp::luapp(lua_State* L) : lobject(L)
     luanet_ = nullptr;
 	luaredis_ = nullptr;
     luamongo_ = nullptr;
+    luakafka_ = nullptr;
     luamysql_ = nullptr;
     routermgr_ = nullptr;
     gateway_ = nullptr;
@@ -37,6 +38,8 @@ luapp::~luapp()
         delete luaredis_;
     if (luamongo_)
         delete luamongo_;
+    if (luakafka_)
+        delete luakafka_;
     if (luamysql_)
         delete luamysql_;
     if (routermgr_)
@@ -136,6 +139,10 @@ int luapp::init()
     luamongo_ = new luamongo(L);
     lua_pushlobject(L, luamongo_);
     lua_setglobal(L, "mongo");
+
+    luakafka_ = new luakafka(L);
+    lua_pushlobject(L, luakafka_);
+    lua_setglobal(L, "kafka");
 
     luamysql_ = new luamysql(L);
     lua_pushlobject(L, luamysql_);
