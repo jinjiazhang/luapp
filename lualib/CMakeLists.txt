@@ -14,6 +14,7 @@ source_group("Include Files" FILES ${DIR_INCS})
 
 add_library(${PROJECT_NAME} ${DIR_SRCS} ${DIR_INCS})
 
-include_directories(../)
-include_directories(../thirdparty/lua-5.3.5/src)
-include_directories(../thirdparty/log4cplus/include)
+include_directories(${PROJECT_SOURCE_DIR}/../)
+include_directories(${PROJECT_SOURCE_DIR}/../thirdparty/lua-5.3.5/src)
+include_directories(${PROJECT_SOURCE_DIR}/../thirdparty/log4cplus/include)
+include_directories(${PROJECT_BINARY_DIR}/../thirdparty/log4cplus/include)
