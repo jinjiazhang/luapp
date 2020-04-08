@@ -83,12 +83,49 @@ int consumer::update(int timeout)
 
 int consumer::subscribe(lua_State* L)
 {
-    return 0;
+    luaL_checktype(L, 1, LUA_TSTRING);
+    int topic_cnt = lua_gettop(L);
+    rd_kafka_topic_partition_list_t* subscription = rd_kafka_topic_partition_list_new(topic_cnt);
+    for (int i = 0; i < topic_cnt; i++)
+    {
+        luaL_checktype(L, i + 1, LUA_TSTRING);
+        const char* topic = lua_tostring(L, i + 1);
+        rd_kafka_topic_partition_list_add(subscription, topic, RD_KAFKA_PARTITION_UA);
+    }
+
+    rd_kafka_resp_err_t ret = rd_kafka_subscribe(rk_, subscription);
+    if (ret != 0) {
+        lua_pushboolean(L, false);
+        lua_pushstring(L, rd_kafka_err2str(ret));
+        rd_kafka_topic_partition_list_destroy(subscription);
+        return 2;
+    }
+
+    lua_pushboolean(L, true);
+    rd_kafka_topic_partition_list_destroy(subscription);
+    return 1;
 }
 
 void consumer::consume_message(const rd_kafka_message_t* rkm)
 {
-
+    if (rkm->err) 
+    {
+        luaL_pushfunc(L, this, "on_error");
+        lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
+        lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
+        lua_pushlstring(L, (const char*)rkm->key, rkm->key_len);
+        lua_pushstring(L, rd_kafka_message_errstr(rkm));
+        luaL_safecall(L, 4, 0);
+    }
+    else
+    {
+        luaL_pushfunc(L, this, "on_consume");
+        lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
+        lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
+        lua_pushlstring(L, (const char*)rkm->key, rkm->key_len);
+        lua_pushinteger(L, rkm->offset);
+        luaL_safecall(L, 4, 0);
+    }
 }
 
 int consumer::close(lua_State* L)
