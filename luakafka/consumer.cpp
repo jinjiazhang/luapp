@@ -17,6 +17,29 @@ consumer::~consumer()
     }
 }
 
+static void rk_log_cb(const rd_kafka_t* rk, int level, const char* fac, const char* buf)
+{
+    switch (level)
+    {
+    case 7:
+        log_debug("%s %s", rd_kafka_name(rk), buf);
+        break;
+    case 6:
+    case 5:
+        log_info("%s %s", rd_kafka_name(rk), buf);
+        break;
+    case 4:
+        log_warn("%s %s", rd_kafka_name(rk), buf);
+        break;
+    case 3:
+        log_error("%s %s", rd_kafka_name(rk), buf);
+        break;
+    default:
+        log_fatal("%s %s", rd_kafka_name(rk), buf);
+        break;
+    }
+}
+
 bool consumer::init(std::map<std::string, std::string>& confs, std::string& errmsg)
 {
     char errstr[512];
@@ -33,6 +56,7 @@ bool consumer::init(std::map<std::string, std::string>& confs, std::string& errm
     }
 
     rd_kafka_conf_set_opaque(conf, this);
+    rd_kafka_conf_set_log_cb(conf, rk_log_cb);
     rk_ = rd_kafka_new(RD_KAFKA_CONSUMER, conf, errstr, sizeof(errstr));
     if (rk_ == nullptr)
     {

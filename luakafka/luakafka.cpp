@@ -36,18 +36,24 @@ int luakafka::update()
     return count;
 }
 
-// kafka.create_producer(confs)
+// kafka.create_producer(brokers, confs)
 int luakafka::create_producer(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 1, LUA_TSTRING);
+    const char* brokers = lua_tostring(L, 1);
     std::map<std::string, std::string> confs;
-    lua_pushnil(L);
-    while (lua_next(L, 1))
+    confs["bootstrap.servers"] = brokers;
+
+    if (lua_type(L, 2) == LUA_TTABLE)
     {
-        std::string key = luaL_getvalue<std::string>(L, -2);
-        std::string value = luaL_getvalue<std::string>(L, -1);
-        confs.insert(std::make_pair(key, value));
-        lua_pop(L, 1);
+        lua_pushnil(L);
+        while (lua_next(L, 1))
+        {
+            std::string key = luaL_getvalue<std::string>(L, -2);
+            std::string value = luaL_getvalue<std::string>(L, -1);
+            confs.insert(std::make_pair(key, value));
+            lua_pop(L, 1);
+        }
     }
 
     std::string errmsg;
@@ -65,18 +71,24 @@ int luakafka::create_producer(lua_State* L)
     return 1;
 }
 
-// kafka.create_consumer(confs)
+// kafka.create_consumer(brokers, confs)
 int luakafka::create_consumer(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 1, LUA_TSTRING);
+    const char* brokers = lua_tostring(L, 1);
     std::map<std::string, std::string> confs;
-    lua_pushnil(L);
-    while (lua_next(L, 1))
+    confs["bootstrap.servers"] = brokers;
+
+    if (lua_type(L, 2) == LUA_TTABLE)
     {
-        std::string key = luaL_getvalue<std::string>(L, -2);
-        std::string value = luaL_getvalue<std::string>(L, -1);
-        confs.insert(std::make_pair(key, value));
-        lua_pop(L, 1);
+        lua_pushnil(L);
+        while (lua_next(L, 1))
+        {
+            std::string key = luaL_getvalue<std::string>(L, -2);
+            std::string value = luaL_getvalue<std::string>(L, -1);
+            confs.insert(std::make_pair(key, value));
+            lua_pop(L, 1);
+        }
     }
 
     std::string errmsg;
