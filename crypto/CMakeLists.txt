@@ -7,7 +7,7 @@ if (NOT SUPPORT_CXX11)
     message(FATAL_ERROR "compiler not support c++11")
 endif()
 
-add_definitions(-std=c++11)
+add_definitions(-std=c99)
 aux_source_directory(. DIR_SRCS)
 file(GLOB_RECURSE DIR_INCS *.h *.hpp)
 source_group("Include Files" FILES ${DIR_INCS}) 

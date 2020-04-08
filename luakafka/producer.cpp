@@ -67,7 +67,7 @@ int producer::produce(lua_State* L)
     rd_kafka_resp_err_t ret = rd_kafka_producev( rk_,
         RD_KAFKA_V_TOPIC(topic),
         RD_KAFKA_V_MSGFLAGS(RD_KAFKA_MSG_F_COPY),
-        RD_KAFKA_V_VALUE(payload, len),
+        RD_KAFKA_V_VALUE((void*)payload, len),
         RD_KAFKA_V_KEY(key, key_len),
         RD_KAFKA_V_OPAQUE(NULL),
         RD_KAFKA_V_END);

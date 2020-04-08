@@ -1,5 +1,6 @@
 #include "archive.h"
 #include "varint.h"
+#include <string.h>
 #include <assert.h>
 
 enum class ar_type : unsigned char
