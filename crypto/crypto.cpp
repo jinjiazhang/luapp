@@ -7,7 +7,7 @@ extern "C" {
 #include "base64.h"
 }
 
-bool tohex(const char* input, size_t inlen, char* output, size_t& outlen)
+static bool tohex(const char* input, size_t inlen, char* output, size_t& outlen)
 {
     if (outlen < inlen * 2)
         return false;
@@ -32,7 +32,7 @@ bool tohex(const char* input, size_t inlen, char* output, size_t& outlen)
     return true;
 }
 
-int md5(lua_State* L)
+static int md5(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     size_t len = 0;
@@ -52,7 +52,7 @@ int md5(lua_State* L)
     return 1;
 }
 
-int sha256(lua_State* L)
+static int sha256(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     size_t len = 0;
@@ -72,7 +72,7 @@ int sha256(lua_State* L)
     return 1;
 }
 
-int hmac_sha256(lua_State* L)
+static int hmac_sha256(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     luaL_checktype(L, 2, LUA_TSTRING);
@@ -93,7 +93,7 @@ int hmac_sha256(lua_State* L)
     return 1;
 }
 
-int base64_encode(lua_State* L)
+static int base64_encode(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     size_t len = 0;
@@ -105,7 +105,7 @@ int base64_encode(lua_State* L)
     return 1;
 }
 
-int base64_decode(lua_State* L)
+static int base64_decode(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     size_t len = 0;
