@@ -122,6 +122,7 @@ void consumer::consume_message(const rd_kafka_message_t* rkm)
 {
     if (rkm->err) 
     {
+        // on_error(topic, data, key, errmsg)
         luaL_pushfunc(L, this, "on_error");
         lua_pushstring(L, rkm->rkt ? rd_kafka_topic_name(rkm->rkt) : nullptr);
         lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
@@ -131,12 +132,15 @@ void consumer::consume_message(const rd_kafka_message_t* rkm)
     }
     else
     {
+        // on_consume(topic, data, key, timestamp, partition, offset)
         luaL_pushfunc(L, this, "on_consume");
         lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
         lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
         lua_pushlstring(L, (const char*)rkm->key, rkm->key_len);
+        lua_pushinteger(L, rd_kafka_message_timestamp(rkm, nullptr));
+        lua_pushinteger(L, rkm->partition);
         lua_pushinteger(L, rkm->offset);
-        luaL_safecall(L, 4, 0);
+        luaL_safecall(L, 6, 0);
     }
 }
 

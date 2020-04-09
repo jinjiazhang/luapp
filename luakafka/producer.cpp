@@ -112,6 +112,7 @@ void producer::on_dr_msg_cb(rd_kafka_t* rk, const rd_kafka_message_t* rkm)
     assert(rk == rk_);
     if (rkm->err)
     {
+        // on_error(topic, data, key, errmsg)
         luaL_pushfunc(L, this, "on_error");
         lua_pushstring(L, rd_kafka_topic_name(rkm->rkt));
         lua_pushlstring(L, (const char*)rkm->payload, rkm->len);
