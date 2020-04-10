@@ -205,13 +205,14 @@ void gwserver::on_start_session(int number, char* data, int len)
     data += sizeof(gwm_start_session);
     len -= sizeof(gwm_start_session);
 
-    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    svrid_t svrid = connid_to_svrid(msg->connid);
+    assert(svrid == num_to_svrid(number));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
         return;
     }
-    proxy->start_session(msg->connid);
+    proxy->start_session(msg->connid, svrid);
 }
 
 void gwserver::on_stop_session(int number, char* data, int len)

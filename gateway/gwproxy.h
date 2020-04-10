@@ -16,7 +16,7 @@ public:
     int number();
     bool init(gwserver* server, int number);
     void send(int connid, const void* data, int len);
-    void start_session(int connid);
+    void start_session(int connid, svrid_t svrid);
     void stop_session(int connid);
 
     int close(lua_State* L);

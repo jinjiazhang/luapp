@@ -28,19 +28,19 @@ bool gwproxy::init(gwserver* server, int number)
     return true;
 }
 
-void gwproxy::send(int connid, const void* data, int len)
+void gwproxy::start_session(int connid, svrid_t svrid)
 {
-    network_->send(connid, data, len);
-}
-
-void gwproxy::start_session(int connid)
-{
-
+    // todo nothing
 }
 
 void gwproxy::stop_session(int connid)
 {
     network_->close(connid);
+}
+
+void gwproxy::send(int connid, const void* data, int len)
+{
+    network_->send(connid, data, len);
 }
 
 void gwproxy::on_accept(int number, int error)
