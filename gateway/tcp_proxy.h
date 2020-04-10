@@ -1,16 +1,15 @@
-#ifndef _JINJIAZHANG_GWPROXY_H_
-#define _JINJIAZHANG_GWPROXY_H_
+#ifndef _JINJIAZHANG_TCP_PROXY_H_
+#define _JINJIAZHANG_TCP_PROXY_H_
 
-#include "lualib/lobject.h"
-#include "gwstruct.h"
-#include "gwtools.h"
+#include "gwproxy.h"
+#include "protonet/inetwork.h"
 
 class gwserver;
-class gwproxy : public lobject
+class tcp_proxy : public gwproxy, public imanager
 {
 public:
-    gwproxy(lua_State* L);
-    virtual ~gwproxy();
+    tcp_proxy(lua_State* L);
+    virtual ~tcp_proxy();
 
     virtual bool init(gwserver* server, proxy_param param);
     virtual int  update();
@@ -23,8 +22,9 @@ public:
     virtual void on_closed(int number, int error);
     virtual void on_package(int number, char* data, int len);
 
-protected:
-    gwserver* server_;
+private:
+    inetwork* network_;
+    int number_;
 };
 
 #endif

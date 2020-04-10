@@ -6,7 +6,7 @@ function init( ... )
 	_server.on_closed = on_closed_server
 	_server.on_message = on_server_message
 
-	_proxy = _server.open(config.proxy_ip, config.proxy_port)
+	_proxy = _server.open("tcp://0.0.0.0:6575?encrypt=1")
 	_proxy.on_accept = on_accept_client
 	_proxy.on_closed = on_closed_client
 	_proxy.on_message = on_client_message

@@ -1,6 +1,7 @@
 #include "gwserver.h"
 #include "gateway.h"
 #include "gwproxy.h"
+#include "tcp_proxy.h"
 #include "protolua/message.h"
 
 gwserver::gwserver(lua_State* L, svrid_t svrid) : lobject(L)
@@ -301,19 +302,30 @@ void gwserver::on_multicast_data(int number, char* data, int len)
 int gwserver::open(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    const char* ip = luaL_getvalue<const char*>(L, 1);
-    luaL_checktype(L, 2, LUA_TNUMBER);
-    int port = luaL_getvalue<int>(L, 2);
+    const char* url = luaL_getvalue<const char*>(L, 1);
 
-    gwproxy* proxy = new gwproxy(this->L, svrid_);
-    int number = network_->listen(proxy, ip, port);
-    if (number <= 0)
+    proxy_param param;
+    if (!parse_url(url, param))
+    {
+        return 0;
+    }
+
+    gwproxy* proxy = nullptr;
+    switch (param.protocol)
+    {
+    case protocol_type::tcp:
+        proxy = new tcp_proxy(this->L);
+        break;
+    default:
+        return 0;
+    }
+
+    if (!proxy->init(this, param))
     {
         delete proxy;
         return 0;
     }
 
-    proxy->init(this, number);
     lua_pushlobject(L, proxy);
     return 1;
 }
