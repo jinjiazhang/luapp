@@ -38,34 +38,29 @@ void gwproxy::send(int connid, const void* data, int len)
 
 }
 
-void gwproxy::destory()
+void gwproxy::on_accept(int connid, int error)
 {
-
+    server_->reg_connid(connid, this);
+    luaL_callfunc(L, this, "on_accept", connid, error);
 }
 
-void gwproxy::on_accept(int number, int error)
+void gwproxy::on_closed(int connid, int error)
 {
-    server_->reg_connid(number, this);
-    luaL_callfunc(L, this, "on_accept", number, error);
+    luaL_callfunc(L, this, "on_closed", connid, error);
+    server_->unreg_connid(connid);
 }
 
-void gwproxy::on_closed(int number, int error)
+void gwproxy::on_package(int connid, char* data, int len)
 {
-    luaL_callfunc(L, this, "on_closed", number, error);
-    server_->unreg_connid(number);
-}
-
-void gwproxy::on_package(int number, char* data, int len)
-{
-    if (server_->is_accepted(number))
+    if (server_->is_accepted(connid))
     {
-        server_->transmit_data(number, data, len);
+        server_->transmit_data(connid, data, len);
         return;
     }
 
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
-    luaL_pushvalue(L, number);
+    luaL_pushvalue(L, connid);
 
     if (!message_unpack(L, data, len))
     {

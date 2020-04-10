@@ -10,6 +10,7 @@ gwserver::gwserver(lua_State* L, svrid_t svrid) : lobject(L)
     number_ = 0;
     network_ = nullptr;
     manager_ = nullptr;
+    last_connid_ = 0;
 }
 
 gwserver::~gwserver()
@@ -73,6 +74,11 @@ gwproxy* gwserver::connid_to_proxy(connid_t connid)
         return nullptr;
     }
     return it->second;
+}
+
+connid_t gwserver::gen_connid()
+{
+    return ++last_connid_;
 }
 
 void gwserver::reg_connid(connid_t connid, gwproxy* proxy)

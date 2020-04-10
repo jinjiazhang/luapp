@@ -28,6 +28,7 @@ public:
     virtual void on_closed(int number, int error);
     virtual void on_package(int number, char* data, int len);
 
+    connid_t gen_connid();
     void reg_connid(connid_t connid, gwproxy* proxy);
     void unreg_connid(connid_t connid);
     bool is_accepted(connid_t connid);
@@ -57,6 +58,7 @@ private:
     int number_;
     inetwork* network_;
     gateway* manager_;
+    connid_t last_connid_;
 
     svrid_num_map svrid_num_map_;
     num_svrid_map num_svrid_map_;
