@@ -14,6 +14,7 @@ public:
     inetwork* network();
     int listen(lua_State* L);
     int connect(lua_State* L);
+    int open(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:

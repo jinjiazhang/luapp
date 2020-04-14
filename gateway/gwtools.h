@@ -15,7 +15,7 @@ enum class protocol_type
 struct proxy_param
 {
     protocol_type protocol;
-    std::string ip;
+    char ip[16];
     int port;
     bool encrypt;
 };

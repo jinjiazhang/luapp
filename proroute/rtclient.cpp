@@ -259,6 +259,7 @@ int rtclient::close(lua_State* L)
     return 0;
 }
 
+EXPORT_OFUNC(rtclient, number)
 EXPORT_OFUNC(rtclient, reg_role)
 EXPORT_OFUNC(rtclient, unreg_role)
 EXPORT_OFUNC(rtclient, call_target)
@@ -269,6 +270,7 @@ EXPORT_OFUNC(rtclient, close)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
+        { IMPORT_OFUNC(rtclient, number) },
         { IMPORT_OFUNC(rtclient, reg_role) },
         { IMPORT_OFUNC(rtclient, unreg_role) },
         { IMPORT_OFUNC(rtclient, call_target) },

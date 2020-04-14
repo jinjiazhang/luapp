@@ -20,8 +20,8 @@ router_port = 6572
 gateway_ip = "127.0.0.1"
 gateway_port = 6573
 
-proxy_ip = "0.0.0.0"
-proxy_port = 6575
+proxy_url = "tcp://0.0.0.0:6575?encrypt=1"
+conn_url =  "tcp://127.0.0.1:6575?encrypt=1"
 
 support_mode = 1
 

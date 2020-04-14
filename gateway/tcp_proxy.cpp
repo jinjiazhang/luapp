@@ -26,7 +26,7 @@ bool tcp_proxy::init(gwserver* server, proxy_param param)
     }
 
     network_ = server->network();
-    number_ = network_->listen(this, param.ip.c_str(), param.port);
+    number_ = network_->listen(this, param.ip, param.port);
     if (number_ <= 0)
     {
         return false;
