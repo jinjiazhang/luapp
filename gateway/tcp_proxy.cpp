@@ -72,9 +72,10 @@ void tcp_proxy::stop_session(int connid)
     network_->close(number);
     num_connid_map_.erase(number);
     connid_num_map_.erase(connid);
+    gwproxy::stop_session(connid);
 }
 
-void tcp_proxy::send(int connid, const void* data, int len)
+void tcp_proxy::raw_send(int connid, const void* data, int len)
 {
     int number = connid_to_num(connid);
     assert(number > 0);
@@ -94,9 +95,9 @@ void tcp_proxy::on_closed(int number, int error)
     connid_t connid = num_to_connid(number);
     assert(connid > 0);
 
-    gwproxy::on_closed(connid, error);
     num_connid_map_.erase(number);
     connid_num_map_.erase(connid);
+    gwproxy::on_closed(connid, error);
 }
 
 void tcp_proxy::on_package(int number, char* data, int len)

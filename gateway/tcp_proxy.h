@@ -16,7 +16,7 @@ public:
     virtual int  update();
     virtual void start_session(int connid, svrid_t svrid);
     virtual void stop_session(int connid);
-    virtual void send(int connid, const void* data, int len);
+    virtual void raw_send(int connid, const void* data, int len);
 
     virtual void on_accept(int number, int error);
     virtual void on_closed(int number, int error);

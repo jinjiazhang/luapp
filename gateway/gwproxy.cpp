@@ -5,6 +5,7 @@
 gwproxy::gwproxy(lua_State* L) : lobject(L)
 {
     server_ = nullptr;
+    encrypt_ = false;
 }
 
 gwproxy::~gwproxy()
@@ -15,6 +16,7 @@ gwproxy::~gwproxy()
 bool gwproxy::init(gwserver* server, proxy_param param)
 {
     server_ = server;
+    encrypt_ = param.encrypt;
     return true;
 }
 
@@ -30,16 +32,52 @@ void gwproxy::start_session(int connid, svrid_t svrid)
 
 void gwproxy::stop_session(int connid)
 {
+    connid_cipher_map_.erase(connid);
+}
+
+static char output[MESSAGE_BUFFER_SIZE];
+void gwproxy::send(int connid, const void* data, int len)
+{
+    if (encrypt_)
+    {
+        int outlen = sizeof(output);
+        cipher& cipher_ = connid_cipher_map_[connid];
+        cipher_.encrypt((const char*)data, len, output, &outlen);
+        raw_send(connid, output, outlen);
+    }
+    else
+    {
+        raw_send(connid, data, len);
+    }
+}
+
+void gwproxy::raw_send(int connid, const void* data, int len)
+{
 
 }
 
-void gwproxy::send(int connid, const void* data, int len)
+void gwproxy::send_key(int connid, const char* key, int len)
 {
-
+    char temp[AES_KEY_SIZE + 1] = { 0 };
+    temp[0] = len;
+    if (key != nullptr)
+        memcpy(temp + 1, key, len);
+    raw_send(connid, temp, sizeof(temp));
 }
 
 void gwproxy::on_accept(int connid, int error)
 {
+    if (encrypt_)
+    {
+        cipher& cipher_ = connid_cipher_map_[connid];
+        cipher_.init();
+        send_key(connid, cipher_.get_key(), AES_KEY_SIZE);
+    }
+    else
+    {
+        send_key(connid, nullptr, 0);
+    }
+
     server_->reg_connid(connid, this);
     luaL_callfunc(L, this, "on_accept", connid, error);
 }
@@ -48,9 +86,26 @@ void gwproxy::on_closed(int connid, int error)
 {
     luaL_callfunc(L, this, "on_closed", connid, error);
     server_->unreg_connid(connid);
+
+    connid_cipher_map_.erase(connid);
 }
 
 void gwproxy::on_package(int connid, char* data, int len)
+{
+    if (encrypt_)
+    {
+        int outlen = sizeof(output);
+        cipher& cipher_ = connid_cipher_map_[connid];
+        cipher_.decrypt((const char*)data, len, output, &outlen);
+        raw_package(connid, output, outlen);
+    }
+    else
+    {
+        raw_package(connid, data, len);
+    }
+}
+
+void gwproxy::raw_package(int connid, char* data, int len)
 {
     if (server_->is_accepted(connid))
     {

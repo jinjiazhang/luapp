@@ -22,7 +22,7 @@ bool parse_url(std::string url, proxy_param& param)
 
     strncpy(param.ip, rs3[0].c_str(), sizeof(param.ip));
     param.port = atoi(rs3[1].c_str());
-    param.encrypt = false;
+    param.encrypt = true;
 
     std::map<std::string, std::string> opts;
     if (rs2.size() >= 2)

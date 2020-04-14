@@ -7,6 +7,8 @@ gwconn::gwconn(lua_State* L) : lobject(L)
     gateway_ = nullptr;
     network_ = nullptr;
     number_ = 0;
+    encrypt_ = false;
+    key_recv_ = false;
 }
 
 gwconn::~gwconn()
@@ -42,7 +44,7 @@ int gwconn::call(lua_State* L)
         return 0;
     }
 
-    network_->send(number_, buffer, (int)len);
+    send(buffer, (int)len);
     lua_pushboolean(L, true);
     return 1;
 }
@@ -54,7 +56,11 @@ void gwconn::close(lua_State* L)
 
 void gwconn::on_accept(int connid, int error)
 {
-    luaL_callfunc(L, this, "on_accept", connid, error);
+    if (error != 0)
+    {
+        luaL_callfunc(L, this, "on_accept", connid, error);
+        return;
+    }
 }
 
 void gwconn::on_closed(int connid, int error)
@@ -62,7 +68,64 @@ void gwconn::on_closed(int connid, int error)
     luaL_callfunc(L, this, "on_closed", connid, error);
 }
 
+static char output[MESSAGE_BUFFER_SIZE];
+void gwconn::send(const void* data, int len)
+{
+    if (!key_recv_)
+    {
+        send_cache_.push_back(std::string((const char*)data, len));
+        return;
+    }
+
+    if (encrypt_)
+    {
+        int outlen = sizeof(output);
+        cipher_.encrypt((const char*)data, len, output, &outlen);
+        network_->send(number_, output, outlen);
+    }
+    else
+    {
+        network_->send(number_, data, len);
+    }
+}
+
+void gwconn::recv_key(const char* data, int len)
+{
+    encrypt_ = data[0];
+    if (encrypt_)
+    {
+        cipher_.init(data + 1, len - 1);
+    }
+}
+
 void gwconn::on_package(int connid, char* data, int len)
+{
+    if (!key_recv_)
+    {
+        recv_key(data, len);
+        key_recv_ = true;
+
+        for (std::string& cache : send_cache_)
+        {
+            send(cache.data(), cache.size());
+        }
+        luaL_callfunc(L, this, "on_accept", connid, 0);
+        return;
+    }
+
+    if (encrypt_)
+    {
+        int outlen = sizeof(output);
+        cipher_.decrypt((const char*)data, len, output, &outlen);
+        raw_package(connid, output, outlen);
+    }
+    else
+    {
+        raw_package(connid, data, len);
+    }
+}
+
+void gwconn::raw_package(int connid, char* data, int len)
 {
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
