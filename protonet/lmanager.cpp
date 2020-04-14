@@ -25,17 +25,16 @@ bool lmanager::init(lnetwork* network, int number)
     return true;
 }
 
-static char buffer[MESSAGE_BUFFER_SIZE];
 int lmanager::call(lua_State* L)
 {
     int top = lua_gettop(L);
-    size_t len = sizeof(buffer);
-    if (!message_pack(L, 1, top, buffer, &len))
+    size_t msg_len = sizeof(msg_buf);
+    if (!message_pack(L, 1, top, msg_buf, &msg_len))
     {
         return 0;
     }
 
-    network_->impl()->send(number_, buffer, (int)len);
+    network_->impl()->send(number_, msg_buf, (int)msg_len);
     lua_pushboolean(L, true);
     return 1;
 }

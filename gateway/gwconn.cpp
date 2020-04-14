@@ -34,17 +34,16 @@ bool gwconn::init(gateway* gate, url_info* args)
     return true;
 }
 
-static char buffer[MESSAGE_BUFFER_SIZE];
 int gwconn::call(lua_State* L)
 {
     int top = lua_gettop(L);
-    size_t len = sizeof(buffer);
-    if (!message_pack(L, 1, top, buffer, &len))
+    size_t msg_len = sizeof(msg_buf);
+    if (!message_pack(L, 1, top, msg_buf, &msg_len))
     {
         return 0;
     }
 
-    send(buffer, (int)len);
+    send(msg_buf, (int)msg_len);
     lua_pushboolean(L, true);
     return 1;
 }

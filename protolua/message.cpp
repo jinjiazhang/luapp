@@ -1,7 +1,10 @@
 #include "protolua.h"
+#include "message.h"
 #include "varint.h"
 
 using namespace google::protobuf;
+
+char msg_buf[MESSAGE_BUFFER_SIZE];
 
 // [proto_len, proto, data]
 bool message_pack(lua_State* L, int start, int end, char* output, size_t* size)

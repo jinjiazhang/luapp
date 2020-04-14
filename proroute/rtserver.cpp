@@ -349,7 +349,6 @@ int rtserver::set_group(lua_State* L)
     return 1;
 }
 
-static char buffer[MESSAGE_BUFFER_SIZE];
 int rtserver::call_target(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
@@ -362,8 +361,8 @@ int rtserver::call_target(lua_State* L)
     }
 
     int top = lua_gettop(L);
-    size_t len = sizeof(buffer);
-    if (!message_pack(L, 2, top, buffer, &len))
+    size_t msg_len = sizeof(msg_buf);
+    if (!message_pack(L, 2, top, msg_buf, &msg_len))
     {
         return 0;
     }
@@ -374,7 +373,7 @@ int rtserver::call_target(lua_State* L)
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
-    bufs[1] = { buffer, (int)len };
+    bufs[1] = { msg_buf, (int)msg_len };
     network_->sendv(dst_num, bufs, 2);
 
     lua_pushboolean(L, true);
