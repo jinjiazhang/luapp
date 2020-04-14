@@ -18,15 +18,15 @@ tcp_proxy::~tcp_proxy()
     connid_num_map_.clear();
 }
 
-bool tcp_proxy::init(gwserver* server, proxy_param param)
+bool tcp_proxy::init(gwserver* server, url_info* args)
 {
-    if (!gwproxy::init(server, param))
+    if (!gwproxy::init(server, args))
     {
         return false;
     }
 
     network_ = server->network();
-    number_ = network_->listen(this, param.ip, param.port);
+    number_ = network_->listen(this, args->ip, args->port);
     if (number_ <= 0)
     {
         return false;

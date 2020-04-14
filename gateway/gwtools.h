@@ -12,7 +12,7 @@ enum class protocol_type
     kcp,
 };
 
-struct proxy_param
+struct url_info
 {
     protocol_type protocol;
     char ip[16];
@@ -22,7 +22,7 @@ struct proxy_param
 
 #define TOOLS_CHECK(exp) { if(!(exp)) return false; }
 
-bool parse_url(std::string url, proxy_param& param);
+bool parse_url(std::string url, url_info* args);
 std::vector<std::string> split_string(std::string& str, const std::string& delim);
 
 #endif

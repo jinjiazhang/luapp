@@ -14,7 +14,7 @@ public:
     virtual ~gwconn();
 
     int number();
-    virtual bool init(gateway* gate, proxy_param param);
+    virtual bool init(gateway* gate, url_info* args);
     int call(lua_State* L);
     void close(lua_State* L);
     virtual const luaL_Reg* get_libs();

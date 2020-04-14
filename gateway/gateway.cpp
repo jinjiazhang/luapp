@@ -64,14 +64,16 @@ int gateway::open(lua_State* L)
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* url = luaL_getvalue<const char*>(L, 1);
 
-    proxy_param param;
-    if (!parse_url(url, param))
+    url_info args;
+    memset(&args, 0, sizeof(args));
+
+    if (!parse_url(url, &args))
     {
         return 0;
     }
 
     gwconn* conn = nullptr;
-    switch (param.protocol)
+    switch (args.protocol)
     {
     case protocol_type::tcp:
         conn = new gwconn(this->L);
@@ -80,7 +82,7 @@ int gateway::open(lua_State* L)
         return 0;
     }
 
-    if (!conn->init(this, param))
+    if (!conn->init(this, &args))
     {
         delete conn;
         return 0;

@@ -1,18 +1,17 @@
 #include "gwtools.h"
 
 // tcp://127.0.0.1:8086?encrypt=1
-bool parse_url(std::string url, proxy_param& param)
+bool parse_url(std::string url, url_info* args)
 {
-    memset(&param, 0, sizeof(param));
     std::vector<std::string> rs1 = split_string(url, "://");
     TOOLS_CHECK(rs1.size() == 2);
 
     if (rs1[0] == "tcp")
-        param.protocol = protocol_type::tcp;
+        args->protocol = protocol_type::tcp;
     else if (rs1[0] == "udp")
-        param.protocol = protocol_type::udp;
+        args->protocol = protocol_type::udp;
     else if (rs1[0] == "kcp")
-        param.protocol = protocol_type::kcp;
+        args->protocol = protocol_type::kcp;
     else
         return false;
 
@@ -20,9 +19,9 @@ bool parse_url(std::string url, proxy_param& param)
     std::vector<std::string> rs3 = split_string(rs2[0], ":");
     TOOLS_CHECK(rs3.size() == 2);
 
-    strncpy(param.ip, rs3[0].c_str(), sizeof(param.ip));
-    param.port = atoi(rs3[1].c_str());
-    param.encrypt = true;
+    strncpy(args->ip, rs3[0].c_str(), sizeof(args->ip));
+    args->port = atoi(rs3[1].c_str());
+    args->encrypt = true;
 
     std::map<std::string, std::string> opts;
     if (rs2.size() >= 2)

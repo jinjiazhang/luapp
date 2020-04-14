@@ -21,12 +21,12 @@ int gwconn::number()
     return number_;
 }
 
-bool gwconn::init(gateway* gate, proxy_param param)
+bool gwconn::init(gateway* gate, url_info* args)
 {
     gateway_ = gate;
     network_ = gateway_->network();
 
-    number_ = network_->connect(this, param.ip, param.port);
+    number_ = network_->connect(this, args->ip, args->port);
     if (number_ <= 0)
     {
         return false;

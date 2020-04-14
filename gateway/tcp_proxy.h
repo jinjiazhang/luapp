@@ -12,7 +12,7 @@ public:
     tcp_proxy(lua_State* L);
     virtual ~tcp_proxy();
 
-    virtual bool init(gwserver* server, proxy_param param);
+    virtual bool init(gwserver* server, url_info* args);
     virtual int  update();
     virtual void start_session(int connid, svrid_t svrid);
     virtual void stop_session(int connid);

@@ -13,10 +13,10 @@ gwproxy::~gwproxy()
 
 }
 
-bool gwproxy::init(gwserver* server, proxy_param param)
+bool gwproxy::init(gwserver* server, url_info* args)
 {
     server_ = server;
-    encrypt_ = param.encrypt;
+    encrypt_ = args->encrypt;
     return true;
 }
 

@@ -310,14 +310,16 @@ int gwserver::open(lua_State* L)
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* url = luaL_getvalue<const char*>(L, 1);
 
-    proxy_param param;
-    if (!parse_url(url, param))
+    url_info args;
+    memset(&args, 0, sizeof(args));
+
+    if (!parse_url(url, &args))
     {
         return 0;
     }
 
     gwproxy* proxy = nullptr;
-    switch (param.protocol)
+    switch (args.protocol)
     {
     case protocol_type::tcp:
         proxy = new tcp_proxy(this->L);
@@ -326,7 +328,7 @@ int gwserver::open(lua_State* L)
         return 0;
     }
 
-    if (!proxy->init(this, param))
+    if (!proxy->init(this, &args))
     {
         delete proxy;
         return 0;
