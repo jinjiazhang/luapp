@@ -12,7 +12,8 @@ public:
     cipher();
     ~cipher();
 
-    bool init(const char* key = nullptr, int size = 0);
+    bool init();
+    bool init(const char* key, int size);
     bool encrypt(const char* input, int inlen, char* output, int* outlen);
     bool decrypt(const char* input, int inlen, char* output, int* outlen);
     const char* get_key(int* outlen = nullptr);
@@ -21,6 +22,8 @@ private:
     char key_[AES_KEY_SIZE];
     char iv1_[AES_IV_SIZE];
     char iv2_[AES_IV_SIZE];
+    int  iv1_off_;
+    int  iv2_off_;
 };
 
 #endif
