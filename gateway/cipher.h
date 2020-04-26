@@ -1,6 +1,10 @@
 #ifndef _JINJIAZHANG_CIPHER_H_
 #define _JINJIAZHANG_CIPHER_H_
 
+extern "C" {
+#include "aes.h"
+}
+
 #define AES_SCHEDULE_SIZE   60
 #define AES_KEY_BITS        256
 #define AES_KEY_SIZE        32
