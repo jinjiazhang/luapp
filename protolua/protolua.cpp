@@ -20,6 +20,7 @@ static int parse(lua_State *L)
     return 1;
 }
 
+// is_exist = proto.exist("Person")
 static int exist(lua_State *L)
 {
     assert(lua_gettop(L) == 1);
@@ -42,7 +43,7 @@ static int create(lua_State *L)
     assert(lua_gettop(L) == 1);
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* proto = lua_tostring(L, 1);
-    if (!proto_decode(proto, L, 0, 0))
+    if (!proto_create(proto, L))
     {
         proto_error("proto.create fail, proto=%s", proto);
         return 0;
@@ -118,6 +119,17 @@ static int unpack(lua_State *L)
     return lua_gettop(L) - 2;
 }
 
+static const struct luaL_Reg protoLib[]={
+    {"parse", parse},
+    {"exist", exist},
+    {"create", create},
+    {"encode", encode},
+    {"decode", decode},
+    {"pack", pack},
+    {"unpack", unpack},
+    {NULL, NULL}
+};
+
 struct FieldOrderingByNumber {
     inline bool operator()(const FieldDescriptor* a,
         const FieldDescriptor* b) const {
@@ -154,17 +166,6 @@ DynamicMessageFactory      g_factory;
 
 int luaopen_protolua(lua_State* L)
 {
-    static const struct luaL_Reg protoLib[] = {
-        {"parse", parse},
-        {"exist", exist},
-        {"create", create},
-        {"encode", encode},
-        {"decode", decode},
-        {"pack", pack},
-        {"unpack", unpack},
-        {NULL, NULL}
-    };
-
     lua_newtable(L);
     luaL_setfuncs(L, protoLib, 0);
     lua_setglobal(L, "proto");
