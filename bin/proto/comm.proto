@@ -186,9 +186,7 @@ message texas_seat {
 
 message texas_detail {
 	repeated texas_player players = 1;
-	oneof oneof_hand {
-		texas_hand current = 2;	
-	}
+	texas_hand current = 2;
 }
 
 message texas_settle {

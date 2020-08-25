@@ -15,9 +15,7 @@ message ss_login_rsp {
 	int32 connid = 2;
 	string openid = 3;
 	int32 svrid = 4;
-	oneof oneof_account {
-		tb_account account = 5;
-	}
+	tb_account account = 5;
 }
 
 message ss_logout_req {
@@ -53,9 +51,7 @@ message ss_create_role_req {
 message ss_create_role_rsp {
 	errno result = 1;
 	string openid = 2;
-	oneof oneof_role {
-		tb_role role = 3;
-	}
+	tb_role role = 3;
 }
 
 message ss_load_role_req {
@@ -66,9 +62,7 @@ message ss_load_role_req {
 message ss_load_role_rsp {
 	errno result = 1;
 	string openid = 2;
-	oneof oneof_role {
-		tb_role role = 3;
-	}
+	tb_role role = 3;
 }
 
 message ss_save_role_req {
@@ -124,9 +118,7 @@ message ss_create_room_req {
 message ss_create_room_rsp {
 	errno result = 1;
 	int64 roleid = 2;
-	oneof oneof_room {
-		room_detail room = 3;
-	}
+	room_detail room = 3;
 }
 
 message ss_search_room_req {
@@ -152,9 +144,7 @@ message ss_enter_room_req {
 message ss_enter_room_rsp {
 	errno result = 1;
 	int64 roleid = 2;
-	oneof oneof_room {
-		room_detail room = 3;
-	}
+	room_detail room = 3;
 }
 
 message ss_reenter_room_req {
@@ -165,9 +155,7 @@ message ss_reenter_room_req {
 message ss_reenter_room_rsp {
 	errno result = 1;
 	int64 roleid = 2;
-	oneof oneof_room {
-		room_detail room = 3;
-	}
+	room_detail room = 3;
 }
 
 message ss_leave_room_req {

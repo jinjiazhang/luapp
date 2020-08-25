@@ -30,9 +30,7 @@ message cs_login_req {
 
 message cs_login_rsp {
 	errno result = 1;
-	oneof oneof_account {
-		cs_account account = 2;
-	}
+	cs_account account = 2;
 }
 
 message cs_kickout_ntf {
@@ -45,9 +43,7 @@ message cs_create_role_req {
 
 message cs_create_role_rsp {
 	errno result = 1;
-	oneof oneof_role {
-		cs_role role = 2;
-	}
+	cs_role role = 2;
 }
 
 message cs_select_role_req {
@@ -56,9 +52,7 @@ message cs_select_role_req {
 
 message cs_select_role_rsp {
 	errno result = 1;
-	oneof oneof_role {
-		cs_role role = 2;
-	}
+	cs_role role = 2;
 }
 
 message cs_fetch_room_req {
@@ -78,9 +72,7 @@ message cs_create_room_req {
 
 message cs_create_room_rsp {
 	errno result = 1;
-	oneof oneof_room {
-		room_detail room = 2;
-	}
+	room_detail room = 2;
 }
 
 message cs_enter_room_req {
@@ -90,9 +82,7 @@ message cs_enter_room_req {
 
 message cs_enter_room_rsp {
 	errno result = 1;
-	oneof oneof_room {
-		room_detail room = 2;
-	}
+	room_detail room = 2;
 }
 
 message cs_enter_room_ntf {
@@ -106,9 +96,7 @@ message cs_reenter_room_req {
 
 message cs_reenter_room_rsp {
 	errno result = 1;
-	oneof oneof_room {
-		room_detail room = 2;
-	}
+	room_detail room = 2;
 }
 
 message cs_leave_room_req {
@@ -160,9 +148,7 @@ message cs_texas_sitdown_req {
 
 message cs_texas_sitdown_rsp {
 	errno result = 1;
-	oneof oneof_player {
-		texas_player player = 2;	
-	}
+	texas_player player = 2;
 }
 
 message cs_texas_sitdown_ntf {
