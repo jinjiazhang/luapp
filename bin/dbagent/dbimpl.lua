@@ -1,18 +1,17 @@
 module = "dbimpl"
-db_name = "luapp"
 
 function increment_global_id(key, def_val)
-    local code, result = mongodb.mongo_find_and_modify(db_name, "global", {key = key}, {["$inc"] = {value = 1}})
+    local code, result = mongodb.mongo_find_and_modify("global", {key = key}, {["$inc"] = {value = 1}})
     if code == 0 and result.value then
         return true, result.value.value
     end
 
-    code, result = mongodb.mongo_insert(db_name, "global", {key = key, value = def_val})
+    code, result = mongodb.mongo_insert("global", {key = key, value = def_val})
     if code == 0 then
         return true, def_val
     end
 
-    code, result = mongodb.mongo_find_and_modify(db_name, "global", {key = key}, {["$inc"] = {value = 1}})
+    code, result = mongodb.mongo_find_and_modify("global", {key = key}, {["$inc"] = {value = 1}})
     if code == 0 and result.value then
         return true, result.value.value
     end
@@ -26,7 +25,7 @@ end
 
 function insert_online_info(online)
     assert(online.openid ~= nil)
-    local code, result = mongodb.mongo_insert(db_name, "online", online)
+    local code, result = mongodb.mongo_insert("online", online)
     if code ~= 0 then
         log_error("insert_online_info failed", result)
         return false
@@ -35,7 +34,7 @@ function insert_online_info(online)
 end
 
 function get_online_info(openid)
-    local code, result = mongodb.mongo_find(db_name, "online", {openid = openid})
+    local code, result = mongodb.mongo_find("online", {openid = openid})
     if code ~= 0 then
         log_error("get_online_info failed", result)
         return false
@@ -46,7 +45,7 @@ end
 
 function set_online_info(openid, online)
     assert(online.openid == openid)
-    local code, result = mongodb.mongo_replace(db_name, "online", {openid = openid}, online)
+    local code, result = mongodb.mongo_replace("online", {openid = openid}, online)
     if code ~= 0 then
         log_error("set_online_info failed", result)
         return false
@@ -55,7 +54,7 @@ function set_online_info(openid, online)
 end
 
 function clean_online_info(openid)
-    local code, result = mongodb.mongo_delete(db_name, "online", {openid = openid})
+    local code, result = mongodb.mongo_delete("online", {openid = openid})
     if code ~= 0 then
         log_error("clean_online_info failed", result)
         return false
@@ -65,7 +64,7 @@ end
 
 function create_new_account(account)
     assert(account.openid ~= nil)
-    local code, result = mongodb.mongo_insert(db_name, "account", account)
+    local code, result = mongodb.mongo_insert("account", account)
     if code ~= 0 then
         log_error("create_new_account failed", result)
         return false
@@ -74,7 +73,7 @@ function create_new_account(account)
 end
 
 function load_account_data(openid)
-    local code, result = mongodb.mongo_find(db_name, "account", {openid = openid})
+    local code, result = mongodb.mongo_find("account", {openid = openid})
     if code ~= 0 then
         log_error("load_account_data failed", result)
         return false
@@ -85,7 +84,7 @@ end
 
 function save_account_data(openid, account)
     assert(account.openid == openid)
-    local code, result = mongodb.mongo_replace(db_name, "account", {openid = openid}, account)
+    local code, result = mongodb.mongo_replace("account", {openid = openid}, account)
     if code ~= 0 then
         log_error("save_account_data failed", result)
         return false
@@ -95,7 +94,7 @@ end
 
 function create_new_role(role)
     assert(role.roleid ~= nil)
-    local code, result = mongodb.mongo_insert(db_name, "role", role)
+    local code, result = mongodb.mongo_insert("role", role)
     if code ~= 0 then
         log_error("create_new_role failed", result)
         return false
@@ -104,7 +103,7 @@ function create_new_role(role)
 end
 
 function load_role_data(roleid)
-    local code, result = mongodb.mongo_find(db_name, "role", {roleid = roleid})
+    local code, result = mongodb.mongo_find("role", {roleid = roleid})
     if code ~= 0 then
         log_error("load_role_data failed", result)
         return false
@@ -115,7 +114,7 @@ end
 
 function save_role_data(roleid, role)
     assert(role.roleid == roleid)
-    local code, result = mongodb.mongo_replace(db_name, "role", {roleid = roleid}, role)
+    local code, result = mongodb.mongo_replace("role", {roleid = roleid}, role)
     if code ~= 0 then
         log_error("save_role_data failed", result)
         return false

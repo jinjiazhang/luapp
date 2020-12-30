@@ -1,6 +1,7 @@
 module = "config"
 
 mongo_url = "mongodb+srv://luapp:mckSL5VzzMeuZUuK@luapp-1guzw.mongodb.net/test?retryWrites=true&w=majority"
+mongo_db = "luapp"
 
 redis_ip = "127.0.0.1"
 redis_port = 6379
