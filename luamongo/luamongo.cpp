@@ -45,7 +45,7 @@ EXPORT_OFUNC(luamongo, create_pool)
 const luaL_Reg* luamongo::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(luamongo, create_pool) },
+        { "create_pool", OFUNC(luamongo, create_pool) },
         { NULL, NULL }
     };
     return libs;

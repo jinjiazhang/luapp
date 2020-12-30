@@ -42,9 +42,9 @@ const luaL_Reg* ltimer::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "timeout", lua_emptyfunc },
-        { IMPORT_OFUNC(ltimer, insert) },
-        { IMPORT_OFUNC(ltimer, remove) },
-        { IMPORT_OFUNC(ltimer, change) },
+        { "insert", OFUNC(ltimer, insert) },
+        { "remove", OFUNC(ltimer, remove) },
+        { "change", OFUNC(ltimer, change) },
         { NULL, NULL }
     };
     return libs;

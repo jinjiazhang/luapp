@@ -63,8 +63,8 @@ EXPORT_OFUNC(routermgr, connect)
 const luaL_Reg* routermgr::get_libs()
 {
     static const luaL_Reg libs[] = {
-    	{ IMPORT_OFUNC(routermgr, listen) },
-        { IMPORT_OFUNC(routermgr, connect) },
+    	{ "listen", OFUNC(routermgr, listen) },
+        { "connect", OFUNC(routermgr, connect) },
         { NULL, NULL }
     };
     return libs;

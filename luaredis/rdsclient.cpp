@@ -240,8 +240,8 @@ const luaL_Reg* rdsclient::get_libs()
         { "on_connect", lua_emptyfunc },
         { "on_disconnect", lua_emptyfunc },
         { "on_reply", lua_emptyfunc },
-        { IMPORT_OFUNC(rdsclient, command) },
-        { IMPORT_OFUNC(rdsclient, close) },
+        { "command", OFUNC(rdsclient, command) },
+        { "close", OFUNC(rdsclient, close) },
         { NULL, NULL }
     };
     return libs;

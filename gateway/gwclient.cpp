@@ -273,11 +273,11 @@ EXPORT_OFUNC(gwclient, broadcast)
 const luaL_Reg* gwclient::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(gwclient, close) },
-        { IMPORT_OFUNC(gwclient, start) },
-        { IMPORT_OFUNC(gwclient, stop) },
-        { IMPORT_OFUNC(gwclient, transmit) },
-        { IMPORT_OFUNC(gwclient, broadcast) },
+        { "close", OFUNC(gwclient, close) },
+        { "start", OFUNC(gwclient, start) },
+        { "stop", OFUNC(gwclient, stop) },
+        { "transmit", OFUNC(gwclient, transmit) },
+        { "broadcast", OFUNC(gwclient, broadcast) },
         { NULL, NULL }
     };
     return libs;

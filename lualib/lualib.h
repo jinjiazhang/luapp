@@ -10,8 +10,7 @@
 
 // #pragma comment(lib, "lua.lib")
 
-#define IMPORT_CFUNC(method) \
-    #method, lua_##method
+#define CFUNC(method) lua_##method
 
 #define EXPORT_CFUNC(method) \
 int lua_##method(lua_State* L) \
@@ -20,8 +19,7 @@ int lua_##method(lua_State* L) \
     return f(L); \
 }
 
-#define IMPORT_OFUNC(class, method) \
-    #method, lua_##class##_##method
+#define OFUNC(class, method) lua_##class##_##method
 
 #define EXPORT_OFUNC(class, method) \
 int lua_##class##_##method(lua_State* L) \

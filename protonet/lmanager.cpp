@@ -80,9 +80,9 @@ EXPORT_OFUNC(lmanager, close)
 const luaL_Reg* lmanager::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(lmanager, number) },
-        { IMPORT_OFUNC(lmanager, call) },
-        { IMPORT_OFUNC(lmanager, close) },
+        { "number", OFUNC(lmanager, number) },
+        { "call", OFUNC(lmanager, call) },
+        { "close", OFUNC(lmanager, close) },
         { NULL, NULL }
     };
     return libs;

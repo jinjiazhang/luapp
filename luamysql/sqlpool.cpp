@@ -393,13 +393,13 @@ const luaL_Reg* sqlpool::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "on_respond", lua_emptyfunc },
-        { IMPORT_OFUNC(sqlpool, connect) },
-        { IMPORT_OFUNC(sqlpool, sql_select) },
-        { IMPORT_OFUNC(sqlpool, sql_insert) },
-        { IMPORT_OFUNC(sqlpool, sql_update) },
-        { IMPORT_OFUNC(sqlpool, sql_delete) },
-        { IMPORT_OFUNC(sqlpool, sql_create) },
-        { IMPORT_OFUNC(sqlpool, sql_execute) },
+        { "connect", OFUNC(sqlpool, connect) },
+        { "sql_select", OFUNC(sqlpool, sql_select) },
+        { "sql_insert", OFUNC(sqlpool, sql_insert) },
+        { "sql_update", OFUNC(sqlpool, sql_update) },
+        { "sql_delete", OFUNC(sqlpool, sql_delete) },
+        { "sql_create", OFUNC(sqlpool, sql_create) },
+        { "sql_execute", OFUNC(sqlpool, sql_execute) },
         { NULL, NULL }
     };
     return libs;

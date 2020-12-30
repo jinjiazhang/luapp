@@ -111,10 +111,10 @@ EXPORT_OFUNC(lnetwork, close)
 const luaL_Reg* lnetwork::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(lnetwork, listen) },
-        { IMPORT_OFUNC(lnetwork, connect) },
-        { IMPORT_OFUNC(lnetwork, call) },
-        { IMPORT_OFUNC(lnetwork, close) },
+        { "listen", OFUNC(lnetwork, listen) },
+        { "connect", OFUNC(lnetwork, connect) },
+        { "call", OFUNC(lnetwork, call) },
+        { "close", OFUNC(lnetwork, close) },
         { NULL, NULL }
     };
     return libs;

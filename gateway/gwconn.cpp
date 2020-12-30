@@ -145,9 +145,9 @@ EXPORT_OFUNC(gwconn, close)
 const luaL_Reg* gwconn::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(gwconn, number) },
-        { IMPORT_OFUNC(gwconn, call) },
-        { IMPORT_OFUNC(gwconn, close) },
+        { "number", OFUNC(gwconn, number) },
+        { "call", OFUNC(gwconn, call) },
+        { "close", OFUNC(gwconn, close) },
         { NULL, NULL }
     };
     return libs;

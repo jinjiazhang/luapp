@@ -155,8 +155,8 @@ EXPORT_OFUNC(consumer, close)
 const luaL_Reg* consumer::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(consumer, subscribe) },
-        { IMPORT_OFUNC(consumer, close) },
+        { "subscribe", OFUNC(consumer, subscribe) },
+        { "close", OFUNC(consumer, close) },
         { NULL, NULL }
     };
     return libs;

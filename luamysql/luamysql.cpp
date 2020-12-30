@@ -68,8 +68,8 @@ EXPORT_OFUNC(luamysql, create_pool)
 const luaL_Reg* luamysql::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(luamysql, parse) },
-        { IMPORT_OFUNC(luamysql, create_pool) },
+        { "parse", OFUNC(luamysql, parse) },
+        { "create_pool", OFUNC(luamysql, create_pool) },
         { NULL, NULL }
     };
     return libs;

@@ -149,9 +149,9 @@ EXPORT_OFUNC(luakafka, close)
 const luaL_Reg* luakafka::get_libs()
 {
     static const luaL_Reg libs[] = {
-    	{ IMPORT_OFUNC(luakafka, create_producer) },
-        { IMPORT_OFUNC(luakafka, create_consumer) },
-        { IMPORT_OFUNC(luakafka, close) },
+        { "create_producer", OFUNC(luakafka, create_producer) },
+        { "create_consumer", OFUNC(luakafka, create_consumer) },
+        { "close", OFUNC(luakafka, close) },
         { NULL, NULL }
     };
     return libs;

@@ -224,11 +224,11 @@ const luaL_Reg* luapp::get_libs()
         { "proc", lua_emptyfunc },
         { "tick", lua_emptyfunc },
         { "idle", lua_emptyfunc },
-        { IMPORT_OFUNC(luapp, svrid) },
-        { IMPORT_OFUNC(luapp, exit) },
-        { IMPORT_OFUNC(luapp, time) },
-        { IMPORT_OFUNC(luapp, mstime) },
-        { IMPORT_OFUNC(luapp, offset) },
+        { "svrid", OFUNC(luapp, svrid) },
+        { "exit", OFUNC(luapp, exit) },
+        { "time", OFUNC(luapp, time) },
+        { "mstime", OFUNC(luapp, mstime) },
+        { "offset", OFUNC(luapp, offset) },
         { NULL, NULL }
     };
     return libs;

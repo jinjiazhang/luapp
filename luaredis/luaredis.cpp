@@ -50,7 +50,7 @@ EXPORT_OFUNC(luaredis, connect)
 const luaL_Reg* luaredis::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(luaredis, connect) },
+        { "connect", OFUNC(luaredis, connect) },
         { NULL, NULL }
     };
     return libs;

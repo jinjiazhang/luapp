@@ -98,9 +98,9 @@ EXPORT_OFUNC(gateway, open)
 const luaL_Reg* gateway::get_libs()
 {
     static const luaL_Reg libs[] = {
-    	{ IMPORT_OFUNC(gateway, listen) },
-        { IMPORT_OFUNC(gateway, connect) },
-        { IMPORT_OFUNC(gateway, open) },
+    	{ "listen", OFUNC(gateway, listen) },
+        { "connect", OFUNC(gateway, connect) },
+        { "open", OFUNC(gateway, open) },
         { NULL, NULL }
     };
     return libs;

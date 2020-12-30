@@ -269,14 +269,14 @@ EXPORT_OFUNC(rtclient, close)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(rtclient, number) },
-        { IMPORT_OFUNC(rtclient, reg_role) },
-        { IMPORT_OFUNC(rtclient, unreg_role) },
-        { IMPORT_OFUNC(rtclient, call_target) },
-        { IMPORT_OFUNC(rtclient, call_transmit) },
-        { IMPORT_OFUNC(rtclient, call_group) },
-        { IMPORT_OFUNC(rtclient, call_random) },
-        { IMPORT_OFUNC(rtclient, close) },
+        { "number", OFUNC(rtclient, number) },
+        { "reg_role", OFUNC(rtclient, reg_role) },
+        { "unreg_role", OFUNC(rtclient, unreg_role) },
+        { "call_target", OFUNC(rtclient, call_target) },
+        { "call_transmit", OFUNC(rtclient, call_transmit) },
+        { "call_group", OFUNC(rtclient, call_group) },
+        { "call_random", OFUNC(rtclient, call_random) },
+        { "close", OFUNC(rtclient, close) },
         { NULL, NULL }
     };
     return libs;

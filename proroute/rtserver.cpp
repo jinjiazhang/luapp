@@ -391,9 +391,9 @@ EXPORT_OFUNC(rtserver, close)
 const luaL_Reg* rtserver::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(rtserver, set_group) },
-        { IMPORT_OFUNC(rtserver, call_target) },
-        { IMPORT_OFUNC(rtserver, close) },
+        { "set_group", OFUNC(rtserver, set_group) },
+        { "call_target", OFUNC(rtserver, call_target) },
+        { "close", OFUNC(rtserver, close) },
         { NULL, NULL }
     };
     return libs;

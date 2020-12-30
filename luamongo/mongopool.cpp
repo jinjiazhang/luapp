@@ -423,14 +423,14 @@ const luaL_Reg* mongopool::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "on_respond", lua_emptyfunc },
-        { IMPORT_OFUNC(mongopool, mongo_command) },
-        { IMPORT_OFUNC(mongopool, mongo_insert) },
-        { IMPORT_OFUNC(mongopool, mongo_find) },
-        { IMPORT_OFUNC(mongopool, mongo_find_many) },
-        { IMPORT_OFUNC(mongopool, mongo_find_and_modify) },
-        { IMPORT_OFUNC(mongopool, mongo_update) },
-        { IMPORT_OFUNC(mongopool, mongo_replace) },
-        { IMPORT_OFUNC(mongopool, mongo_delete) },
+        { "mongo_command", OFUNC(mongopool, mongo_command) },
+        { "mongo_insert", OFUNC(mongopool, mongo_insert) },
+        { "mongo_find", OFUNC(mongopool, mongo_find) },
+        { "mongo_find_many", OFUNC(mongopool, mongo_find_many) },
+        { "mongo_find_and_modify", OFUNC(mongopool, mongo_find_and_modify) },
+        { "mongo_update", OFUNC(mongopool, mongo_update) },
+        { "mongo_replace", OFUNC(mongopool, mongo_replace) },
+        { "mongo_delete", OFUNC(mongopool, mongo_delete) },
         { NULL, NULL }
     };
     return libs;

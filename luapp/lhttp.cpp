@@ -37,8 +37,8 @@ const luaL_Reg* lhttp::get_libs()
 {
     static const luaL_Reg libs[] = {
         { "respond", lua_emptyfunc },
-        { IMPORT_OFUNC(lhttp, get) },
-        { IMPORT_OFUNC(lhttp, post) },
+        { "get", OFUNC(lhttp, get) },
+        { "post", OFUNC(lhttp, post) },
         { NULL, NULL }
     };
     return libs;

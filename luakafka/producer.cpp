@@ -133,8 +133,8 @@ EXPORT_OFUNC(producer, close)
 const luaL_Reg* producer::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(producer, produce) },
-        { IMPORT_OFUNC(producer, close) },
+        { "produce", OFUNC(producer, produce) },
+        { "close", OFUNC(producer, close) },
         { NULL, NULL }
     };
     return libs;

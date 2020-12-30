@@ -414,10 +414,10 @@ EXPORT_OFUNC(gwserver, stop)
 const luaL_Reg* gwserver::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { IMPORT_OFUNC(gwserver, open) },
-    	{ IMPORT_OFUNC(gwserver, close) },
-        { IMPORT_OFUNC(gwserver, start) },
-        { IMPORT_OFUNC(gwserver, stop) },
+        { "open", OFUNC(gwserver, open) },
+    	{ "close", OFUNC(gwserver, close) },
+        { "start", OFUNC(gwserver, start) },
+        { "stop", OFUNC(gwserver, stop) },
         { NULL, NULL }
     };
     return libs;
