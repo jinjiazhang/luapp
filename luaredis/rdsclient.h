@@ -11,12 +11,6 @@ struct redisAsyncContext;
 class rdsclient : public lobject, public iobject
 {
 public:
-    struct taskdata
-    {
-        int token = 0;
-        int method = 0;
-    };
-public:
     rdsclient(lua_State* L, luaredis* rds);
 	~rdsclient();
 
@@ -29,7 +23,7 @@ public:
     void on_disconnect(int status);
     void on_reply(redisReply* reply, void* privdata);
 
-    int rds_command(lua_State* L);
+    int command(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 

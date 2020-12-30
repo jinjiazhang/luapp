@@ -176,16 +176,15 @@ static void luaL_pushreply(lua_State* L, redisReply* reply)
 
 void rdsclient::on_reply(redisReply* reply, void* privdata)
 {
-    taskdata* task = (taskdata*)privdata;
+    int token = (int)privdata;
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_reply");
-    luaL_pushvalue(L, task->token);
+    luaL_pushvalue(L, token);
     luaL_pushstatus(L, reply);
     luaL_pushreply(L, reply);
     
     int nargs = lua_gettop(L) - top - 1;
     luaL_safecall(L, nargs, 0);
-    delete task;
 }
 
 static int make_command(lua_State* L, std::vector<const char*>& args, std::vector<size_t>& lens)
@@ -205,7 +204,7 @@ static int make_command(lua_State* L, std::vector<const char*>& args, std::vecto
     return 0;
 }
 
-int rdsclient::rds_command(lua_State* L)
+int rdsclient::command(lua_State* L)
 {
     std::vector<const char*> args;
     std::vector<size_t> lens;
@@ -216,17 +215,15 @@ int rdsclient::rds_command(lua_State* L)
         return 0;
     }
 
-    taskdata* task = new taskdata();
-    task->token = ++last_token_;
-    task->method = 0;
-    int status = redisAsyncCommandArgv(context_, redis_on_reply, task, args.size(), args.data(), lens.data());
+    int token = ++last_token_;
+    int status = redisAsyncCommandArgv(context_, redis_on_reply, (void*)token, args.size(), args.data(), lens.data());
     if (status != REDIS_OK)
     {
         log_error("rdsclient::rds_command async command fail, status=%d", status);
         return 0;
     }
 
-    lua_pushinteger(L, task->token);
+    lua_pushinteger(L, token);
     return 1;
 }
 
@@ -235,7 +232,7 @@ int rdsclient::close(lua_State* L)
     return 0;
 }
 
-EXPORT_OFUNC(rdsclient, rds_command)
+EXPORT_OFUNC(rdsclient, command)
 EXPORT_OFUNC(rdsclient, close)
 const luaL_Reg* rdsclient::get_libs()
 {
@@ -243,7 +240,7 @@ const luaL_Reg* rdsclient::get_libs()
         { "on_connect", lua_emptyfunc },
         { "on_disconnect", lua_emptyfunc },
         { "on_reply", lua_emptyfunc },
-        { IMPORT_OFUNC(rdsclient, rds_command) },
+        { IMPORT_OFUNC(rdsclient, command) },
         { IMPORT_OFUNC(rdsclient, close) },
         { NULL, NULL }
     };
