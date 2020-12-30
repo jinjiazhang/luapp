@@ -3,8 +3,6 @@
 
 #include "lualib/lobject.h"
 #include "protonet/network.h"
-#include "argsbuf.h"
-#include "replybuf.h"
 
 class luaredis;
 struct inetwork;
@@ -31,19 +29,12 @@ public:
     void on_disconnect(int status);
     void on_reply(redisReply* reply, void* privdata);
 
-    int rds_select(lua_State* L);
-    int rds_insert(lua_State* L);
-    int rds_update(lua_State* L);
-    int rds_delete(lua_State* L);
     int rds_command(lua_State* L);
-    int rds_increase(lua_State* L);
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
 private:
     int last_token_;
-    argsbuf argsbuf_;
-    replybuf replybuf_;
     luaredis* luaredis_;
     redisAsyncContext* context_;
 };
