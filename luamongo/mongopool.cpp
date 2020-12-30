@@ -110,16 +110,17 @@ void mongopool::work_thread(void* data)
     mongoc_client_pool_push(pool, client);
 }
 
-// pool.mongo_command({ping = 1})
+// pool.mongo_command("db_name", {ping = 1})
 int mongopool::mongo_command(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_COMMAND;
-    task->db_name = dbname_;
-    task->bson1 = luaL_tobson(L, 1);
+    task->db_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
 
     req_mutex_.lock();
     req_queue_.push_back(task);
