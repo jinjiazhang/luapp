@@ -42,7 +42,7 @@ mongopool::~mongopool()
     }
 }
 
-bool mongopool::init(const char* url, int num)
+bool mongopool::init(const char* url, const char* dbname, int num)
 {
     bson_error_t error;
     uri_ = mongoc_uri_new_with_error(url, &error);
@@ -59,6 +59,8 @@ bool mongopool::init(const char* url, int num)
     for (int i = 0; i < num; i++) {
         threads_.push_back(std::thread(&mongopool::work_thread, this, pool_));
     }
+
+    dbname_ = dbname;
     return true;
 }
 
@@ -108,17 +110,16 @@ void mongopool::work_thread(void* data)
     mongoc_client_pool_push(pool, client);
 }
 
-// pool.mongo_command("db_name", {ping = 1})
+// pool.mongo_command({ping = 1})
 int mongopool::mongo_command(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TTABLE);
+    luaL_checktype(L, 1, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_COMMAND;
-    task->db_name = lua_tostring(L, 1);
-    task->bson1 = luaL_tobson(L, 2);
+    task->db_name = dbname_;
+    task->bson1 = luaL_tobson(L, 1);
 
     req_mutex_.lock();
     req_queue_.push_back(task);
@@ -131,17 +132,16 @@ int mongopool::mongo_command(lua_State* L)
 int mongopool::mongo_insert(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    luaL_checktype(L, 3, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_INSERT;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    if (lua_istable(L, 4)) {
-        task->bson2 = luaL_tobson(L, 4);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    if (lua_istable(L, 3)) {
+        task->bson2 = luaL_tobson(L, 3);
     }
 
     req_mutex_.lock();
@@ -155,17 +155,16 @@ int mongopool::mongo_insert(lua_State* L)
 int mongopool::mongo_find(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    luaL_checktype(L, 3, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_FIND;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    if (lua_istable(L, 4)) {
-        task->bson2 = luaL_tobson(L, 4);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    if (lua_istable(L, 3)) {
+        task->bson2 = luaL_tobson(L, 3);
     }
 
     req_mutex_.lock();
@@ -179,17 +178,16 @@ int mongopool::mongo_find(lua_State* L)
 int mongopool::mongo_find_many(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    luaL_checktype(L, 3, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_FIND_MANY;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    if (lua_istable(L, 4)) {
-        task->bson2 = luaL_tobson(L, 4);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    if (lua_istable(L, 3)) {
+        task->bson2 = luaL_tobson(L, 3);
     }
 
     req_mutex_.lock();
@@ -203,17 +201,16 @@ int mongopool::mongo_find_many(lua_State* L)
 int mongopool::mongo_find_and_modify(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    luaL_checktype(L, 3, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_FIND_AND_MODIFY;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    if (lua_istable(L, 4)) {
-        task->bson2 = luaL_tobson(L, 4);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    if (lua_istable(L, 3)) {
+        task->bson2 = luaL_tobson(L, 3);
     }
 
     req_mutex_.lock();
@@ -227,19 +224,18 @@ int mongopool::mongo_find_and_modify(lua_State* L)
 int mongopool::mongo_update(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
     luaL_checktype(L, 3, LUA_TTABLE);
-    luaL_checktype(L, 4, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_UPDATE;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    task->bson2 = luaL_tobson(L, 4);
-    if (lua_istable(L, 5)) {
-        task->bson3 = luaL_tobson(L, 5);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    task->bson2 = luaL_tobson(L, 3);
+    if (lua_istable(L, 4)) {
+        task->bson3 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -253,19 +249,18 @@ int mongopool::mongo_update(lua_State* L)
 int mongopool::mongo_replace(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TTABLE);
     luaL_checktype(L, 3, LUA_TTABLE);
-    luaL_checktype(L, 4, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_REPLACE;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    task->bson2 = luaL_tobson(L, 4);
-    if (lua_istable(L, 5)) {
-        task->bson3 = luaL_tobson(L, 5);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    task->bson2 = luaL_tobson(L, 3);
+    if (lua_istable(L, 4)) {
+        task->bson3 = luaL_tobson(L, 4);
     }
 
     req_mutex_.lock();
@@ -279,17 +274,16 @@ int mongopool::mongo_replace(lua_State* L)
 int mongopool::mongo_delete(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
-    luaL_checktype(L, 2, LUA_TSTRING);
-    luaL_checktype(L, 3, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
 
     std::shared_ptr<taskdata> task(new taskdata());
     task->token = ++last_token_;
     task->method = MONGO_METHOD_DELETE;
-    task->db_name = lua_tostring(L, 1);
-    task->coll_name = lua_tostring(L, 2);
-    task->bson1 = luaL_tobson(L, 3);
-    if (lua_istable(L, 4)) {
-        task->bson2 = luaL_tobson(L, 4);
+    task->db_name = dbname_;
+    task->coll_name = lua_tostring(L, 1);
+    task->bson1 = luaL_tobson(L, 2);
+    if (lua_istable(L, 3)) {
+        task->bson2 = luaL_tobson(L, 3);
     }
 
     req_mutex_.lock();

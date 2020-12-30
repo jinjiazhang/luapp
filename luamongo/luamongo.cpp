@@ -26,11 +26,13 @@ int luamongo::create_pool(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TSTRING);
     const char* url = luaL_getvalue<const char*>(L, 1);
-    luaL_checktype(L, 2, LUA_TNUMBER);
-    int num = luaL_getvalue<int>(L, 2);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    const char* dbname = luaL_getvalue<const char*>(L, 2);
+    luaL_checktype(L, 3, LUA_TNUMBER);
+    int num = luaL_getvalue<int>(L, 3);
 
     mongopool* pool = new mongopool(this->L, this);
-    if (!pool->init(url, num))
+    if (!pool->init(url, dbname, num))
     {
         delete pool;
         return 0;

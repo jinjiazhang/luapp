@@ -34,7 +34,7 @@ public:
     mongopool(lua_State* L, luamongo* mongo);
     ~mongopool();
 
-    bool init(const char* url, int num);
+    bool init(const char* url, const char* dbname, int num);
     int  update();
     void work_thread(void* data);
 
@@ -56,6 +56,8 @@ private:
     luamongo* mongo_;
     mongoc_uri_t* uri_;
     mongoc_client_pool_t* pool_;
+    std::string dbname_;
+
     int last_token_;
     std::atomic_bool run_flag_;
     std::vector<std::thread> threads_;
