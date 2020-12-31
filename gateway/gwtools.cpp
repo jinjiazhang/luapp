@@ -1,4 +1,5 @@
 #include "gwtools.h"
+#include <string.h>
 
 // tcp://127.0.0.1:8086?encrypt=1
 bool parse_url(std::string url, url_info* args)

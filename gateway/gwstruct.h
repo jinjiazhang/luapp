@@ -1,6 +1,8 @@
 #ifndef _JINJIAZHANG_GWSTRUCT_H_
 #define _JINJIAZHANG_GWSTRUCT_H_
 
+#include <string.h>
+
 typedef unsigned int            svrid_t;
 typedef unsigned long long      roleid_t;
 typedef unsigned int            connid_t;
