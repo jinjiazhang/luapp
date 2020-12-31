@@ -1,6 +1,7 @@
 #include "cipher.h"
 #include <string>
 #include <ctime>
+#include <string.h>
 
 cipher::cipher()
 {
