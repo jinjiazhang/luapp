@@ -176,7 +176,7 @@ static void luaL_pushreply(lua_State* L, redisReply* reply)
 
 void rdsclient::on_reply(redisReply* reply, void* privdata)
 {
-    int token = (int)privdata;
+    int token = (long)privdata;
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_reply");
     luaL_pushvalue(L, token);
