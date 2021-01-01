@@ -27,7 +27,8 @@ enum service {
 	DBAGENT = 2;
 	LISTSVR = 3;
 	GAMESVR = 4;
-	LOBBY = 5;
+	GATEWAY = 5;
+	LOBBY = 6;
 }
 
 enum game_mode {
