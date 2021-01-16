@@ -6,7 +6,7 @@ rtclient::rtclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
     router_ = 0;
-    number_ = 0;
+    netid_ = 0;
     network_ = nullptr;
     manager_ = nullptr;
 }
@@ -16,22 +16,22 @@ rtclient::~rtclient()
 
 }
 
-int rtclient::number()
+int rtclient::netid()
 {
-    return number_;
+    return netid_;
 }
 
-bool rtclient::init(routermgr* manager, int number)
+bool rtclient::init(routermgr* manager, int netid)
 {
     network_ = manager->network();
     manager_ = manager;
-    number_ = number;
+    netid_ = netid;
     return true;
 }
 
-void rtclient::on_accept(int number, int error)
+void rtclient::on_accept(int netid, int error)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     if (error != 0)
     {
         luaL_callfunc(L, this, "on_accept", router_, error);
@@ -41,18 +41,18 @@ void rtclient::on_accept(int number, int error)
     rtm_reg_svrid msg;
     msg.msg_type = rtm_type::reg_svrid;
     msg.svrid = svrid_;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
 }
 
-void rtclient::on_closed(int number, int error)
+void rtclient::on_closed(int netid, int error)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     luaL_callfunc(L, this, "on_closed", router_, error);
 }
 
-void rtclient::on_package(int number, char* data, int len)
+void rtclient::on_package(int netid, char* data, int len)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     if (len < sizeof(rtm_head))
     {
         log_error("rtclient::on_package length =%d invalid", len);
@@ -132,7 +132,7 @@ int rtclient::reg_role(lua_State* L)
     msg.msg_type = rtm_type::reg_roleid;
     msg.group = group;
     msg.roleid = roleid;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
     return 0;
 }
 
@@ -145,7 +145,7 @@ int rtclient::unreg_role(lua_State* L)
     msg.msg_type = rtm_type::unreg_roleid;
     msg.group = group;
     msg.roleid = roleid;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
     return 0;
 }
 
@@ -168,7 +168,7 @@ int rtclient::call_target(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)msg_len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -197,7 +197,7 @@ int rtclient::call_transmit(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -222,7 +222,7 @@ int rtclient::call_group(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -247,7 +247,7 @@ int rtclient::call_random(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -258,7 +258,7 @@ int rtclient::close(lua_State* L)
     return 0;
 }
 
-EXPORT_OFUNC(rtclient, number)
+EXPORT_OFUNC(rtclient, netid)
 EXPORT_OFUNC(rtclient, reg_role)
 EXPORT_OFUNC(rtclient, unreg_role)
 EXPORT_OFUNC(rtclient, call_target)
@@ -269,7 +269,7 @@ EXPORT_OFUNC(rtclient, close)
 const luaL_Reg* rtclient::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { "number", OFUNC(rtclient, number) },
+        { "netid", OFUNC(rtclient, netid) },
         { "reg_role", OFUNC(rtclient, reg_role) },
         { "unreg_role", OFUNC(rtclient, unreg_role) },
         { "call_target", OFUNC(rtclient, call_target) },

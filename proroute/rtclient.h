@@ -12,8 +12,8 @@ public:
     rtclient(lua_State* L, svrid_t svrid);
     ~rtclient();
 
-    int number();
-    bool init(routermgr* manager, int number);
+    int netid();
+    bool init(routermgr* manager, int netid);
 
     int reg_role(lua_State* L);
     int unreg_role(lua_State* L);
@@ -24,9 +24,9 @@ public:
     int close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
-    virtual void on_accept(int number, int error);
-    virtual void on_closed(int number, int error);
-    virtual void on_package(int number, char* data, int len);
+    virtual void on_accept(int netid, int error);
+    virtual void on_closed(int netid, int error);
+    virtual void on_package(int netid, char* data, int len);
 
 private:
     void on_reg_svrid(char* data, int len);
@@ -36,7 +36,7 @@ private:
 private:
     svrid_t svrid_;
     svrid_t router_;
-    int number_;
+    int netid_;
     inetwork* network_;
     routermgr* manager_;
 };

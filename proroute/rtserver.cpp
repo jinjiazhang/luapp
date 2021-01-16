@@ -5,7 +5,7 @@
 rtserver::rtserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
-    number_ = 0;
+    netid_ = 0;
     network_ = nullptr;
     manager_ = nullptr;
 }
@@ -15,48 +15,48 @@ rtserver::~rtserver()
     
 }
 
-int rtserver::number()
+int rtserver::netid()
 {
-    return number_;
+    return netid_;
 }
 
-bool rtserver::init(routermgr* manager, int number)
+bool rtserver::init(routermgr* manager, int netid)
 {
     network_ = manager->network();
     manager_ = manager;
-    number_ = number;
+    netid_ = netid;
     return true;
 }
 
-int rtserver::svrid_to_num(svrid_t svrid)
+int rtserver::svrid_to_netid(svrid_t svrid)
 {
-    svrid_num_map::iterator it = svrid_num_map_.find(svrid);
-    if (it == svrid_num_map_.end())
+    svrid_netid_map::iterator it = svrid_netid_map_.find(svrid);
+    if (it == svrid_netid_map_.end())
     {
         return 0;
     }
     return it->second;
 }
 
-svrid_t rtserver::num_to_svrid(int number)
+svrid_t rtserver::netid_to_svrid(int netid)
 {
-    num_svrid_map::iterator it = num_svrid_map_.find(number);
-    if (it == num_svrid_map_.end())
+    netid_svrid_map::iterator it = netid_svrid_map_.find(netid);
+    if (it == netid_svrid_map_.end())
     {
         return 0;
     }
     return it->second;
 }
 
-int rtserver::roleid_to_num(roleid_t roleid, group_t group)
+int rtserver::roleid_to_netid(roleid_t roleid, group_t group)
 {
-    transmit_num_map::iterator it = transmit_num_map_.find(group);
-    if (it == transmit_num_map_.end())
+    transmit_netid_map::iterator it = transmit_netid_map_.find(group);
+    if (it == transmit_netid_map_.end())
     {
         return 0;
     }
 
-    roleid_num_map::iterator it2 = it->second.find(roleid);
+    roleid_netid_map::iterator it2 = it->second.find(roleid);
     if (it2 == it->second.end())
     {
         return 0;
@@ -64,7 +64,7 @@ int rtserver::roleid_to_num(roleid_t roleid, group_t group)
     return it2->second;
 }
 
-void rtserver::on_accept(int number, int error)
+void rtserver::on_accept(int netid, int error)
 {
     if (error != 0)
     {
@@ -75,23 +75,23 @@ void rtserver::on_accept(int number, int error)
     rtm_reg_svrid msg;
     msg.msg_type = rtm_type::reg_svrid;
     msg.svrid = svrid_;
-    network_->send(number, &msg, sizeof(msg));
+    network_->send(netid, &msg, sizeof(msg));
 }
 
-void rtserver::on_closed(int number, int error)
+void rtserver::on_closed(int netid, int error)
 {
-    svrid_t svrid = num_to_svrid(number);
+    svrid_t svrid = netid_to_svrid(netid);
     luaL_callfunc(L, this, "on_closed", svrid, error);
 
-    num_svrid_map::iterator it = num_svrid_map_.find(number);
-    if (it != num_svrid_map_.end())
+    netid_svrid_map::iterator it = netid_svrid_map_.find(netid);
+    if (it != netid_svrid_map_.end())
     {
-        svrid_num_map_.erase(it->second);
-        num_svrid_map_.erase(it);
+        svrid_netid_map_.erase(it->second);
+        netid_svrid_map_.erase(it);
     }
 }
 
-void rtserver::on_package(int number, char* data, int len)
+void rtserver::on_package(int netid, char* data, int len)
 {
     if (len < sizeof(rtm_head))
     {
@@ -103,25 +103,25 @@ void rtserver::on_package(int number, char* data, int len)
     switch ((rtm_type)head->msg_type)
     {
     case rtm_type::reg_svrid:
-        on_reg_svrid(number, data, len);
+        on_reg_svrid(netid, data, len);
         break;
     case rtm_type::reg_roleid:
-        on_reg_roleid(number, data, len);
+        on_reg_roleid(netid, data, len);
         break;
     case rtm_type::unreg_roleid:
-        on_unreg_roleid(number, data, len);
+        on_unreg_roleid(netid, data, len);
         break;
     case rtm_type::forward_svrid:
-        on_forward_svrid(number, data, len);
+        on_forward_svrid(netid, data, len);
         break;
     case rtm_type::forward_roleid:
-        on_forward_roleid(number, data, len);
+        on_forward_roleid(netid, data, len);
         break;
     case rtm_type::forward_group:
-        on_forward_group(number, data, len);
+        on_forward_group(netid, data, len);
         break;
     case rtm_type::forward_random:
-        on_forward_random(number, data, len);
+        on_forward_random(netid, data, len);
         break;
     default:
         log_error("rtserver::on_package msg_type =%d invalid", head->msg_type);
@@ -129,29 +129,29 @@ void rtserver::on_package(int number, char* data, int len)
     }
 }
 
-void rtserver::on_reg_svrid(int number, char* data, int len)
+void rtserver::on_reg_svrid(int netid, char* data, int len)
 {
     rtm_reg_svrid* msg = (rtm_reg_svrid*)data;
-    svrid_num_map_[msg->svrid] = number;
-    num_svrid_map_[number] = msg->svrid;
+    svrid_netid_map_[msg->svrid] = netid;
+    netid_svrid_map_[netid] = msg->svrid;
     luaL_callfunc(L, this, "on_accept", msg->svrid, 0);
 }
 
-void rtserver::on_reg_roleid(int number, char* data, int len)
+void rtserver::on_reg_roleid(int netid, char* data, int len)
 {
     rtm_reg_roleid* msg = (rtm_reg_roleid*)data;
-    transmit_num_map_[msg->group][msg->roleid] = number;
+    transmit_netid_map_[msg->group][msg->roleid] = netid;
 }
 
-void rtserver::on_unreg_roleid(int number, char* data, int len)
+void rtserver::on_unreg_roleid(int netid, char* data, int len)
 {
     rtm_unreg_roleid* msg = (rtm_unreg_roleid*)data;
-    transmit_num_map_[msg->group].erase(msg->roleid);
+    transmit_netid_map_[msg->group].erase(msg->roleid);
 }
 
-void rtserver::on_call_server(int number, char* data, int len)
+void rtserver::on_call_server(int netid, char* data, int len)
 {
-    svrid_t srcid = num_to_svrid(number);
+    svrid_t srcid = netid_to_svrid(netid);
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
     luaL_pushvalue(L, srcid);
@@ -165,7 +165,7 @@ void rtserver::on_call_server(int number, char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-void rtserver::on_forward_svrid(int number, char* data, int len)
+void rtserver::on_forward_svrid(int netid, char* data, int len)
 {
     rtm_forward_svrid* msg = (rtm_forward_svrid*)data;
     data += sizeof(rtm_forward_svrid);
@@ -173,21 +173,21 @@ void rtserver::on_forward_svrid(int number, char* data, int len)
 
     if (msg->dstid == svrid_)
     {
-        on_call_server(number, data, len);
+        on_call_server(netid, data, len);
         return;
     }
 
-    int dst_num = svrid_to_num(msg->dstid);
-    if (dst_num <= 0)
+    int dst_netid = svrid_to_netid(msg->dstid);
+    if (dst_netid <= 0)
     {
         log_error("rtserver::on_forward_svrid dstid =%d notfound", msg->dstid);
         return;
     }
 
-    svrid_t scrid = num_to_svrid(number);
+    svrid_t scrid = netid_to_svrid(netid);
     if (scrid <= 0)
     {
-        log_error("rtserver::on_forward_svrid number =%d notfound", number);
+        log_error("rtserver::on_forward_svrid netid =%d notfound", netid);
         return;
     }
 
@@ -198,17 +198,17 @@ void rtserver::on_forward_svrid(int number, char* data, int len)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { data, len };
-    network_->sendv(dst_num, bufs, 2);
+    network_->sendv(dst_netid, bufs, 2);
 }
 
-void rtserver::on_forward_roleid(int number, char* data, int len)
+void rtserver::on_forward_roleid(int netid, char* data, int len)
 {
     rtm_forward_roleid* msg = (rtm_forward_roleid*)data;
     data += sizeof(rtm_forward_roleid);
     len -= sizeof(rtm_forward_roleid);
 
-    int dst_num = roleid_to_num(msg->roleid, msg->group);
-    if (dst_num <= 0)
+    int dst_netid = roleid_to_netid(msg->roleid, msg->group);
+    if (dst_netid <= 0)
     {
         log_error("rtserver::on_forward_roleid roleid =%lld notfound", msg->roleid);
         return;
@@ -217,24 +217,24 @@ void rtserver::on_forward_roleid(int number, char* data, int len)
     rtm_transmit_call head;
     head.msg_type = rtm_type::transmit_call;
     head.roleid = msg->roleid;
-    head.srcid = num_to_svrid(number);
+    head.srcid = netid_to_svrid(netid);
 
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { data, len };
-    network_->sendv(dst_num, bufs, 2);
+    network_->sendv(dst_netid, bufs, 2);
 }
 
-void rtserver::on_forward_group(int number, char* data, int len)
+void rtserver::on_forward_group(int netid, char* data, int len)
 {
     rtm_forward_group* msg = (rtm_forward_group*)data;
     data += sizeof(rtm_forward_group);
     len -= sizeof(rtm_forward_group);
 
-    svrid_t scrid = num_to_svrid(number);
+    svrid_t scrid = netid_to_svrid(netid);
     if (scrid <= 0)
     {
-        log_error("rtserver::on_forward_group number =%d notfound", number);
+        log_error("rtserver::on_forward_group netid =%d notfound", netid);
         return;
     }
 
@@ -255,26 +255,26 @@ void rtserver::on_forward_group(int number, char* data, int len)
 
     for (svrid_t dstid : it->second)
     {
-        int dst_num = svrid_to_num(dstid);
-        if (dst_num <= 0)
+        int dst_netid = svrid_to_netid(dstid);
+        if (dst_netid <= 0)
         {
             log_error("rtserver::on_forward_group dstid =%d notfound", dstid);
             continue;
         }
-        network_->sendv(dst_num, bufs, 2);
+        network_->sendv(dst_netid, bufs, 2);
     }
 }
 
-void rtserver::on_forward_random(int number, char* data, int len)
+void rtserver::on_forward_random(int netid, char* data, int len)
 {
     rtm_forward_random* msg = (rtm_forward_random*)data;
     data += sizeof(rtm_forward_random);
     len -= sizeof(rtm_forward_random);
 
-    svrid_t scrid = num_to_svrid(number);
+    svrid_t scrid = netid_to_svrid(netid);
     if (scrid <= 0)
     {
-        log_error("rtserver::on_forward_random number =%d notfound", number);
+        log_error("rtserver::on_forward_random netid =%d notfound", netid);
         return;
     }
 
@@ -290,8 +290,8 @@ void rtserver::on_forward_random(int number, char* data, int len)
     std::advance(select, index);
     svrid_t dstid = *select;
 
-    int dst_num = svrid_to_num(dstid);
-    if (dst_num <= 0)
+    int dst_netid = svrid_to_netid(dstid);
+    if (dst_netid <= 0)
     {
         log_error("rtserver::on_forward_random dstid =%d notfound", dstid);
         return;
@@ -304,7 +304,7 @@ void rtserver::on_forward_random(int number, char* data, int len)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { data, len };
-    network_->sendv(dst_num, bufs, 2);
+    network_->sendv(dst_netid, bufs, 2);
 }
 
 int rtserver::set_group(lua_State* L)
@@ -353,8 +353,8 @@ int rtserver::call_target(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
     svrid_t dstid = luaL_getvalue<int>(L, 1);
-    int dst_num = svrid_to_num(dstid);
-    if (dst_num <= 0)
+    int dst_netid = svrid_to_netid(dstid);
+    if (dst_netid <= 0)
     {
         log_error("rtserver::call_target dstid =%d notfound", dstid);
         return 0;
@@ -374,7 +374,7 @@ int rtserver::call_target(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { msg_buf, (int)msg_len };
-    network_->sendv(dst_num, bufs, 2);
+    network_->sendv(dst_netid, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
