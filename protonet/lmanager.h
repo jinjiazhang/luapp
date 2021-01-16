@@ -11,19 +11,19 @@ public:
     lmanager(lua_State* L);
     ~lmanager();
 
-    int number();
-    bool init(lnetwork* network, int number);
+    int netid();
+    bool init(lnetwork* network, int netid);
 
     int call(lua_State* L);
     void close(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
-    virtual void on_accept(int number, int error);
-    virtual void on_closed(int number, int error);
-    virtual void on_package(int number, char* data, int len);
+    virtual void on_accept(int netid, int error);
+    virtual void on_closed(int netid, int error);
+    virtual void on_package(int netid, char* data, int len);
 
 private:
-    int number_;
+    int netid_;
     lnetwork* network_;
 };
 

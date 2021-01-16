@@ -25,14 +25,14 @@ int lnetwork::listen(lua_State* L)
     int port = luaL_getvalue<int>(L, 2);
 
     lmanager* manager = new lmanager(this->L);
-    int number = network_->listen(manager, ip, port);
-    if (number <= 0)
+    int netid = network_->listen(manager, ip, port);
+    if (netid <= 0)
     {
         delete manager;
         return 0;
     }
 
-    manager->init(this, number);
+    manager->init(this, netid);
     lua_pushlobject(L, manager);
     add_manager(manager);
     return 1;
@@ -46,14 +46,14 @@ int lnetwork::connect(lua_State* L)
     int port = luaL_getvalue<int>(L, 2);
 
     lmanager* manager = new lmanager(this->L);
-    int number = network_->connect(manager, ip, port);
-    if (number <= 0)
+    int netid = network_->connect(manager, ip, port);
+    if (netid <= 0)
     {
         delete manager;
         return 0;
     }
 
-    manager->init(this, number);
+    manager->init(this, netid);
     lua_pushlobject(L, manager);
     add_manager(manager);
     return 1;
@@ -62,7 +62,7 @@ int lnetwork::connect(lua_State* L)
 int lnetwork::call(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    int number = luaL_getvalue<int>(L, 1);
+    int netid = luaL_getvalue<int>(L, 1);
 
     int top = lua_gettop(L);
     size_t msg_len = sizeof(msg_buf);
@@ -71,7 +71,7 @@ int lnetwork::call(lua_State* L)
         return 0;
     }
 
-    network_->send(number, msg_buf, (int)msg_len);
+    network_->send(netid, msg_buf, (int)msg_len);
     lua_pushboolean(L, true);
     return 1;
 }
@@ -79,10 +79,10 @@ int lnetwork::call(lua_State* L)
 int lnetwork::close(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TNUMBER);
-    int number = luaL_getvalue<int>(L, 1);
-    network_->close(number);
+    int netid = luaL_getvalue<int>(L, 1);
+    network_->close(netid);
 
-    manager_map::iterator it = managers_.find(number);
+    manager_map::iterator it = managers_.find(netid);
     if (it != managers_.end())
     {
         del_manager(it->second);
@@ -92,15 +92,15 @@ int lnetwork::close(lua_State* L)
 
 void lnetwork::add_manager(lmanager* manager)
 {
-    assert(manager->number() != 0);
-    int number = manager->number();
-    managers_.insert(std::make_pair(number, manager));
+    assert(manager->netid() != 0);
+    int netid = manager->netid();
+    managers_.insert(std::make_pair(netid, manager));
 }
 
 void lnetwork::del_manager(lmanager* manager)
 {
-    assert(manager->number() != 0);
-    managers_.erase(manager->number());
+    assert(manager->netid() != 0);
+    managers_.erase(manager->netid());
     delete manager;
 }
 

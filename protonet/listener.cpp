@@ -42,7 +42,7 @@ void listener::on_event(int events)
     }
 
     network_->add_object(object);
-    manager_->on_accept(object->get_number(), 0);
+    manager_->on_accept(object->get_netid(), 0);
 }
 
 void listener::close()

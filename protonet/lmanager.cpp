@@ -5,7 +5,7 @@
 lmanager::lmanager(lua_State* L) : lobject(L)
 {
     network_ = nullptr;
-    number_ = 0;
+    netid_ = 0;
 }
 
 lmanager::~lmanager()
@@ -13,15 +13,15 @@ lmanager::~lmanager()
 
 }
 
-int lmanager::number()
+int lmanager::netid()
 {
-    return number_;
+    return netid_;
 }
 
-bool lmanager::init(lnetwork* network, int number)
+bool lmanager::init(lnetwork* network, int netid)
 {
     network_ = network;
-    number_ = number;
+    netid_ = netid;
     return true;
 }
 
@@ -34,36 +34,36 @@ int lmanager::call(lua_State* L)
         return 0;
     }
 
-    network_->impl()->send(number_, msg_buf, (int)msg_len);
+    network_->impl()->send(netid_, msg_buf, (int)msg_len);
     lua_pushboolean(L, true);
     return 1;
 }
 
 void lmanager::close(lua_State* L)
 {
-    network_->impl()->close(number_);
+    network_->impl()->close(netid_);
     network_->del_manager(this);
 }
 
-void lmanager::on_accept(int number, int error)
+void lmanager::on_accept(int netid, int error)
 {
-    luaL_callfunc(L, this, "on_accept", number, error);
+    luaL_callfunc(L, this, "on_accept", netid, error);
 }
 
-void lmanager::on_closed(int number, int error)
+void lmanager::on_closed(int netid, int error)
 {
-    luaL_callfunc(L, this, "on_closed", number, error);
-    if (number == number_)
+    luaL_callfunc(L, this, "on_closed", netid, error);
+    if (netid == netid_)
     {
         network_->del_manager(this);
     }
 }
 
-void lmanager::on_package(int number, char* data, int len)
+void lmanager::on_package(int netid, char* data, int len)
 {
     int top = lua_gettop(L);
     luaL_pushfunc(L, this, "on_message");
-    luaL_pushvalue(L, number);
+    luaL_pushvalue(L, netid);
 
     if (!message_unpack(L, data, len))
     {
@@ -74,13 +74,13 @@ void lmanager::on_package(int number, char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-EXPORT_OFUNC(lmanager, number)
+EXPORT_OFUNC(lmanager, netid)
 EXPORT_OFUNC(lmanager, call)
 EXPORT_OFUNC(lmanager, close)
 const luaL_Reg* lmanager::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { "number", OFUNC(lmanager, number) },
+        { "netid", OFUNC(lmanager, netid) },
         { "call", OFUNC(lmanager, call) },
         { "close", OFUNC(lmanager, close) },
         { NULL, NULL }

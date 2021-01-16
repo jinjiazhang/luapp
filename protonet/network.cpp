@@ -7,7 +7,7 @@
 
 network::network()
 {
-    last_number_ = 0;
+    last_netid_ = 0;
     frame_ = NULL;
 }
 
@@ -72,9 +72,9 @@ int network::connect(imanager* manager, const char* ip, int port)
     return add_object(object);
 }
 
-void network::send(int number, const void* data, int len)
+void network::send(int netid, const void* data, int len)
 {
-    iobject* object = get_object(number);
+    iobject* object = get_object(netid);
     if (!object)
     {
         return;
@@ -82,9 +82,9 @@ void network::send(int number, const void* data, int len)
     object->send(data, len);
 }
 
-void network::sendv(int number, iobuf bufs[], int count)
+void network::sendv(int netid, iobuf bufs[], int count)
 {
-    iobject* object = get_object(number);
+    iobject* object = get_object(netid);
     if (!object)
     {
         return;
@@ -92,9 +92,9 @@ void network::sendv(int number, iobuf bufs[], int count)
     object->sendv(bufs, count);
 }
 
-void network::close(int number)
+void network::close(int netid)
 {
-    iobject* object = get_object(number);
+    iobject* object = get_object(netid);
     if (!object)
     {
         return;
@@ -113,31 +113,31 @@ int network::del_event(iobject* object, socket_t fd, int events)
     return frame_->del_event(object, fd, events);
 }
 
-int network::new_number()
+int network::new_netid()
 {
-    return ++last_number_;
+    return ++last_netid_;
 }
 
 int network::add_object(iobject* object)
 {
-    assert(object->get_number() == 0);
-    int number = new_number();
-    object->set_number(number);
-    objects_.insert(std::make_pair(number, object));
-    return number;
+    assert(object->get_netid() == 0);
+    int netid = new_netid();
+    object->set_netid(netid);
+    objects_.insert(std::make_pair(netid, object));
+    return netid;
 }
 
 int network::del_object(iobject* object)
 {
-    assert(object->get_number() != 0);
-    objects_.erase(object->get_number());
+    assert(object->get_netid() != 0);
+    objects_.erase(object->get_netid());
     delete object;
     return 0;
 }
 
-iobject* network::get_object(int number)
+iobject* network::get_object(int netid)
 {
-    object_map::iterator it = objects_.find(number);
+    object_map::iterator it = objects_.find(netid);
     if (it == objects_.end())
     {
         return NULL;
