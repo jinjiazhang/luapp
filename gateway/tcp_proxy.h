@@ -23,18 +23,18 @@ public:
     virtual void on_package(int netid, char* data, int len);
 
 private:
-    connid_t num_to_connid(int netid);
-    int connid_to_num(connid_t connid);
+    connid_t netid_to_connid(int netid);
+    int connid_to_netid(connid_t connid);
 
 private:
-    typedef std::unordered_map<connid_t, int> connid_num_map;
-    typedef std::unordered_map<int, connid_t> num_connid_map;
+    typedef std::unordered_map<connid_t, int> connid_netid_map;
+    typedef std::unordered_map<int, connid_t> netid_connid_map;
 
     inetwork* network_;
     int netid_;
 
-    connid_num_map connid_num_map_;
-    num_connid_map num_connid_map_;
+    connid_netid_map connid_netid_map_;
+    netid_connid_map netid_connid_map_;
 };
 
 #endif

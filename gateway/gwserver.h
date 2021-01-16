@@ -35,8 +35,8 @@ public:
     void transmit_data(connid_t connid, char* data, int len);
 
 private:
-    svrid_t num_to_svrid(int netid);
-    int svrid_to_num(svrid_t svrid);
+    svrid_t netid_to_svrid(int netid);
+    int svrid_to_netid(svrid_t svrid);
     svrid_t connid_to_svrid(connid_t connid);
     gwproxy* connid_to_proxy(connid_t connid);
 
@@ -49,8 +49,8 @@ private:
     void on_multicast_data(int netid, char* data, int len);
 
 private:
-    typedef std::unordered_map<svrid_t, int> svrid_num_map;
-    typedef std::unordered_map<int, svrid_t> num_svrid_map;
+    typedef std::unordered_map<svrid_t, int> svrid_netid_map;
+    typedef std::unordered_map<int, svrid_t> netid_svrid_map;
     typedef std::unordered_map<connid_t, svrid_t> conn_svrid_map;
     typedef std::unordered_map<connid_t, gwproxy*> conn_proxy_map;
 
@@ -60,8 +60,8 @@ private:
     gateway* manager_;
     connid_t last_connid_;
 
-    svrid_num_map svrid_num_map_;
-    num_svrid_map num_svrid_map_;
+    svrid_netid_map svrid_netid_map_;
+    netid_svrid_map netid_svrid_map_;
     conn_svrid_map conn_svrid_map_;
     conn_proxy_map conn_proxy_map_;
 };

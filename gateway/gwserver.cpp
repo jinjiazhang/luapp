@@ -36,20 +36,20 @@ bool gwserver::init(gateway* manager, int netid)
     return true;
 }
 
-int gwserver::svrid_to_num(svrid_t svrid)
+int gwserver::svrid_to_netid(svrid_t svrid)
 {
-    svrid_num_map::iterator it = svrid_num_map_.find(svrid);
-    if (it == svrid_num_map_.end())
+    svrid_netid_map::iterator it = svrid_netid_map_.find(svrid);
+    if (it == svrid_netid_map_.end())
     {
         return 0;
     }
     return it->second;
 }
 
-svrid_t gwserver::num_to_svrid(int netid)
+svrid_t gwserver::netid_to_svrid(int netid)
 {
-    num_svrid_map::iterator it = num_svrid_map_.find(netid);
-    if (it == num_svrid_map_.end())
+    netid_svrid_map::iterator it = netid_svrid_map_.find(netid);
+    if (it == netid_svrid_map_.end())
     {
         return 0;
     }
@@ -107,7 +107,7 @@ void gwserver::transmit_data(connid_t connid, char* data, int len)
     bufs[1] = { data, len };
 
     svrid_t svrid = connid_to_svrid(connid);
-    int netid = svrid_to_num(svrid);
+    int netid = svrid_to_netid(svrid);
     network_->sendv(netid, bufs, 2);
 }
 
@@ -127,14 +127,14 @@ void gwserver::on_accept(int netid, int error)
 
 void gwserver::on_closed(int netid, int error)
 {
-    svrid_t svrid = num_to_svrid(netid);
+    svrid_t svrid = netid_to_svrid(netid);
     luaL_callfunc(L, this, "on_closed", svrid, error);
 
-    num_svrid_map::iterator it = num_svrid_map_.find(netid);
-    if (it != num_svrid_map_.end())
+    netid_svrid_map::iterator it = netid_svrid_map_.find(netid);
+    if (it != netid_svrid_map_.end())
     {
-        svrid_num_map_.erase(it->second);
-        num_svrid_map_.erase(it);
+        svrid_netid_map_.erase(it->second);
+        netid_svrid_map_.erase(it);
     }
 }
 
@@ -179,15 +179,15 @@ void gwserver::on_package(int netid, char* data, int len)
 void gwserver::on_reg_svrid(int netid, char* data, int len)
 {
     gwm_reg_svrid* msg = (gwm_reg_svrid*)data;
-    svrid_num_map_[msg->svrid] = netid;
-    num_svrid_map_[netid] = msg->svrid;
+    svrid_netid_map_[msg->svrid] = netid;
+    netid_svrid_map_[netid] = msg->svrid;
     luaL_callfunc(L, this, "on_accept", msg->svrid, 0);
 }
 
 void gwserver::on_remote_call(int netid, char* data, int len)
 {
     gwm_remote_call* msg = (gwm_remote_call*)data;
-    svrid_t srcid = num_to_svrid(netid);
+    svrid_t srcid = netid_to_svrid(netid);
     assert(msg->srcid == srcid);
 
     data += sizeof(gwm_remote_call);
@@ -213,7 +213,7 @@ void gwserver::on_start_session(int netid, char* data, int len)
     len -= sizeof(gwm_start_session);
 
     svrid_t svrid = connid_to_svrid(msg->connid);
-    assert(svrid == num_to_svrid(netid));
+    assert(svrid == netid_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -228,7 +228,7 @@ void gwserver::on_stop_session(int netid, char* data, int len)
     data += sizeof(gwm_stop_session);
     len -= sizeof(gwm_stop_session);
 
-    assert(connid_to_svrid(msg->connid) == num_to_svrid(netid));
+    assert(connid_to_svrid(msg->connid) == netid_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -246,7 +246,7 @@ void gwserver::on_transmit_data(int netid, char* data, int len)
     data += sizeof(gwm_transmit_data);
     len -= sizeof(gwm_transmit_data);
 
-    assert(connid_to_svrid(msg->connid) == num_to_svrid(netid));
+    assert(connid_to_svrid(msg->connid) == netid_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -262,7 +262,7 @@ void gwserver::on_broadcast_data(int netid, char* data, int len)
     data += sizeof(gwm_broadcast_data);
     len -= sizeof(gwm_broadcast_data);
 
-    svrid_t svrid = num_to_svrid(netid);
+    svrid_t svrid = netid_to_svrid(netid);
     conn_svrid_map::iterator it = conn_svrid_map_.begin();
     for (; it != conn_svrid_map_.end(); ++it)
     {
@@ -294,7 +294,7 @@ void gwserver::on_multicast_data(int netid, char* data, int len)
 
     for (int i = 0; i < msg->count; i++)
     {
-        assert(connid_to_svrid(connids[i]) == num_to_svrid(netid));
+        assert(connid_to_svrid(connids[i]) == netid_to_svrid(netid));
         gwproxy* proxy = connid_to_proxy(connids[i]);
         if (proxy == nullptr)
         {
@@ -351,7 +351,7 @@ int gwserver::start(lua_State* L)
     svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
     
     assert(connid_to_svrid(connid) == 0);
-    int netid = svrid_to_num(svrid);
+    int netid = svrid_to_netid(svrid);
     if (netid == 0)
     {
         // log_error
@@ -389,7 +389,7 @@ int gwserver::stop(lua_State* L)
     svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
 
     assert(connid_to_svrid(connid) == svrid);
-    int netid = svrid_to_num(svrid);
+    int netid = svrid_to_netid(svrid);
     if (netid == 0)
     {
         // log_error
