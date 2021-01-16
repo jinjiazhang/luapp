@@ -39,15 +39,15 @@ function create_co_func( proto )
 	end
 end
 
-function on_accept( number, errno )
-	log_info("client.on_accept", number, errno)
+function on_accept( netid, errno )
+	log_info("client.on_accept", netid, errno)
 end
 
-function on_closed( number, errno )
-	log_info("client.on_closed", number, errno)
+function on_closed( netid, errno )
+	log_info("client.on_closed", netid, errno)
 end
 
-function on_message( number, msg_name, ... )
+function on_message( netid, msg_name, ... )
 	log_debug(msg_name, ...)
 	if string.find(msg_name, "rsp$") then
 		local flowid = last_recv_flowid + 1
