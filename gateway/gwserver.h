@@ -14,9 +14,9 @@ public:
     gwserver(lua_State* L, svrid_t svrid);
     ~gwserver();
 
-    int number();
+    int netid();
     inetwork* network();
-    bool init(gateway* manager, int number);
+    bool init(gateway* manager, int netid);
 
     int open(lua_State* L);
     int close(lua_State* L);
@@ -24,9 +24,9 @@ public:
     int stop(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
-    virtual void on_accept(int number, int error);
-    virtual void on_closed(int number, int error);
-    virtual void on_package(int number, char* data, int len);
+    virtual void on_accept(int netid, int error);
+    virtual void on_closed(int netid, int error);
+    virtual void on_package(int netid, char* data, int len);
 
     connid_t gen_connid();
     void reg_connid(connid_t connid, gwproxy* proxy);
@@ -35,18 +35,18 @@ public:
     void transmit_data(connid_t connid, char* data, int len);
 
 private:
-    svrid_t num_to_svrid(int number);
+    svrid_t num_to_svrid(int netid);
     int svrid_to_num(svrid_t svrid);
     svrid_t connid_to_svrid(connid_t connid);
     gwproxy* connid_to_proxy(connid_t connid);
 
-    void on_reg_svrid(int number, char* data, int len);
-    void on_remote_call(int number, char* data, int len);
-    void on_start_session(int number, char* data, int len);
-    void on_stop_session(int number, char* data, int len);
-    void on_transmit_data(int number, char* data, int len);
-    void on_broadcast_data(int number, char* data, int len);
-    void on_multicast_data(int number, char* data, int len);
+    void on_reg_svrid(int netid, char* data, int len);
+    void on_remote_call(int netid, char* data, int len);
+    void on_start_session(int netid, char* data, int len);
+    void on_stop_session(int netid, char* data, int len);
+    void on_transmit_data(int netid, char* data, int len);
+    void on_broadcast_data(int netid, char* data, int len);
+    void on_multicast_data(int netid, char* data, int len);
 
 private:
     typedef std::unordered_map<svrid_t, int> svrid_num_map;
@@ -55,7 +55,7 @@ private:
     typedef std::unordered_map<connid_t, gwproxy*> conn_proxy_map;
 
     svrid_t svrid_;
-    int number_;
+    int netid_;
     inetwork* network_;
     gateway* manager_;
     connid_t last_connid_;

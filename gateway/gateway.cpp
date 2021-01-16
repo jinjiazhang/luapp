@@ -27,14 +27,14 @@ int gateway::listen(lua_State* L)
     int port = luaL_getvalue<int>(L, 2);
 
     gwserver* server = new gwserver(this->L, svrid_);
-    int number = network_->listen(server, ip, port);
-    if (number <= 0)
+    int netid = network_->listen(server, ip, port);
+    if (netid <= 0)
     {
         delete server;
         return 0;
     }
 
-    server->init(this, number);
+    server->init(this, netid);
     lua_pushlobject(L, server);
     return 1;
 }
@@ -47,14 +47,14 @@ int gateway::connect(lua_State* L)
     int port = luaL_getvalue<int>(L, 2);
 
     gwclient* client = new gwclient(this->L, svrid_);
-    int number = network_->connect(client, ip, port);
-    if (number <= 0)
+    int netid = network_->connect(client, ip, port);
+    if (netid <= 0)
     {
         delete client;
         return 0;
     }
 
-    client->init(this, number);
+    client->init(this, netid);
     lua_pushlobject(L, client);
     return 1;
 }

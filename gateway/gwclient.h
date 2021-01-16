@@ -12,8 +12,8 @@ public:
     gwclient(lua_State* L, svrid_t svrid);
     ~gwclient();
 
-    int number();
-    bool init(gateway* manager, int number);
+    int netid();
+    bool init(gateway* manager, int netid);
 
     int close(lua_State* L);
     int start(lua_State* L);
@@ -23,9 +23,9 @@ public:
     int multicast(lua_State* L);
     virtual const luaL_Reg* get_libs();
 
-    virtual void on_accept(int number, int error);
-    virtual void on_closed(int number, int error);
-    virtual void on_package(int number, char* data, int len);
+    virtual void on_accept(int netid, int error);
+    virtual void on_closed(int netid, int error);
+    virtual void on_package(int netid, char* data, int len);
 
 private:
     void on_reg_svrid(char* data, int len);
@@ -37,7 +37,7 @@ private:
 private:
     svrid_t svrid_;
     svrid_t gateway_;
-    int number_;
+    int netid_;
     inetwork* network_;
     gateway* manager_;
 

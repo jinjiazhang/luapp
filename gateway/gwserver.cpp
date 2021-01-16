@@ -7,7 +7,7 @@
 gwserver::gwserver(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
-    number_ = 0;
+    netid_ = 0;
     network_ = nullptr;
     manager_ = nullptr;
     last_connid_ = 0;
@@ -18,9 +18,9 @@ gwserver::~gwserver()
 
 }
 
-int gwserver::number()
+int gwserver::netid()
 {
-    return number_;
+    return netid_;
 }
 
 inetwork* gwserver::network()
@@ -28,11 +28,11 @@ inetwork* gwserver::network()
     return network_;
 }
 
-bool gwserver::init(gateway* manager, int number)
+bool gwserver::init(gateway* manager, int netid)
 {
     network_ = manager->network();
     manager_ = manager;
-    number_ = number;
+    netid_ = netid;
     return true;
 }
 
@@ -46,9 +46,9 @@ int gwserver::svrid_to_num(svrid_t svrid)
     return it->second;
 }
 
-svrid_t gwserver::num_to_svrid(int number)
+svrid_t gwserver::num_to_svrid(int netid)
 {
-    num_svrid_map::iterator it = num_svrid_map_.find(number);
+    num_svrid_map::iterator it = num_svrid_map_.find(netid);
     if (it == num_svrid_map_.end())
     {
         return 0;
@@ -107,11 +107,11 @@ void gwserver::transmit_data(connid_t connid, char* data, int len)
     bufs[1] = { data, len };
 
     svrid_t svrid = connid_to_svrid(connid);
-    int number = svrid_to_num(svrid);
-    network_->sendv(number, bufs, 2);
+    int netid = svrid_to_num(svrid);
+    network_->sendv(netid, bufs, 2);
 }
 
-void gwserver::on_accept(int number, int error)
+void gwserver::on_accept(int netid, int error)
 {
     if (error != 0)
     {
@@ -122,15 +122,15 @@ void gwserver::on_accept(int number, int error)
     gwm_reg_svrid msg;
     msg.msg_type = gwm_type::reg_svrid;
     msg.svrid = svrid_;
-    network_->send(number, &msg, sizeof(msg));
+    network_->send(netid, &msg, sizeof(msg));
 }
 
-void gwserver::on_closed(int number, int error)
+void gwserver::on_closed(int netid, int error)
 {
-    svrid_t svrid = num_to_svrid(number);
+    svrid_t svrid = num_to_svrid(netid);
     luaL_callfunc(L, this, "on_closed", svrid, error);
 
-    num_svrid_map::iterator it = num_svrid_map_.find(number);
+    num_svrid_map::iterator it = num_svrid_map_.find(netid);
     if (it != num_svrid_map_.end())
     {
         svrid_num_map_.erase(it->second);
@@ -138,7 +138,7 @@ void gwserver::on_closed(int number, int error)
     }
 }
 
-void gwserver::on_package(int number, char* data, int len)
+void gwserver::on_package(int netid, char* data, int len)
 {
     if (len < sizeof(gwm_head))
     {
@@ -150,25 +150,25 @@ void gwserver::on_package(int number, char* data, int len)
     switch ((gwm_type)head->msg_type)
     {
     case gwm_type::reg_svrid:
-        on_reg_svrid(number, data, len);
+        on_reg_svrid(netid, data, len);
         break;
     case gwm_type::remote_call:
-        on_remote_call(number, data, len);
+        on_remote_call(netid, data, len);
         break;
     case gwm_type::start_session:
-        on_start_session(number, data, len);
+        on_start_session(netid, data, len);
         break;
     case gwm_type::stop_session:
-        on_stop_session(number, data, len);
+        on_stop_session(netid, data, len);
         break;
     case gwm_type::transmit_data:
-        on_transmit_data(number, data, len);
+        on_transmit_data(netid, data, len);
         break;
     case gwm_type::broadcast_data:
-        on_broadcast_data(number, data, len);
+        on_broadcast_data(netid, data, len);
         break;
     case gwm_type::multicast_data:
-        on_multicast_data(number, data, len);
+        on_multicast_data(netid, data, len);
         break;
     default:
         log_error("gwserver::on_package msg_type =%d invalid", head->msg_type);
@@ -176,18 +176,18 @@ void gwserver::on_package(int number, char* data, int len)
     }
 }
 
-void gwserver::on_reg_svrid(int number, char* data, int len)
+void gwserver::on_reg_svrid(int netid, char* data, int len)
 {
     gwm_reg_svrid* msg = (gwm_reg_svrid*)data;
-    svrid_num_map_[msg->svrid] = number;
-    num_svrid_map_[number] = msg->svrid;
+    svrid_num_map_[msg->svrid] = netid;
+    num_svrid_map_[netid] = msg->svrid;
     luaL_callfunc(L, this, "on_accept", msg->svrid, 0);
 }
 
-void gwserver::on_remote_call(int number, char* data, int len)
+void gwserver::on_remote_call(int netid, char* data, int len)
 {
     gwm_remote_call* msg = (gwm_remote_call*)data;
-    svrid_t srcid = num_to_svrid(number);
+    svrid_t srcid = num_to_svrid(netid);
     assert(msg->srcid == srcid);
 
     data += sizeof(gwm_remote_call);
@@ -206,14 +206,14 @@ void gwserver::on_remote_call(int number, char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-void gwserver::on_start_session(int number, char* data, int len)
+void gwserver::on_start_session(int netid, char* data, int len)
 {
     gwm_start_session* msg = (gwm_start_session*)data;
     data += sizeof(gwm_start_session);
     len -= sizeof(gwm_start_session);
 
     svrid_t svrid = connid_to_svrid(msg->connid);
-    assert(svrid == num_to_svrid(number));
+    assert(svrid == num_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -222,13 +222,13 @@ void gwserver::on_start_session(int number, char* data, int len)
     proxy->start_session(msg->connid, svrid);
 }
 
-void gwserver::on_stop_session(int number, char* data, int len)
+void gwserver::on_stop_session(int netid, char* data, int len)
 {
     gwm_stop_session* msg = (gwm_stop_session*)data;
     data += sizeof(gwm_stop_session);
     len -= sizeof(gwm_stop_session);
 
-    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    assert(connid_to_svrid(msg->connid) == num_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -240,13 +240,13 @@ void gwserver::on_stop_session(int number, char* data, int len)
     conn_proxy_map_.erase(msg->connid);
 }
 
-void gwserver::on_transmit_data(int number, char* data, int len)
+void gwserver::on_transmit_data(int netid, char* data, int len)
 {
     gwm_transmit_data* msg = (gwm_transmit_data*)data;
     data += sizeof(gwm_transmit_data);
     len -= sizeof(gwm_transmit_data);
 
-    assert(connid_to_svrid(msg->connid) == num_to_svrid(number));
+    assert(connid_to_svrid(msg->connid) == num_to_svrid(netid));
     gwproxy* proxy = connid_to_proxy(msg->connid);
     if (proxy == nullptr)
     {
@@ -256,13 +256,13 @@ void gwserver::on_transmit_data(int number, char* data, int len)
     proxy->send(msg->connid, data, len);
 }
 
-void gwserver::on_broadcast_data(int number, char* data, int len)
+void gwserver::on_broadcast_data(int netid, char* data, int len)
 {
     gwm_broadcast_data* msg = (gwm_broadcast_data*)data;
     data += sizeof(gwm_broadcast_data);
     len -= sizeof(gwm_broadcast_data);
 
-    svrid_t svrid = num_to_svrid(number);
+    svrid_t svrid = num_to_svrid(netid);
     conn_svrid_map::iterator it = conn_svrid_map_.begin();
     for (; it != conn_svrid_map_.end(); ++it)
     {
@@ -282,7 +282,7 @@ void gwserver::on_broadcast_data(int number, char* data, int len)
     }   
 }
 
-void gwserver::on_multicast_data(int number, char* data, int len)
+void gwserver::on_multicast_data(int netid, char* data, int len)
 {
     gwm_multicast_data* msg = (gwm_multicast_data*)data;
     data += sizeof(gwm_multicast_data);
@@ -294,7 +294,7 @@ void gwserver::on_multicast_data(int number, char* data, int len)
 
     for (int i = 0; i < msg->count; i++)
     {
-        assert(connid_to_svrid(connids[i]) == num_to_svrid(number));
+        assert(connid_to_svrid(connids[i]) == num_to_svrid(netid));
         gwproxy* proxy = connid_to_proxy(connids[i]);
         if (proxy == nullptr)
         {
@@ -351,8 +351,8 @@ int gwserver::start(lua_State* L)
     svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
     
     assert(connid_to_svrid(connid) == 0);
-    int number = svrid_to_num(svrid);
-    if (number == 0)
+    int netid = svrid_to_num(svrid);
+    if (netid == 0)
     {
         // log_error
         return 0;
@@ -366,7 +366,7 @@ int gwserver::start(lua_State* L)
 
     if (lua_isnil(L, 3))
     {
-        network_->send(number, &head, sizeof(head));
+        network_->send(netid, &head, sizeof(head));
     }
     else
     {
@@ -375,7 +375,7 @@ int gwserver::start(lua_State* L)
         iobuf bufs[2];
         bufs[0] = { &head, sizeof(head) };
         bufs[1] = { data, (int)len };
-        network_->sendv(number, bufs, 2);
+        network_->sendv(netid, bufs, 2);
     }
     
     lua_pushboolean(L, true);
@@ -389,8 +389,8 @@ int gwserver::stop(lua_State* L)
     svrid_t svrid = luaL_getvalue<svrid_t>(L, 2);
 
     assert(connid_to_svrid(connid) == svrid);
-    int number = svrid_to_num(svrid);
-    if (number == 0)
+    int netid = svrid_to_num(svrid);
+    if (netid == 0)
     {
         // log_error
         return 0;
@@ -401,7 +401,7 @@ int gwserver::stop(lua_State* L)
     gwm_session_stop msg;
     msg.msg_type = gwm_type::session_stop;
     msg.connid = connid;
-    network_->send(number, &msg, sizeof(msg));
+    network_->send(netid, &msg, sizeof(msg));
     
     lua_pushboolean(L, true);
     return 1;

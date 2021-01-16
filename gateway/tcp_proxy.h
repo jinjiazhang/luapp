@@ -18,12 +18,12 @@ public:
     virtual void stop_session(int connid);
     virtual void raw_send(int connid, const void* data, int len);
 
-    virtual void on_accept(int number, int error);
-    virtual void on_closed(int number, int error);
-    virtual void on_package(int number, char* data, int len);
+    virtual void on_accept(int netid, int error);
+    virtual void on_closed(int netid, int error);
+    virtual void on_package(int netid, char* data, int len);
 
 private:
-    connid_t num_to_connid(int number);
+    connid_t num_to_connid(int netid);
     int connid_to_num(connid_t connid);
 
 private:
@@ -31,7 +31,7 @@ private:
     typedef std::unordered_map<int, connid_t> num_connid_map;
 
     inetwork* network_;
-    int number_;
+    int netid_;
 
     connid_num_map connid_num_map_;
     num_connid_map num_connid_map_;

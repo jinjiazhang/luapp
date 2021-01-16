@@ -13,7 +13,7 @@ public:
     gwconn(lua_State* L);
     virtual ~gwconn();
 
-    int number();
+    int netid();
     virtual bool init(gateway* gate, url_info* args);
     int call(lua_State* L);
     void close(lua_State* L);
@@ -35,7 +35,7 @@ protected:
     cipher cipher_;
     send_cache send_cache_;
 
-    int number_;
+    int netid_;
     bool encrypt_;
     bool key_recv_;
 };

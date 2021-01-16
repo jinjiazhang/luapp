@@ -6,7 +6,7 @@ gwclient::gwclient(lua_State* L, svrid_t svrid) : lobject(L)
 {
     svrid_ = svrid;
     gateway_ = 0;
-    number_ = 0;
+    netid_ = 0;
     network_ = nullptr;
     manager_ = nullptr;
 }
@@ -16,22 +16,22 @@ gwclient::~gwclient()
 
 }
 
-int gwclient::number()
+int gwclient::netid()
 {
-    return number_;
+    return netid_;
 }
 
-bool gwclient::init(gateway* manager, int number)
+bool gwclient::init(gateway* manager, int netid)
 {
     network_ = manager->network();
     manager_ = manager;
-    number_ = number;
+    netid_ = netid;
     return true;
 }
 
-void gwclient::on_accept(int number, int error)
+void gwclient::on_accept(int netid, int error)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     if (error != 0)
     {
         luaL_callfunc(L, this, "on_accept", gateway_, error);
@@ -41,18 +41,18 @@ void gwclient::on_accept(int number, int error)
     gwm_reg_svrid msg;
     msg.msg_type = gwm_type::reg_svrid;
     msg.svrid = svrid_;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
 }
 
-void gwclient::on_closed(int number, int error)
+void gwclient::on_closed(int netid, int error)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     luaL_callfunc(L, this, "on_closed", gateway_, error);
 }
 
-void gwclient::on_package(int number, char* data, int len)
+void gwclient::on_package(int netid, char* data, int len)
 {
-    assert(number == number_);
+    assert(netid == netid_);
     if (len < sizeof(gwm_head))
     {
         log_error("gwclient::on_package length =%d invalid", len);
@@ -169,7 +169,7 @@ int gwclient::start(lua_State* L)
     gwm_start_session msg;
     msg.msg_type = gwm_type::start_session;
     msg.connid = connid;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
     return 0;
 }
 
@@ -180,7 +180,7 @@ int gwclient::stop(lua_State* L)
     gwm_stop_session msg;
     msg.msg_type = gwm_type::stop_session;
     msg.connid = connid;
-    network_->send(number_, &msg, sizeof(msg));
+    network_->send(netid_, &msg, sizeof(msg));
     return 0;
 }
 
@@ -203,7 +203,7 @@ int gwclient::transmit(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)msg_len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -224,7 +224,7 @@ int gwclient::broadcast(lua_State* L)
     iobuf bufs[2];
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { &msg_buf, (int)len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;
@@ -259,7 +259,7 @@ int gwclient::multicast(lua_State* L)
     bufs[0] = { &head, sizeof(head) };
     bufs[1] = { (char*)connids.data(), count * (int)sizeof(connid_t) };
     bufs[2] = { &msg_buf, (int)len };
-    network_->sendv(number_, bufs, 2);
+    network_->sendv(netid_, bufs, 2);
 
     lua_pushboolean(L, true);
     return 1;

@@ -6,7 +6,7 @@ gwconn::gwconn(lua_State* L) : lobject(L)
 {
     gateway_ = nullptr;
     network_ = nullptr;
-    number_ = 0;
+    netid_ = 0;
     encrypt_ = false;
     key_recv_ = false;
 }
@@ -16,9 +16,9 @@ gwconn::~gwconn()
 
 }
 
-int gwconn::number()
+int gwconn::netid()
 {
-    return number_;
+    return netid_;
 }
 
 bool gwconn::init(gateway* gate, url_info* args)
@@ -26,8 +26,8 @@ bool gwconn::init(gateway* gate, url_info* args)
     gateway_ = gate;
     network_ = gateway_->network();
 
-    number_ = network_->connect(this, args->ip, args->port);
-    if (number_ <= 0)
+    netid_ = network_->connect(this, args->ip, args->port);
+    if (netid_ <= 0)
     {
         return false;
     }
@@ -50,7 +50,7 @@ int gwconn::call(lua_State* L)
 
 void gwconn::close(lua_State* L)
 {
-    network_->close(number_);
+    network_->close(netid_);
 }
 
 void gwconn::on_accept(int connid, int error)
@@ -80,11 +80,11 @@ void gwconn::send(const void* data, int len)
     {
         int outlen = sizeof(output);
         cipher_.encrypt((const char*)data, len, output, &outlen);
-        network_->send(number_, output, outlen);
+        network_->send(netid_, output, outlen);
     }
     else
     {
-        network_->send(number_, data, len);
+        network_->send(netid_, data, len);
     }
 }
 
@@ -139,13 +139,13 @@ void gwconn::raw_package(int connid, char* data, int len)
     luaL_safecall(L, nargs, 0);
 }
 
-EXPORT_OFUNC(gwconn, number)
+EXPORT_OFUNC(gwconn, netid)
 EXPORT_OFUNC(gwconn, call)
 EXPORT_OFUNC(gwconn, close)
 const luaL_Reg* gwconn::get_libs()
 {
     static const luaL_Reg libs[] = {
-        { "number", OFUNC(gwconn, number) },
+        { "netid", OFUNC(gwconn, netid) },
         { "call", OFUNC(gwconn, call) },
         { "close", OFUNC(gwconn, close) },
         { NULL, NULL }
