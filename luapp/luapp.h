@@ -16,6 +16,7 @@ struct luctx
 {
     bool daemon;
     unsigned int svrid;
+    const char* name;
     const char* entry;
     const char* log_conf;
     int tick_freq;

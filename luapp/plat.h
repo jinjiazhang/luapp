@@ -30,7 +30,7 @@ using uint64_t = unsigned long long;
 #endif
 
 // set window title
-void set_title(unsigned int svrid, const char* entry);
+void set_title(unsigned int svrid, const char* name);
 
 // svrid string to int
 unsigned int svrid_stoi(const std::string& text);

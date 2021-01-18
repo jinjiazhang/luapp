@@ -8,11 +8,11 @@
 #include <windows.h>
 #endif
 
-void set_title(unsigned int svrid, const char* entry)
+void set_title(unsigned int svrid, const char* name)
 {
 #ifdef _MSC_VER
     std::stringstream stream;
-    stream << entry << " --id=" << svrid_itos(svrid);
+    stream << name << " --id=" << svrid_itos(svrid);
     SetConsoleTitle(stream.str().c_str());
 #endif
 }
