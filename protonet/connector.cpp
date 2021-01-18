@@ -41,7 +41,7 @@ void connector::on_event(int events)
     }
 
     connected_ = true;
-    session::init(connectfd_)
+    session::init(connectfd_);
     manager_->on_accept(netid_, 0);
     session::on_event(events);
 }
