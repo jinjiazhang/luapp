@@ -40,13 +40,8 @@ void connector::on_event(int events)
         return;
     }
 
-    if (!session::init(connectfd_))
-    {
-        on_error(EOTHER);
-        return;
-    }
-
     connected_ = true;
+    session::init(connectfd_)
     manager_->on_accept(netid_, 0);
     session::on_event(events);
 }
