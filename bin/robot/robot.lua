@@ -65,7 +65,7 @@ function create_room_flow( role )
 end
 
 function enter_room_flow( role, roomid, roomkey )
-	local result, room = client.cs_enter_room_req(roomid, roomkey)
+	local result, room = client.cs_enter_room_req(game_mode.TEXAS, roomid, roomkey)
 	log_info("cs_enter_room_req", result, app.tostring(room))
 	check_result("cs_enter_room_req", result)
 

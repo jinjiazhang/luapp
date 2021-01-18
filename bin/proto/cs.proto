@@ -76,8 +76,9 @@ message cs_create_room_rsp {
 }
 
 message cs_enter_room_req {
-	int64 roomid = 1;
-	int32 roomkey = 2;
+	game_mode mode = 1;
+	int64 roomid = 2;
+	int32 roomkey = 3;
 }
 
 message cs_enter_room_rsp {

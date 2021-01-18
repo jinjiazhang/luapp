@@ -57,7 +57,7 @@ function net.ss_create_room_rsp( svrid, result, roleid, room )
 	ss.cs_create_room_rsp(result, room)
 end
 
-function net.cs_enter_room_req( ss, roomid, roomkey )
+function net.cs_enter_room_req( ss, mode, roomid, roomkey )
 	log_debug("cs_enter_room_req", ss.roleid, roomid, roomkey)
 	if rolemgr.is_gaming(ss.role) then
 		log_warn("cs_enter_room_req room exist", ss.roleid)
@@ -66,8 +66,7 @@ function net.cs_enter_room_req( ss, roomid, roomkey )
 		return
 	end
 	
-	-- TODO set hash mode
-	airport.call_roomsvr_hash(0, "ss_search_room_req", ss.roleid, roomid, roomkey)
+	airport.call_roomsvr_hash(mode, "ss_search_room_req", ss.roleid, roomid, roomkey)
 end
 
 function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, gsvrid )
