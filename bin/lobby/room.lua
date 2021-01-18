@@ -1,7 +1,7 @@
 
 function net.cs_fetch_room_req( ss, mode )
 	log_debug("cs_fetch_room_req", ss.roleid, mode)
-	airport.call_listsvr_hash(mode, "ss_fetch_room_req", ss.roleid, mode)
+	airport.call_roomsvr_hash(mode, "ss_fetch_room_req", ss.roleid, mode)
 end
 
 function net.ss_fetch_room_rsp( svrid, result, roleid, room_list )
@@ -24,7 +24,7 @@ function net.cs_create_room_req( ss, name, mode, option )
 		return
 	end
 	
-	airport.call_listsvr_hash(mode, "ss_assign_room_req", ss.roleid, name, mode, option)
+	airport.call_roomsvr_hash(mode, "ss_assign_room_req", ss.roleid, name, mode, option)
 end
 
 function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, gsvrid)
@@ -67,7 +67,7 @@ function net.cs_enter_room_req( ss, roomid, roomkey )
 	end
 	
 	-- TODO set hash mode
-	airport.call_listsvr_hash(0, "ss_search_room_req", ss.roleid, roomid, roomkey)
+	airport.call_roomsvr_hash(0, "ss_search_room_req", ss.roleid, roomid, roomkey)
 end
 
 function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, gsvrid )

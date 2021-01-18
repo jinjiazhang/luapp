@@ -1,11 +1,11 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
 config = import("config/config.lua")
-dbagent = import("listsvr/dbagent.lua")
-airport = import("listsvr/airport.lua")
-roommgr = import("listsvr/roommgr.lua")
-unique = import("listsvr/unique.lua")
-assign = import("listsvr/assign.lua")
+dbagent = import("roomsvr/dbagent.lua")
+airport = import("roomsvr/airport.lua")
+roommgr = import("roomsvr/roommgr.lua")
+unique = import("roomsvr/unique.lua")
+assign = import("roomsvr/assign.lua")
 
 app.init = function ( ... )
 	config.init()

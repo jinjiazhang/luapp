@@ -93,18 +93,18 @@ function call_gamesvr( gsvrid, ... )
 	_airport.call_target(gsvrid, ...)
 end
 
-function call_listsvr( lsvrid, ... )
-	if get_func_id(lsvrid) ~= service.LISTSVR then
-		log_error("airport.call_listsvr funcid error", lsvrid)
+function call_roomsvr( lsvrid, ... )
+	if get_func_id(lsvrid) ~= service.ROOMSVR then
+		log_error("airport.call_roomsvr funcid error", lsvrid)
 		return
 	end
 	_airport.call_target(lsvrid, ...)
 end
 
-function call_listsvr_hash( mode, ... )
-	_airport.call_random(service.LISTSVR, ...)
+function call_roomsvr_hash( mode, ... )
+	_airport.call_random(service.ROOMSVR, ...)
 end
 
-function call_listsvr_all( ... )
-	_airport.call_group(service.LISTSVR, ...)
+function call_roomsvr_all( ... )
+	_airport.call_group(service.ROOMSVR, ...)
 end
