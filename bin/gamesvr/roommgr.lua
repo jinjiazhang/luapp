@@ -109,7 +109,7 @@ function report_payload(  )
 	end
 end
 
-function refresh_roomsvr( roomid, room )
+function update_room_brief( roomid, room )
 	airport.call_roomsvr_hash(room.mode, "ss_refresh_room_req", roomid, room)
 end
 
@@ -150,7 +150,7 @@ function net.ss_create_room_req( svrid, role, roomid, roomkey, name, mode, optio
 		return
 	end
 
-	refresh_roomsvr(roomid, room)
+	update_room_brief(roomid, room)
 	airport.call_lobby(svrid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
@@ -168,7 +168,7 @@ function net.ss_enter_room_req( svrid, role, roomid, roomkey )
 		return
 	end
 
-	refresh_roomsvr(roomid, room)
+	update_room_brief(roomid, room)
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
 	airport.call_lobby(svrid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
@@ -188,7 +188,7 @@ function net.ss_reenter_room_req( svrid, role, roomid, roomkey )
 		return
 	end
 
-	refresh_roomsvr(roomid, room)
+	update_room_brief(roomid, room)
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
 	airport.call_lobby(svrid, "ss_reenter_room_rsp", errno.SUCCESS, role.roleid, room)
@@ -208,7 +208,7 @@ function net.ss_leave_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
-	refresh_roomsvr(roomid, room)
+	update_room_brief(roomid, room)
 	room.broadcast(roleid, "cs_leave_room_ntf", room.roomid, roleid, reason)
 	airport.call_lobby(svrid, "ss_leave_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
@@ -227,7 +227,7 @@ function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 		return
 	end
 
-	refresh_roomsvr(roomid, room)
+	update_room_brief(roomid, room)
 	room.broadcast(roleid, "cs_dismiss_room_ntf", room.roomid, reason)
 	airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
