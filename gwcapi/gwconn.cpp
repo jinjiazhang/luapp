@@ -12,7 +12,7 @@ gwconn::~gwconn()
 
 }
 
-bool gwconn::init(url_info* args)
+bool gwconn::init(url_info* args, gwctx* ctx)
 {
     return true;
 }
