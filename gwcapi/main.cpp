@@ -18,9 +18,11 @@ void on_package(int connid, char* data, int len)
 
 int main()
 {
-    int connid = gwcapi_open("tcp://127.0.0.1:6575?encrypt=1");
-    gwcapi_on_accept(connid, on_accept);
-    gwcapi_on_closed(connid, on_closed);
-    gwcapi_on_package(connid, on_package);
+    gwctx ctx;
+    ctx.on_accept = on_accept;
+    ctx.on_closed = on_closed;
+    ctx.on_package = on_package;
+    const char* url = "tcp://127.0.0.1:6575?encrypt=1";
+    gwcapi_open(url, &ctx);
     gwcapi_update(0);
 }

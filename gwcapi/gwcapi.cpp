@@ -1,36 +1,27 @@
 #include "gwcapi.h"
+#include "gwcmgr.h"
 
-int gwcapi_open(const char* url)
+int gwcapi_open(const char* url, gwctx* ctx)
 {
-    return 0;
+    return gwcmgr::instance()->open(url, ctx);
 }
 
 int gwcapi_close(int connid)
 {
-    return 0;
+    return gwcmgr::instance()->close(connid);
 }
 
 int gwcapi_send(int connid, const void* data, int len)
 {
-	return 0;
+    return gwcmgr::instance()->send(connid, data, len);
 }
 
-int gwcapi_on_accept(int connid, gwcb_accept callback)
+int gwcapi_sendv(int connid, iobuf bufs[], int count)
 {
-    return 0;
-}
-
-int gwcapi_on_closed(int connid, gwcb_closed callback)
-{
-    return 0;
-}
-
-int gwcapi_on_package(int connid, gwcb_package callback)
-{
-    return 0;
+    return gwcmgr::instance()->sendv(connid, bufs, count);
 }
 
 int gwcapi_update(int timeout)
 {
-    return 0;
+    return gwcmgr::instance()->update(timeout);
 }
