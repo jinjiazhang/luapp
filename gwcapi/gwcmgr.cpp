@@ -70,21 +70,7 @@ int gwcmgr::send(int connid, const void* data, int len)
         return -1;
     }
     
-    return 0;
-}
-
-int gwcmgr::sendv(int connid, iobuf bufs[], int count)
-{
-    gwconn* conn = get_conn(connid);
-    if (conn == nullptr)
-    {
-        return -1;
-    }
-
-    for (int i = 0; i < count; i++)
-    {
-        conn->send(bufs[i].data, bufs[i].len);
-    }
+    conn->send(data, len);
     return 0;
 }
 

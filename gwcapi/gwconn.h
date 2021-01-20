@@ -31,6 +31,10 @@ protected:
     int connid_;
     bool encrypt_;
     bool key_recv_;
+
+    gwcb_accept on_accept_;
+    gwcb_closed on_closed_;
+    gwcb_package on_package_;
 };
 
 #endif

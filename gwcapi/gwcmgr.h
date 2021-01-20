@@ -16,7 +16,6 @@ public:
     int open(const char* url, gwctx* ctx);
     int close(int connid);
     int send(int connid, const void* data, int len);
-    int sendv(int netid, iobuf bufs[], int count);
     int update(int timeout);
 
 private:

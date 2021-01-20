@@ -16,11 +16,6 @@ int gwcapi_send(int connid, const void* data, int len)
     return gwcmgr::instance()->send(connid, data, len);
 }
 
-int gwcapi_sendv(int connid, iobuf bufs[], int count)
-{
-    return gwcmgr::instance()->sendv(connid, bufs, count);
-}
-
 int gwcapi_update(int timeout)
 {
     return gwcmgr::instance()->update(timeout);

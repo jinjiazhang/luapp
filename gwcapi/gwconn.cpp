@@ -5,6 +5,10 @@ gwconn::gwconn(int connid)
     connid_ = connid;
     encrypt_ = false;
     key_recv_ = false;
+
+    on_accept_ = nullptr;
+    on_closed_ = nullptr;
+    on_package_ = nullptr;
 }
 
 gwconn::~gwconn()
@@ -14,6 +18,9 @@ gwconn::~gwconn()
 
 bool gwconn::init(url_info* args, gwctx* ctx)
 {
+    on_accept_ = ctx->on_accept;
+    on_closed_ = ctx->on_closed;
+    on_package_ = ctx->on_package;
     return true;
 }
 
@@ -24,12 +31,17 @@ void gwconn::close()
 
 void gwconn::on_accept(int connid, int error)
 {
-
+    // assert(connid == connid_);
+    if (error != 0)
+    {
+        on_accept_(connid_, error);
+    }
 }
 
 void gwconn::on_closed(int connid, int error)
 {
-
+    // assert(connid == connid_);
+    on_closed_(connid_, error);
 }
 
 static char output[1024*1024];
@@ -96,5 +108,6 @@ void gwconn::on_package(int connid, char* data, int len)
 
 void gwconn::raw_package(int connid, char* data, int len)
 {
-
+    // assert(connid == connid_);
+    on_package_(connid_, data, len);
 }

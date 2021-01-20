@@ -11,16 +11,9 @@ struct gwctx {
     gwcb_package on_package;
 };
 
-struct iobuf
-{
-    const void* data;
-    int len;
-};
-
 int gwcapi_open(const char* url, gwctx* ctx);
 int gwcapi_close(int connid);
 int gwcapi_send(int connid, const void* data, int len);
-int gwcapi_sendv(int connid, iobuf bufs[], int count);
 int gwcapi_update(int timeout);
 
 #endif
