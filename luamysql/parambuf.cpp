@@ -1,7 +1,7 @@
 #include "parambuf.h"
 #include "protolog/protolog.h"
 #include <google/protobuf/wire_format.h>
-#include <google/protobuf/wire_format_lite.h>
+#include <google/protobuf/wire_format_lite_inl.h>
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 using namespace google::protobuf;
