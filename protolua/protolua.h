@@ -23,6 +23,14 @@
 #define proto_fatal(fmt, ...)
 #endif
 
+#ifndef lua_toint64
+#define lua_toint64 lua_tointeger
+#endif
+
+#ifndef lua_pushint64
+#define lua_pushint64 lua_pushinteger
+#endif
+
 #define PROTO_DO(exp) { if(!(exp)) return false; }
 #define PROTO_ASSERT(exp) { if(!(exp)) return false; }
 
