@@ -1,5 +1,6 @@
 _G.import = app.import
 proto.parse("proto/cs.proto")
+global = import("common/global.lua")
 config = import("common/config.lua")
 notify = import("robot/notify.lua")
 client = import("robot/client.lua")

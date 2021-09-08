@@ -1,5 +1,6 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
+global = import("common/global.lua")
 config = import("common/config.lua")
 dbagent = import("common/dbagent.lua")
 airport = import("common/airport.lua")
