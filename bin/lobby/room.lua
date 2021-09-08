@@ -24,14 +24,14 @@ function net.cs_create_room_req( ss, name, mode, option )
 		return
 	end
 	
-	airport.call_roomsvr_hash(mode, "ss_assign_room_req", ss.roleid, name, mode, option)
+	airport.call_roomsvr_hash(mode, "ss_apply_room_req", ss.roleid, name, mode, option)
 end
 
-function net.ss_assign_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, gsvrid)
-	log_debug("ss_assign_room_rsp", svrid, roleid, name, mode, option, roomid, roomkey, gsvrid)
+function net.ss_apply_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, gsvrid)
+	log_debug("ss_apply_room_rsp", svrid, roleid, name, mode, option, roomid, roomkey, gsvrid)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
-		log_warn("ss_assign_room_rsp ss not exist", roleid)
+		log_warn("ss_apply_room_rsp ss not exist", roleid)
 		return
 	end
 
@@ -73,7 +73,7 @@ function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, gsvrid 
 	log_debug("ss_search_room_rsp", svrid, roleid, roomid, roomkey, gsvrid)
 	local ss = ssmgr.find_by_roleid(roleid)
 	if not ss then
-		log_warn("ss_assign_room_rsp ss not exist", roleid)
+		log_warn("ss_apply_room_rsp ss not exist", roleid)
 		return
 	end
 

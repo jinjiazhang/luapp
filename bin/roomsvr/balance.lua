@@ -1,8 +1,8 @@
-module = "assign"
+module = "balance"
 
 gamesvr_payload_table = gamesvr_payload_table or {}
 
-function assign_gamesvr( mode, option )
+function select_gamesvr( mode, option )
 	for gsvrid, payload in pairs(gamesvr_payload_table) do
 		if payload.support_mode == mode then
 			return gsvrid
