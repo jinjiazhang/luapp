@@ -62,16 +62,36 @@ end
 
 function on_transmit( svrid, roleid, proto, ... )
 	log_debug("airport.on_transmit", roleid, proto, ...)
-	local proc_func = net[proto]
-	if not proc_func then
-		log_error("airport.on_transmit proc_func not found", proto)
-		return
-	end
+	if get_func_id(app.svrid()) == service.LOBBY then
+		local ss = ssmgr.find_by_roleid(roleid)
+		if not ss then
+			log_warn("airport.on_transmit ss not exist", roleid, proto)
+			return
+		end
 
-	proc_func(roleid, ...)
+		local proc_func = net[proto]
+		if proc_func then
+			proc_func(ss, ...)
+			return
+		end
+
+		ss[proto](...)
+	else
+		local proc_func = net[proto]
+		if not proc_func then
+			log_error("airport.on_transmit proc_func not found", proto)
+			return
+		end
+	
+		proc_func(roleid, ...)
+	end
 end
 
 function call_client( roleid, ... )
+	if get_func_id(app.svrid()) == service.LOBBY then
+		log_error("airport.call_client not used in lobby")
+		return
+	end
 	_airport.call_transmit(service.LOBBY, roleid, ...)
 end
 

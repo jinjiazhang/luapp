@@ -1,9 +1,9 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
-config = import("config/config.lua")
+config = import("common/config.lua")
+dbagent = import("common/dbagent.lua")
+airport = import("common/airport.lua")
 server = import("lobby/server.lua")
-dbagent = import("lobby/dbagent.lua")
-airport = import("lobby/airport.lua")
 login = import("lobby/login.lua")
 room = import("lobby/room.lua")
 ssmgr = import("lobby/ssmgr.lua")
