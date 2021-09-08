@@ -2,18 +2,18 @@ module = "airport"
 
 function init( ... )
 	setmetatable(_ENV, {__index = __index})
-	_airport = route.connect(config.router_ip, config.router_port)
-	_airport.on_accept = on_accept
-	_airport.on_closed = on_closed
-	_airport.on_message = on_message
-	_airport.on_transmit = on_transmit
+	_rtclient = route.connect(config.router_ip, config.router_port)
+	_rtclient.on_accept = on_accept
+	_rtclient.on_closed = on_closed
+	_rtclient.on_message = on_message
+	_rtclient.on_transmit = on_transmit
 end
 
 function __index( env, key )
 	if _G[key] then
 		return _G[key]
 	else
-		return _airport[key]
+		return _rtclient[key]
 	end
 end
 
@@ -68,7 +68,7 @@ function call_client( roleid, ... )
 		log_error("airport.call_client not used in lobby")
 		return
 	end
-	_airport.call_transmit(service.LOBBY, roleid, ...)
+	_rtclient.call_transmit(service.LOBBY, roleid, ...)
 end
 
 function call_lobby( lobbyid, ... )
@@ -76,7 +76,7 @@ function call_lobby( lobbyid, ... )
 		log_error("airport.call_lobby funcid error", lobbyid)
 		return
 	end
-	_airport.call_target(lobbyid, ...)
+	_rtclient.call_target(lobbyid, ...)
 end
 
 function call_gamesvr( gsvrid, ... )
@@ -84,7 +84,7 @@ function call_gamesvr( gsvrid, ... )
 		log_error("airport.call_gamesvr funcid error", gsvrid)
 		return
 	end
-	_airport.call_target(gsvrid, ...)
+	_rtclient.call_target(gsvrid, ...)
 end
 
 function call_roomsvr( lsvrid, ... )
@@ -92,13 +92,13 @@ function call_roomsvr( lsvrid, ... )
 		log_error("airport.call_roomsvr funcid error", lsvrid)
 		return
 	end
-	_airport.call_target(lsvrid, ...)
+	_rtclient.call_target(lsvrid, ...)
 end
 
 function call_roomsvr_hash( mode, ... )
-	_airport.call_random(service.ROOMSVR, ...)
+	_rtclient.call_random(service.ROOMSVR, ...)
 end
 
 function call_roomsvr_all( ... )
-	_airport.call_group(service.ROOMSVR, ...)
+	_rtclient.call_group(service.ROOMSVR, ...)
 end
