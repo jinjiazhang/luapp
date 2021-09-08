@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(crypto)
 
+add_definitions(-std=c99)
 aux_source_directory(. DIR_SRCS)
 file(GLOB_RECURSE DIR_INCS *.h *.hpp)
 source_group("Include Files" FILES ${DIR_INCS})

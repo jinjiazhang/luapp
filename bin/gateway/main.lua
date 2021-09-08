@@ -1,6 +1,6 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
-config = import("config/config.lua")
+config = import("common/config.lua")
 gateway = import("gateway/gateway.lua")
 
 app.init = function ( ... )
