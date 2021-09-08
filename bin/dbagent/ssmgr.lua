@@ -32,7 +32,7 @@ function on_call( netid, proto, ... )
 		return
 	end
 
-	copool.fork(proc_call, ss, proto, ...)
+	thread.start(proc_call, ss, proto, ...)
 end
 
 function proc_call( ss, proto, ... )

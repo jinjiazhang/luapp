@@ -1,7 +1,7 @@
 _G.import = app.import
 proto.parse("proto/ss.proto")
 config = import("common/config.lua")
-copool = import("dbagent/copool.lua")
+thread = import("common/thread.lua")
 server = import("dbagent/server.lua")
 mongodb = import("dbagent/mongodb.lua")
 dbimpl = import("dbagent/dbimpl.lua")

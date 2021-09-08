@@ -6,7 +6,7 @@ function init( ... )
 	setmetatable(_ENV, {__index = __index})
 	_mongo = mongo.create_pool(config.mongo_url, config.mongo_db, 5)
 	_mongo.on_respond = on_respond
-	copool.fork(init_schema)
+	thread.start(init_schema)
 end
 
 function on_respond( token, ... )

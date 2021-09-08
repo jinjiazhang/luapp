@@ -1,4 +1,4 @@
-module = "copool"
+module = "thread"
 
 coroutine_pool = setmetatable({}, { __mode = "kv" })
 
@@ -21,9 +21,9 @@ function create( f )
     return co
 end
 
-function fork( f, ... )
+function start( f, ... )
     local status, errmsg = coroutine.resume(create(f), ...)
     if not status then
-        log_error("copool.fork", errmsg)
+        log_error("thread.start", errmsg)
     end
 end

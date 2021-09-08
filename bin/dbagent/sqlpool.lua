@@ -8,7 +8,7 @@ function init( ... )
 	_sqlpool = mysql.create_pool()
 	_sqlpool.on_respond = on_respond
 	_sqlpool.connect(config.mysql_ip, config.mysql_user, config.mysql_pass, config.mysql_db, config.mysql_port)
-	copool.fork(init_schema)
+	thread.start(init_schema)
 end
 
 function on_respond( token, ret_code, ... )
