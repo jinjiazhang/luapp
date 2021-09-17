@@ -71,34 +71,34 @@ function call_client( roleid, ... )
 	_rtclient.call_transmit(service.LOBBY, roleid, ...)
 end
 
-function call_lobby( lobbyid, ... )
-	if get_func_id(lobbyid) ~= service.LOBBY then
-		log_error("remote.call_lobby funcid error", lobbyid)
+function call_lobby( svrid, ... )
+	if get_func_id(svrid) ~= service.LOBBY then
+		log_error("remote.call_lobby funcid error", svrid)
 		return
 	end
-	_rtclient.call_target(lobbyid, ...)
+	_rtclient.call_target(svrid, ...)
 end
 
-function call_gamesvr( gsvrid, ... )
-	if get_func_id(gsvrid) ~= service.GAMESVR then
-		log_error("remote.call_gamesvr funcid error", gsvrid)
+function call_gamesvr( svrid, ... )
+	if get_func_id(svrid) ~= service.GAMESVR then
+		log_error("remote.call_gamesvr funcid error", svrid)
 		return
 	end
-	_rtclient.call_target(gsvrid, ...)
+	_rtclient.call_target(svrid, ...)
 end
 
-function call_roomsvr( lsvrid, ... )
-	if get_func_id(lsvrid) ~= service.ROOMSVR then
-		log_error("remote.call_roomsvr funcid error", lsvrid)
+function call_roomsvr( svrid, ... )
+	if get_func_id(svrid) ~= service.ROOMSVR then
+		log_error("remote.call_roomsvr funcid error", svrid)
 		return
 	end
-	_rtclient.call_target(lsvrid, ...)
+	_rtclient.call_target(svrid, ...)
 end
 
-function call_roomsvr_hash( mode, ... )
+function hashcast_roomsvr( mode, ... )
 	_rtclient.call_random(service.ROOMSVR, ...)
 end
 
-function call_roomsvr_all( ... )
+function broadcast_roomsvr( ... )
 	_rtclient.call_group(service.ROOMSVR, ...)
 end
