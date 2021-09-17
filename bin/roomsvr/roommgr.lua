@@ -48,7 +48,7 @@ end
 
 function net.ss_apply_room_req( svrid, roleid, name, mode, option )
 	log_debug("ss_apply_room_req", svrid, roleid, name, mode, option)
-	local gsvrid = apply.select_gamesvr(mode, option)
+	local gsvrid = balance.select_gamesvr(mode, option)
 	if gsvrid == 0 then
 		remote.call_lobby(svrid, "ss_apply_room_rsp", errno.OVERLOAD, roleid)
 		return
