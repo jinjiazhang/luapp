@@ -16,7 +16,7 @@ end
 
 function on_login( role )
 	log_info("rolemgr.on_login", role.roleid, role.name)
-	airport.reg_role(service.LOBBY, role.roleid)
+	remote.reg_role(service.LOBBY, role.roleid)
 	
 	role.online = app.time()
 	role.save_online = app.time()
@@ -27,7 +27,7 @@ end
 function on_logout( role )
 	log_info("rolemgr.on_logout", role.roleid, role.name)
 	leave_room(role, reason_type.ROLE_OFFLINE)
-	airport.unreg_role(service.LOBBY, role.roleid)
+	remote.unreg_role(service.LOBBY, role.roleid)
 
 	role.offline = app.time()
 	role.save_online = nil
@@ -43,7 +43,7 @@ end
 function leave_room( role, reason )
 	local gaming = role.gaming
 	if gaming.gsvrid > 0 and gaming.roomid > 0 then
-		airport.call_gamesvr(gaming.gsvrid, "ss_leave_room_req", role.roleid, gaming.roomid, reason)
+		remote.call_gamesvr(gaming.gsvrid, "ss_leave_room_req", role.roleid, gaming.roomid, reason)
 	end
 end
 

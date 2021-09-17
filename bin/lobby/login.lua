@@ -16,7 +16,7 @@ function net.ss_login_rsp( result, connid, openid, svrid, account )
 		ssmgr.bind_account(ss, account)	
 	elseif result == errno.CONFLICT then
 		result = errno.NEED_RETRY
-		airport.call_target(svrid, "ss_kickout_ntf", openid, errno.CONFLICT)
+		remote.call_target(svrid, "ss_kickout_ntf", openid, errno.CONFLICT)
 		log_info("ss_login_rsp notify kickout", openid, svrid)
 	end
 	ss.cs_login_rsp(result, account)

@@ -23,5 +23,5 @@ end
 function net.ss_report_payload_req( svrid, support_mode, role_count, room_count )
 	-- log_info("ss_report_payload_req", svrid, support_mode, role_count, room_count)
 	local result = update_payload(svrid, support_mode, role_count, room_count)
-	airport.call_gamesvr(svrid, "ss_report_payload_rsp", result)
+	remote.call_gamesvr(svrid, "ss_report_payload_rsp", result)
 end

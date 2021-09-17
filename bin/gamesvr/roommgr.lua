@@ -63,7 +63,7 @@ function enter_room( room, role, reason )
 	end
 
 	roleid_room_table[role.roleid] = room
-	airport.reg_role(service.GAMESVR, role.roleid)
+	remote.reg_role(service.GAMESVR, role.roleid)
 
 	table.insert(room.viewers, role)
 	room.viewer_table[role.roleid] = role
@@ -87,7 +87,7 @@ function leave_room( room, roleid, reason )
 	room:on_leave_room(roleid, reason)
 	room.viewer_table[roleid] = nil
 	roleid_room_table[roleid] = nil
-	airport.unreg_role(service.GAMESVR, roleid)
+	remote.unreg_role(service.GAMESVR, roleid)
 	return errno.SUCCESS
 end
 
@@ -104,20 +104,20 @@ end
 function report_payload(  )
 	local mstime = app.mstime()
 	if mstime - last_report_payload >= 1000 then
-		airport.call_roomsvr_all("ss_report_payload_req", support_mode, total_role_count, total_room_count)
+		remote.call_roomsvr_all("ss_report_payload_req", support_mode, total_role_count, total_room_count)
 		last_report_payload = mstime
 	end
 end
 
 function update_room_brief( roomid, room )
-	airport.call_roomsvr_hash(room.mode, "ss_refresh_room_req", roomid, room)
+	remote.call_roomsvr_hash(room.mode, "ss_refresh_room_req", roomid, room)
 end
 
 function broadcast( room, exceptid, proto, ... )
 	for _, viewer in ipairs(room.viewers) do
 		if viewer.roleid ~= exceptid then
 			log_debug("room.broadcast", room.roomid, proto, viewer.roleid, ...)
-			airport.call_client(viewer.roleid, proto, ...)
+			remote.call_client(viewer.roleid, proto, ...)
 		end
 	end
 end
@@ -140,94 +140,94 @@ function net.ss_create_room_req( svrid, role, roomid, roomkey, name, mode, optio
 	log_debug("ss_create_room_req", svrid, role, roomid, roomkey, name, mode, option)
 	local room = create_room(roomid, roomkey, role.roleid, name, mode, option)
 	if room == nil then
-		airport.call_lobby(svrid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
+		remote.call_lobby(svrid, "ss_create_room_rsp", errno.UNKNOWN, role.roleid)
 		return
 	end
 
 	local result = enter_room(room, role, reason_type.CREATE_ROOM)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_create_room_rsp", result, role.roleid)
+		remote.call_lobby(svrid, "ss_create_room_rsp", result, role.roleid)
 		return
 	end
 
 	update_room_brief(roomid, room)
-	airport.call_lobby(svrid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
+	remote.call_lobby(svrid, "ss_create_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
 function net.ss_enter_room_req( svrid, role, roomid, roomkey )
 	log_debug("ss_enter_room_req", svrid, role, roomid, roomkey)
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(svrid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)
+		remote.call_lobby(svrid, "ss_enter_room_rsp", errno.NOT_FOUND, role.roleid)
 		return
 	end
 
 	local result = enter_room(room, role, reason_type.ENTER_ROOM)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_enter_room_rsp", result, role.roleid)
+		remote.call_lobby(svrid, "ss_enter_room_rsp", result, role.roleid)
 		return
 	end
 
 	update_room_brief(roomid, room)
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
-	airport.call_lobby(svrid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
+	remote.call_lobby(svrid, "ss_enter_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
 function net.ss_reenter_room_req( svrid, role, roomid, roomkey )
 	log_debug("ss_reenter_room_req", svrid, role, roomid, roomkey)
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(svrid, "ss_reenter_room_rsp", errno.NOT_FOUND, role.roleid)
+		remote.call_lobby(svrid, "ss_reenter_room_rsp", errno.NOT_FOUND, role.roleid)
 		return
 	end
 
 	local result = enter_room(room, role, reason_type.REENTER_ROOM)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_reenter_room_rsp", result, role.roleid)
+		remote.call_lobby(svrid, "ss_reenter_room_rsp", result, role.roleid)
 		return
 	end
 
 	update_room_brief(roomid, room)
 	local viewer = room.viewer_table[role.roleid]
 	room.broadcast(role.roleid, "cs_enter_room_ntf", room.roomid, viewer)
-	airport.call_lobby(svrid, "ss_reenter_room_rsp", errno.SUCCESS, role.roleid, room)
+	remote.call_lobby(svrid, "ss_reenter_room_rsp", errno.SUCCESS, role.roleid, room)
 end
 
 function net.ss_leave_room_req( svrid, roleid, roomid, reason )
 	log_debug("ss_leave_room_req", svrid, roleid, roomid, reason)
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(svrid, "ss_leave_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
+		remote.call_lobby(svrid, "ss_leave_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
 		return
 	end
 
 	local result = leave_room(room, roleid, reason)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_leave_room_rsp", result, roleid, roomid, reason)
+		remote.call_lobby(svrid, "ss_leave_room_rsp", result, roleid, roomid, reason)
 		return
 	end
 
 	update_room_brief(roomid, room)
 	room.broadcast(roleid, "cs_leave_room_ntf", room.roomid, roleid, reason)
-	airport.call_lobby(svrid, "ss_leave_room_rsp", errno.SUCCESS, roleid, roomid, reason)
+	remote.call_lobby(svrid, "ss_leave_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end
 
 function net.ss_dismiss_room_req( svrid, roleid, roomid, reason )
 	log_debug("ss_dismiss_room_req", svrid, roleid, roomid, reason)
 	local room = find_by_roomid(roomid)
 	if not room then
-		airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
+		remote.call_lobby(svrid, "ss_dismiss_room_rsp", errno.NOT_FOUND, roleid, roomid, reason)
 		return
 	end
 
 	local result = dismiss_room(room, roleid)
 	if result ~= errno.SUCCESS then
-		airport.call_lobby(svrid, "ss_dismiss_room_rsp", result, roleid, roomid, reason)
+		remote.call_lobby(svrid, "ss_dismiss_room_rsp", result, roleid, roomid, reason)
 		return
 	end
 
 	update_room_brief(roomid, room)
 	room.broadcast(roleid, "cs_dismiss_room_ntf", room.roomid, reason)
-	airport.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
+	remote.call_lobby(svrid, "ss_dismiss_room_rsp", errno.SUCCESS, roleid, roomid, reason)
 end

@@ -197,7 +197,7 @@ function deal_hole_card( game )
 		seat.card1 = table.remove(cards)
 		seat.card2 = table.remove(cards)
 		local deal_cards = { seat.card1, seat.card2 }
-		airport.call_client(seat.roleid, "cs_texas_deal_ntf", game.roomid, hand.index, seat.seatid, deal_cards)
+		remote.call_client(seat.roleid, "cs_texas_deal_ntf", game.roomid, hand.index, seat.seatid, deal_cards)
 		game.broadcast(seat.roleid, "cs_texas_deal_ntf", game.roomid, hand.index, seat.seatid, { 0, 0 })
 	end
 end

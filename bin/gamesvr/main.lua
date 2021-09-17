@@ -3,13 +3,13 @@ proto.parse("proto/ss.proto")
 global = import("common/global.lua")
 config = import("common/config.lua")
 dbagent = import("common/dbagent.lua")
-airport = import("common/airport.lua")
+remote = import("common/remote.lua")
 roommgr = import("gamesvr/roommgr.lua")
 
 app.init = function ( ... )
 	config.init()
 	dbagent.init()
-	airport.init()
+	remote.init()
 end
 
 app.proc = function ( ... )

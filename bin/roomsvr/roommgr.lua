@@ -37,20 +37,20 @@ function net.ss_fetch_room_req( svrid, roleid, mode )
 	end
 
 	-- log_debug("ss_fetch_room_rsp", app.tostring(room_list))
-	airport.call_lobby(svrid, "ss_fetch_room_rsp", errno.SUCCESS, roleid, room_list)
+	remote.call_lobby(svrid, "ss_fetch_room_rsp", errno.SUCCESS, roleid, room_list)
 end
 
 function net.ss_refresh_room_req( svrid, roomid, room )
 	log_debug("ss_refresh_room_req", svrid, roomid, room)
 	local result = refresh_room(svrid, roomid, room)
-	airport.call_gamesvr(svrid, "ss_refresh_room_rsp", result)
+	remote.call_gamesvr(svrid, "ss_refresh_room_rsp", result)
 end
 
 function net.ss_apply_room_req( svrid, roleid, name, mode, option )
 	log_debug("ss_apply_room_req", svrid, roleid, name, mode, option)
 	local gsvrid = apply.select_gamesvr(mode, option)
 	if gsvrid == 0 then
-		airport.call_lobby(svrid, "ss_apply_room_rsp", errno.OVERLOAD, roleid)
+		remote.call_lobby(svrid, "ss_apply_room_rsp", errno.OVERLOAD, roleid)
 		return
 	end
 
@@ -62,7 +62,7 @@ function net.ss_apply_room_req( svrid, roleid, name, mode, option )
 	room.mode = mode
 	room.option = option
 	refresh_room(gsvrid, room.roomid, room)
-	airport.call_lobby(svrid, "ss_apply_room_rsp", errno.SUCCESS, roleid, name, mode, option, room.roomid, room.roomkey, gsvrid)
+	remote.call_lobby(svrid, "ss_apply_room_rsp", errno.SUCCESS, roleid, name, mode, option, room.roomid, room.roomkey, gsvrid)
 end
 
 function net.ss_search_room_req( svrid, roleid, roomid, roomkey )
@@ -73,9 +73,9 @@ function net.ss_search_room_req( svrid, roleid, roomid, roomkey )
 	end
 
 	if not room then
-		airport.call_lobby(svrid, "ss_search_room_rsp", errno.NOT_FOUND, roleid)
+		remote.call_lobby(svrid, "ss_search_room_rsp", errno.NOT_FOUND, roleid)
 		return
 	end
 
-	airport.call_lobby(svrid, "ss_search_room_rsp", errno.SUCCESS, roleid, room.roomid, room.roomkey, room.gsvrid)
+	remote.call_lobby(svrid, "ss_search_room_rsp", errno.SUCCESS, roleid, room.roomid, room.roomkey, room.gsvrid)
 end
