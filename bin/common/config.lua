@@ -6,12 +6,6 @@ mongo_db = "luapp"
 redis_ip = "127.0.0.1"
 redis_port = 6379
 
-mysql_ip = "127.0.0.1"
-mysql_port = 3306
-mysql_user = "luapp"
-mysql_pass = "mckSL5VzzMeuZUuK"
-mysql_db = "game"
-
 dbagent_ip = "127.0.0.1"
 dbagent_port = 6571
 
