@@ -87,18 +87,18 @@ function call_gamesvr( svrid, ... )
 	_rtclient.call_target(svrid, ...)
 end
 
-function call_roomsvr( svrid, ... )
-	if get_func_id(svrid) ~= service.ROOMSVR then
-		log_error("remote.call_roomsvr funcid error", svrid)
+function call_explorer( svrid, ... )
+	if get_func_id(svrid) ~= service.EXPLORER then
+		log_error("remote.call_explorer funcid error", svrid)
 		return
 	end
 	_rtclient.call_target(svrid, ...)
 end
 
-function hashcast_roomsvr( mode, ... )
-	_rtclient.call_random(service.ROOMSVR, ...)
+function hashcast_explorer( mode, ... )
+	_rtclient.call_random(service.EXPLORER, ...)
 end
 
-function broadcast_roomsvr( ... )
-	_rtclient.call_group(service.ROOMSVR, ...)
+function broadcast_explorer( ... )
+	_rtclient.call_group(service.EXPLORER, ...)
 end

@@ -25,7 +25,7 @@ enum service {
 	LUAPP = 0;
 	ROUTER = 1;
 	DBAGENT = 2;
-	ROOMSVR = 3;
+	EXPLORER = 3;
 	GAMESVR = 4;
 	GATEWAY = 5;
 	LOBBY = 6;

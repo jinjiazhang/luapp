@@ -104,13 +104,13 @@ end
 function report_payload(  )
 	local mstime = app.mstime()
 	if mstime - last_report_payload >= 1000 then
-		remote.broadcast_roomsvr("ss_report_payload_req", support_mode, total_role_count, total_room_count)
+		remote.broadcast_explorer("ss_report_payload_req", support_mode, total_role_count, total_room_count)
 		last_report_payload = mstime
 	end
 end
 
 function update_room_brief( roomid, room )
-	remote.hashcast_roomsvr(room.mode, "ss_refresh_room_req", roomid, room)
+	remote.hashcast_explorer(room.mode, "ss_refresh_room_req", roomid, room)
 end
 
 function broadcast( room, exceptid, proto, ... )

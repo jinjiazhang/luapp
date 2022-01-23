@@ -1,7 +1,7 @@
 
 function net.cs_fetch_room_req( ss, mode )
 	log_debug("cs_fetch_room_req", ss.roleid, mode)
-	remote.hashcast_roomsvr(mode, "ss_fetch_room_req", ss.roleid, mode)
+	remote.hashcast_explorer(mode, "ss_fetch_room_req", ss.roleid, mode)
 end
 
 function net.ss_fetch_room_rsp( svrid, result, roleid, room_list )
@@ -24,7 +24,7 @@ function net.cs_create_room_req( ss, name, mode, option )
 		return
 	end
 	
-	remote.hashcast_roomsvr(mode, "ss_apply_room_req", ss.roleid, name, mode, option)
+	remote.hashcast_explorer(mode, "ss_apply_room_req", ss.roleid, name, mode, option)
 end
 
 function net.ss_apply_room_rsp( svrid, result, roleid, name, mode, option, roomid, roomkey, gsvrid)
@@ -66,7 +66,7 @@ function net.cs_enter_room_req( ss, mode, roomid, roomkey )
 		return
 	end
 	
-	remote.hashcast_roomsvr(mode, "ss_search_room_req", ss.roleid, roomid, roomkey)
+	remote.hashcast_explorer(mode, "ss_search_room_req", ss.roleid, roomid, roomkey)
 end
 
 function net.ss_search_room_rsp( svrid, result, roleid, roomid, roomkey, gsvrid )
