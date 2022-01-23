@@ -3,20 +3,20 @@
 #ifdef _MSC_VER
 static fd_set* fd_set_malloc(int amount)
 {
-    size_t size = sizeof(fd_set) + (amount-FD_SETSIZE) * sizeof(socket_t);
+    size_t size = sizeof(fd_set) + (amount-FD_SETSIZE) * sizeof(SOCKET);
     return (fd_set*)malloc(size);
 }
 
 static fd_set* fd_set_realloc(fd_set* src, int amount)
 {
-    size_t size = sizeof(fd_set) + (amount-FD_SETSIZE) * sizeof(socket_t);
+    size_t size = sizeof(fd_set) + (amount-FD_SETSIZE) * sizeof(SOCKET);
     return (fd_set*)realloc(src, size);
 }
 
 static void fd_set_copy(fd_set* dest, fd_set* src)
 {
     dest->fd_count = src->fd_count;
-    memcpy(dest->fd_array, src->fd_array, src->fd_count * (sizeof(socket_t)));
+    memcpy(dest->fd_array, src->fd_array, src->fd_count * (sizeof(SOCKET)));
 }
 
 fselect::fselect()
