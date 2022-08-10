@@ -1,17 +1,17 @@
 module = "dbimpl"
 
-function increment_global_id(key, def_val)
-    local code, result = mongodb.mongo_find_and_modify("global", {key = key}, {["$inc"] = {value = 1}})
+function incr_global_id(name, def_val)
+    local code, result = mongodb.mongo_find_and_modify("global", {key = name}, {["$inc"] = {value = 1}})
     if code == 0 and result.value then
         return true, result.value.value
     end
 
-    code, result = mongodb.mongo_insert("global", {key = key, value = def_val})
+    code, result = mongodb.mongo_insert("global", {key = name, value = def_val})
     if code == 0 then
         return true, def_val
     end
 
-    code, result = mongodb.mongo_find_and_modify("global", {key = key}, {["$inc"] = {value = 1}})
+    code, result = mongodb.mongo_find_and_modify("global", {key = name}, {["$inc"] = {value = 1}})
     if code == 0 and result.value then
         return true, result.value.value
     end
@@ -20,7 +20,7 @@ function increment_global_id(key, def_val)
 end
 
 function gen_unique_roleid()
-    return increment_global_id("roleid", 10001)	
+    return incr_global_id("roleid", 10001)	
 end
 
 function insert_online_info(online)
