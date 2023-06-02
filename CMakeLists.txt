@@ -48,5 +48,5 @@ add_subdirectory(protolua)
 add_subdirectory(protonet)
 add_subdirectory(thirdparty)
 
-add_dependencies(luapp lualib crypto gateway luaredis luamysql proroute protolua protonet 
+add_dependencies(luapp lualib crypto gateway luaredis proroute protolua protonet 
 	lua log4cplusS libprotobuf libcurl hiredis mongoc_static bson_static rdkafka)
